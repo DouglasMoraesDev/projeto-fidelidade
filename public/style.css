@@ -1,0 +1,265 @@
+/* Variáveis de cores para personalização */
+:root {
+  --primary-color: #000000;      /* Cor principal: botões, cabeçalho da tabela, etc. */
+  --secondary-color: #2ecc71;    /* Cor secundária: hover e destaques alternativos */
+  --background-color: #f5f5f5;   /* Fundo geral da página */
+  --container-bg: #500537;       /* Fundo dos containers (login, formulários, etc.) */
+  --text-color: #000000;         /* Cor padrão do texto */
+  --header-bg: #500537;          /* Fundo do cabeçalho do dashboard */
+  --footer-bg: #34495e;          /* Fundo do rodapé */
+  --footer-text: #ecf0f1;        /* Cor do texto do rodapé */
+  --input-border: #cccccc;       /* Cor das bordas dos inputs e selects */
+  --button-bg: black; /* Fundo padrão dos botões */
+  --button-text: #ffffff;        /* Cor do texto dos botões */
+  --section-margin: 20px;        /* Espaçamento entre seções */
+}
+
+/* Reset e configurações globais */
+
+
+/* Garantir que html e body ocupem 100% da altura e usar flex para empurrar o footer para baixo */
+html, body {
+  height: 100%;
+}
+body {
+  display: flex;
+  flex-direction: column;
+  font-family: 'Montserrat', sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+/* Botão de Pagamento */
+.payment-btn {
+  background-color: #28a745; /* verde */
+  color: #fff;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-family: 'Montserrat', sans-serif;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin: 10px 0;
+}
+
+/* Container Geral (estrutura V1) */
+.container {
+  height: 100%;
+  width: 90%;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Estilo da tela de Login (estrutura V1 com variáveis da V2) */
+#loginDiv {
+  font-family: "Oxanium", sans-serif;
+  font-size: 1.25rem;
+  color: var(--text-color);
+  background-color: #34495e;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  width: 50%;
+  margin: 0 auto;
+}
+#loginDiv h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: var(--text-color);
+  text-align: center;
+}
+#loginDiv input {
+  
+  width: 90%;
+  padding: 10px;
+  margin: 10px;
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+}
+
+/* Dashboard */
+#dashboard {
+  padding: 20px;
+}
+
+/* Containers do Dashboard (estrutura V1 com variáveis da V2) */
+.dashboard-container {
+  font-family: 'Montserrat', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: auto;
+  background-color: var(--container-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  margin: 10px;
+  padding: 15px;
+}
+
+/* Cabeçalho do Dashboard */
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--container-bg);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: var(--section-margin);
+}
+.header-container h1 {
+  color: var(--text-color);
+  font-family: 'Oxanium', sans-serif;
+  font-size: 2.75rem;
+  margin: 0;
+  text-align: center;
+  color: var(--text-color);
+}
+
+
+/* Estilos para Labels */
+label {
+  font-family: 'Oxanium', sans-serif;
+  font-weight: 600;
+  color: var(--text-color);
+  display: block;
+  margin: 10px 0 5px;
+}
+
+/* Estilos para Inputs e Selects */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+select {
+  font-family: 'Montserrat', sans-serif;
+  width: 100%;
+  padding: 8px;
+  margin: 10px;
+  border-radius: 4px;
+  border: 1px solid var(--input-border);
+  background-color: #ffffff;
+  color: var(--text-color);
+}
+
+/* Botões */
+button {
+  font-family: 'Oxanium', sans-serif;
+  padding: 10px 20px;
+  margin: 10px;
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+button:hover {
+  background-color: var(--secondary-color);
+}
+
+/* Estilo da Tabela de Clientes */
+#clientTable {
+  
+  margin: 20px;
+  padding: 20px;
+  border-radius: 10px;
+  width: 100%;
+  overflow-x: auto;
+}
+#clientTable table {
+  
+  padding: 2px;
+  width: 100%;
+  border-collapse: collapse;
+}
+#clientTable th,
+#clientTable td {
+  
+  padding: 2px;
+  min-width: 80px;
+  text-align: left;
+  border: 1px solid var(--input-border);
+}
+#clientTable th {
+
+  background-color: var(--text-color);
+  color: var(--button-text);
+}
+
+/* Botões de ação (Editar e Excluir) na Tabela */
+#clientTable td#acoes {
+ 
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 1px; /* Espaço entre os botões, ajuste conforme necessário */
+}
+
+/* Lista de Clientes com 10 Pontos */
+ul#clients {
+  list-style-type: none;
+  padding: 0;
+}
+ul#clients li {
+  margin: 1.5rem 0;
+  padding: 2px;
+  background-color: var(--container-bg);
+  border-radius: 4px;
+}
+
+/* Footer sempre no final da página */
+footer, a {
+  font-family: 'Oxanium', sans-serif;
+  color: var(--footer-text);
+  text-align: center;
+}
+footer {
+  background-color: var(--footer-bg)
+}
+
+/* Responsividade (ajustes da V1) */
+@media screen and (max-width: 600px) {
+  #clientTable table {
+    font-size: 0.8em;
+  }
+  #clientTable th,
+  #clientTable td {
+    padding: 4px;
+    min-width: 40px;
+  }
+  #loginDiv {
+    width: 90%;
+    font-size: 1rem;
+    padding: 15px;
+  }
+  .dashboard-container {
+    margin: 10px;
+    padding: 15px;
+  }
+  h1 {
+    font-size: 2rem;
+  }
+  h2, h3 {
+    font-size: 1.25rem;
+  }
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  select,
+  button {
+    font-size: 0.9em;
+  }
+  #clientTable table {
+    font-size: 0.8em;
+  }
+  #clientTable th,
+  #clientTable td {
+    padding: 0.5px 0.5px;
+    min-width: 30px;
+  }
+}
