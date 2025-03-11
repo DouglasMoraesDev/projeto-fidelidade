@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cartão Fidelidade</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oxanium:wght@200..800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <!-- Tela de Login -->
+    <div id="loginDiv">
+      <h2>Login</h2>
+      <label for="username">Usuário:</label>
+      <input type="text" id="username" placeholder="Digite seu nome de usuário">
+      <label for="password">Senha:</label>
+      <input type="password" id="password" placeholder="Digite sua senha">
+      <button id="loginBtn">Entrar</button>
+    </div>
+  </div>
+
+  <div id="dashboard" style="display:none;">
+
+    <!-- Cabeçalho: Título e Logo -->
+
+    <div class="dashboard-container header-container" id="headerSection">
+      <h1>Cartão Fidelidade</h1>
+      <img id="logo" src="Logo.jpeg" alt="Logo">
+    </div>
+    <!-- Seção: Tabela de Clientes -->
+     
+    <div class="dashboard-container" id="clientsTableSection">
+      <h2>Tabela de Clientes</h2>
+      <div id="clientTable"></div>
+    </div>
+
+    <!-- Seção: Formulário de Adição/Atualização de Cliente -->
+    <div class="dashboard-container" id="clientFormSection">
+      <h3>Adicionar Novo Cliente</h3>
+      <label for="clientFullName">Nome Completo:</label>
+      <input type="text" id="clientFullName" placeholder="Nome Completo do Cliente">
+      <label for="clientPhone">Número de Telefone:</label>
+      <input type="text" id="clientPhone" placeholder="Número de Telefone">
+      <label for="clientEmail">Email:</label>
+      <input type="email" id="clientEmail" placeholder="Email do Cliente">
+      <label for="clientPoints">Pontos:</label>
+      <input type="number" id="clientPoints" min="0" value="0">
+      <button id="saveClientBtn">Salvar Cliente</button>
+    </div>
+
+    <!-- Seção: Buscar Cliente e Adicionar Pontos -->
+    <div class="dashboard-container" id="searchPointsSection">
+      <h3>Buscar Cliente</h3>
+      <label for="searchClient">Digite o nome do cliente:</label>
+      <input type="text" id="searchClient" placeholder="Buscar Cliente">
+      <button id="searchBtn">Buscar</button>
+
+      <h3>Adicionar Pontos ao Cliente</h3>
+      <label for="clientSelect">Selecione o Cliente:</label>
+      <select id="clientSelect">
+        <option value="">Selecione o cliente</option>
+      </select>
+      <label for="points">Pontos:</label>
+      <input type="number" id="points" min="1" max="10">
+      <button id="addPointsBtn">Adicionar Pontos</button>
+    </div>
+
+    <!-- Seção: Exportar e Zerar Lista -->
+    <div class="dashboard-container" id="actionsSection">
+      <button id="exportBtn">Exportar Clientes</button>
+      <button id="resetClientsBtn">Zerar Clientes</button>
+    </div>
+
+    <!-- Seção: Clientes com 10 Pontos -->
+    <div class="dashboard-container" id="vipClientsSection">
+      <h3>Clientes com 10 Pontos</h3>
+      <ul id="clients">
+        <!-- Lista de clientes com 10 pontos será preenchida aqui -->
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; Douglas Moraes Dev <br>
+      <a href="https://wa.me/qr/F2Z744R5KWEPB1" target="_blank">Contato</a>
+    </p>
+  </footer>
+
+  <!-- Scripts: app.js deve ser carregado antes do whatsapp.js -->
+  <script src="app.js"></script>
+  <script src="whatsapp.js"></script>
+  <script src="https://sdk.mercadopago.com/js/v2">
+    const mp = new MercadoPago("MERCADOPAGO_ACCESS_TOKEN");
+
+    // Step 1: Import the parts of the module you want to use
+    import { MercadoPagoConfig, Payment } from 'mercadopago';
+
+// Step 2: Initialize the client object
+    const client = new MercadoPagoConfig({ accessToken: 'MERCADOPAGO_ACCESS_TOKEN', options: { timeout: 5000, idempotencyKey: 'abc' } });
+
+// Step 3: Initialize the API object
+    const payment = new Payment(client);
+
+// Step 4: Create the request object
+    const body = {
+	    transaction_amount: 12.34,
+	    description: '<DESCRIPTION>',
+	    payment_method_id: '<PAYMENT_METHOD_ID>',
+	    payer: {
+		  email: '<EMAIL>'
+	  },
+  };
+
+    // Step 5: Create request options object - Optional
+    const requestOptions = {
+	    idempotencyKey: '<IDEMPOTENCY_KEY>',
+  };
+
+    // Step 6: Make the request
+    payment.create({ body, requestOptions }).then(console.log).catch(console.log);
+  </script>
+
+</body>
+</html>
+
+
+
+
+
+// routes/clientRoutes.js
+
+
+
+
+
+
+const express = require('express');
+const router = express.Router();
+const clientController = require('../controllers/clientController');
+
+
+router.get('/', clientController.listClients);
+router.post('/', clientController.createClient);
+router.put('/:id', clientController.updateClient);
+router.delete('/:id', clientController.deleteClient);
+router.post('/:id/points', clientController.addPoints);
+router.put('/clients/:id/reset', clientController.resetClientPoints);
+
+// Novo endpoint para enviar voucher e resetar pontos
+router.put('/:id/send-voucher', clientController.sendVoucherAndResetPoints);
+
+module.exports = router;
+// routes/establishmentRoutes.js
+const express = require('express');
+const router = express.Router();
+const { getVoucherMessage } = require('../controllers/establishmentController');
+
+// Rota para retornar a mensagem do voucher para um estabelecimento
+router.get('/:id/voucher-message', (req, res) => {
+    const establishmentId = req.params.id;
+    // Aqui você pode buscar a mensagem do voucher no banco de dados ou definir uma mensagem padrão
+    const voucherMessage = `Parabéns! Você ganhou um voucher exclusivo do estabelecimento ${establishmentId}!`;
+    res.json({ voucherMessage });
+  });
+
+module.exports = router;
+
+
+
+// routes/userRoutes.js
+const express = require('express');
+const router = express.Router();
+const userController = require('../controllers/userController');
+
+// Rota de login: /api/login
+router.post('/login', userController.login);
+
+module.exports = router;
+
+
+
+
+
+// services/clientService.js
+
+
+
+
+const { Op } = require('sequelize');
+const Client = require('../models/Client');
+
+const getClients = async (establishmentId) => {
+  return await Client.findAll({ where: { establishmentId } });
+};
+
+const createClient = async (clientData) => {
+  const { fullName, phone, email, establishmentId } = clientData;
+  console.log("Verificando cliente existente...");
+
+  const existingClient = await Client.findOne({
+    where: {
+      establishmentId,
+      [Op.or]: [
+        { phone },
+        email ? { email } : {} 
+      ]
+    }
+  });
+
+  if (existingClient) {
+    console.log("Cliente já existe:", existingClient.toJSON());
+    throw new Error('Cliente já existe');
+  }
+
+  console.log("Criando novo cliente:", clientData);
+  const newClient = await Client.create(clientData);
+  return newClient;
+};
+
+const updateClient = async (clientId, clientData, establishmentId) => {
+  const result = await Client.update(clientData, { where: { id: clientId, establishmentId } });
+  if (result[0] === 0) {
+    throw new Error('Cliente não encontrado');
+  }
+  return await Client.findOne({ where: { id: clientId, establishmentId } });
+};
+
+const deleteClient = async (clientId, establishmentId) => {
+  const result = await Client.destroy({ where: { id: clientId, establishmentId } });
+  if (result === 0) {
+    throw new Error('Cliente não encontrado');
+  }
+};
+
+const addPoints = async (clientId, pointsToAdd, establishmentId) => {
+  const client = await Client.findOne({ where: { id: clientId, establishmentId } });
+  if (!client) {
+    throw new Error('Cliente não encontrado');
+  }
+  client.points += pointsToAdd;
+  await client.save();
+  return client;
+};
+
+// Nova função para resetar os pontos do cliente no banco de dados
+const resetClientPoints = async (clientId, establishmentId) => {
+  const client = await Client.findOne({ where: { id: clientId, establishmentId } });
+  if (!client) {
+    throw new Error('Cliente não encontrado');
+  }
+  client.points = 0;
+  await client.save();
+  return client;
+};
+
+module.exports = { getClients, createClient, updateClient, deleteClient, addPoints, resetClientPoints };
+
+
+
+
+// services/userService.js
+const User = require('../models/User');
+const Establishment = require('../models/establishment');
+
+const login = async (username, password) => {
+  const user = await User.findOne({ where: { username, password } });
+  if (!user) {
+    throw new Error('Usuário ou senha inválidos');
+  }
+  const establishment = await Establishment.findByPk(user.establishmentId);
+  if (!establishment) {
+    throw new Error('Estabelecimento não encontrado');
+  }
+  return { user, establishment };
+};
+
+module.exports = { login };
+
+
+
+
+// server.js
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+require('dotenv').config();
+const sequelize = require('./models/index');
+const establishmentRoutes = require('./routes/establishmentRoutes');
+const clientRoutes = require('./routes/clientRoutes');
+const userRoutes = require('./routes/userRoutes');
+const errorHandler = require('./middlewares/errorHandler');
+const app = express();
+
+// Middlewares
+app.use(cors());
+app.use(bodyParser.json());
+
+// Rotas da API
+app.use('/api/clients', clientRoutes);
+app.use('/api', userRoutes); // Exemplo: rota de login: /api/login
+app.use('/api/establishments', establishmentRoutes);
+
+// Serve arquivos estáticos da pasta public
+app.use(express.static('public'));
+
+// Middleware de tratamento de erros
+//app.use(errorHandler);
+
+// Sincroniza os modelos e inicia o servidor
+sequelize.sync({ alter: true })
+  .then(() => {
+    const PORT = process.env.PORT || 3000;
+    console.log('Banco de dados sincronizado.');
+    app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
+  })
+  .catch(err => {
+    console.error('Erro ao sincronizar o banco de dados:', err);
+  });

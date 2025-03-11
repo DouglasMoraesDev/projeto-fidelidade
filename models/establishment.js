@@ -17,7 +17,10 @@ const establishment = sequelize.define('establishment', { // Modelo em minúscul
   "button-text": { type: DataTypes.STRING, defaultValue: '#ffffff' },
   "section-margin": { type: DataTypes.STRING, defaultValue: '20px' },
   logoURL: { type: DataTypes.STRING, defaultValue: 'default-logo.png' },
-  voucher_message: { type: DataTypes.TEXT, allowNull: true } // Atualizado para TEXT se necessário
+  voucher_message: { type: DataTypes.TEXT, allowNull: true }, // Atualizado para TEXT se necessário
+  // Novo campo para data do último pagamento
+  lastPaymentDate: { type: DataTypes.DATE, allowNull: true }
+
 }, {
   tableName: 'establishments',
   timestamps: false

@@ -28,6 +28,9 @@ const login = async (req, res, next) => {
       }
     });
   } catch (error) {
+    if (error.message && error.message.includes("Pagamento pendente")) {
+      return res.status(403).json({ message: 'Pagamento pendente. Efetue o pagamento para acessar o sistema.' });
+    }
     next(error);
   }
 };

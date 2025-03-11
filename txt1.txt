@@ -1,3 +1,322 @@
+// controllers/clientController.js
+
+const clientService = require('../services/clientService');
+
+const listClients = async (req, res, next) => {
+  const establishmentId = req.query.establishmentId;
+  if (!establishmentId) {
+    return res.status(400).json({ message: 'EstablishmentId é obrigatório' });
+  }
+  try {
+    const clients = await clientService.getClients(establishmentId);
+    res.json(clients);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const createClient = async (req, res, next) => {
+  const clientData = req.body;
+  if (!clientData.establishmentId) {
+    return res.status(400).json({ message: 'EstablishmentId é obrigatório' });
+  }
+  try {
+    const newClient = await clientService.createClient(clientData);
+    res.status(201).json(newClient);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateClient = async (req, res, next) => {
+  const clientId = req.params.id;
+  const { establishmentId, ...clientData } = req.body;
+  if (!establishmentId) {
+    return res.status(400).json({ message: 'EstablishmentId é obrigatório' });
+  }
+  try {
+    const updatedClient = await clientService.updateClient(clientId, clientData, establishmentId);
+    res.json({ message: 'Cliente atualizado', client: updatedClient });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteClient = async (req, res, next) => {
+  const clientId = req.params.id;
+  const establishmentId = req.query.establishmentId;
+  if (!establishmentId) {
+    return res.status(400).json({ message: 'EstablishmentId é obrigatório' });
+  }
+  try {
+    await clientService.deleteClient(clientId, establishmentId);
+    res.json({ message: 'Cliente excluído' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const addPoints = async (req, res, next) => {
+  const clientId = req.params.id;
+  const { pointsToAdd, establishmentId } = req.body;
+  if (!establishmentId) {
+    return res.status(400).json({ message: 'EstablishmentId é obrigatório' });
+  }
+  try {
+    const updatedClient = await clientService.addPoints(clientId, pointsToAdd, establishmentId);
+    res.json({ message: 'Pontos adicionados', client: updatedClient });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Função para resetar os pontos do cliente
+const resetClientPoints = async (req, res, next) => {
+  const clientId = req.params.id;
+  const { establishmentId } = req.body;
+  if (!establishmentId) {
+    return res.status(400).json({ message: 'EstablishmentId é obrigatório' });
+  }
+  try {
+    const updatedClient = await clientService.resetClientPoints(clientId, establishmentId);
+    res.json({ message: 'Pontos zerados com sucesso.', client: updatedClient });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Nova função para enviar voucher e resetar os pontos de uma única vez
+const sendVoucherAndResetPoints = async (req, res, next) => {
+  const clientId = req.params.id;
+  const { establishmentId } = req.body;
+  if (!establishmentId) {
+    return res.status(400).json({ message: 'EstablishmentId é obrigatório' });
+  }
+  try {
+    // Define a mensagem do voucher – pode ser personalizada ou buscada de outro serviço
+    const voucherMessage = `Parabéns! Você ganhou um voucher exclusivo do estabelecimento ${establishmentId}!`;
+
+    // Reseta os pontos do cliente
+    const updatedClient = await clientService.resetClientPoints(clientId, establishmentId);
+
+    res.json({
+      message: 'Voucher enviado e pontos zerados com sucesso.',
+      voucherMessage,
+      client: updatedClient
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { 
+  listClients, 
+  createClient, 
+  updateClient, 
+  deleteClient, 
+  addPoints, 
+  resetClientPoints,
+  sendVoucherAndResetPoints
+};
+
+
+
+
+// controllers/establishmentController.js
+const Establishment = require('../models/establishment');
+
+exports.getVoucherMessage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log(`Buscando voucher message para o estabelecimento com ID: ${id}`);
+
+    const establishment = await Establishment.findByPk(id);
+
+    if (!establishment) {
+      console.log(`Estabelecimento com ID ${id} não encontrado`);
+      return res.status(404).json({ message: 'Estabelecimento não encontrado' });
+    }
+
+    console.log(`Voucher message encontrado: ${establishment.voucher_message}`);
+    res.json({ voucherMessage: establishment.voucher_message });
+  } catch (error) {
+    console.error('Erro ao buscar voucher message:', error);
+    res.status(500).json({ message: 'Erro no servidor' });
+  }
+};
+
+
+
+
+
+// controllers/userController.js
+const userService = require('../services/userService');
+
+const login = async (req, res, next) => {
+  const { username, password } = req.body;
+  try {
+    const { user, establishment } = await userService.login(username, password);
+    res.json({
+      success: true,
+      message: 'Login bem-sucedido',
+      user: {
+        id: user.id,
+        username: user.username,
+        establishmentId: user.establishmentId,
+        "primary-color": establishment.get("primary-color"),
+        "secondary-color": establishment.get("secondary-color"),
+        "background-color": establishment.get("background-color"),
+        "container-bg": establishment.get("container-bg"),
+        "text-color": establishment.get("text-color"),
+        "header-bg": establishment.get("header-bg"),
+        "footer-bg": establishment.get("footer-bg"),
+        "footer-text": establishment.get("footer-text"),
+        "input-border": establishment.get("input-border"),
+        "button-bg": establishment.get("button-bg"),
+        "button-text": establishment.get("button-text"),
+        "section-margin": establishment.get("section-margin"),
+        logoURL: establishment.logoURL
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { login };
+
+
+
+// models/Client.js
+const { DataTypes } = require('sequelize');
+const sequelize = require('./index');
+const Establishment = require('./establishment');
+
+const Client = sequelize.define('Client', {
+  fullName: { 
+    type: DataTypes.STRING, 
+    allowNull: false 
+  },
+  phone: { 
+    type: DataTypes.STRING, 
+    allowNull: false 
+  },
+  email: { 
+    type: DataTypes.STRING, 
+    allowNull: true 
+  },
+  points: { 
+    type: DataTypes.INTEGER, 
+    defaultValue: 0 
+  },
+  establishmentId: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  }
+}, {
+  tableName: 'Clients',
+  timestamps: false
+});
+
+// Associação: um Establishment tem muitos Clients
+Establishment.hasMany(Client, { foreignKey: 'establishmentId' });
+Client.belongsTo(Establishment, { foreignKey: 'establishmentId' });
+
+module.exports = Client;
+
+
+
+
+// models/establishment.js
+const { DataTypes } = require('sequelize');
+const sequelize = require('./index');
+
+const establishment = sequelize.define('establishment', { // Modelo em minúsculo
+  name: { type: DataTypes.STRING, allowNull: false },
+  "primary-color": { type: DataTypes.STRING, defaultValue: '#3498db' },
+  "secondary-color": { type: DataTypes.STRING, defaultValue: '#2ecc71' },
+  "background-color": { type: DataTypes.STRING, defaultValue: '#f5f5f5' },
+  "container-bg": { type: DataTypes.STRING, defaultValue: '#ffffff' },
+  "text-color": { type: DataTypes.STRING, defaultValue: '#333333' },
+  "header-bg": { type: DataTypes.STRING, defaultValue: '#2980b9' },
+  "footer-bg": { type: DataTypes.STRING, defaultValue: '#34495e' },
+  "footer-text": { type: DataTypes.STRING, defaultValue: '#ecf0f1' },
+  "input-border": { type: DataTypes.STRING, defaultValue: '#cccccc' },
+  "button-bg": { type: DataTypes.STRING, defaultValue: '#3498db' },
+  "button-text": { type: DataTypes.STRING, defaultValue: '#ffffff' },
+  "section-margin": { type: DataTypes.STRING, defaultValue: '20px' },
+  logoURL: { type: DataTypes.STRING, defaultValue: 'default-logo.png' },
+  voucher_message: { type: DataTypes.TEXT, allowNull: true } // Atualizado para TEXT se necessário
+}, {
+  tableName: 'establishments',
+  timestamps: false
+});
+
+module.exports = establishment;
+
+
+
+
+
+// models/index.js
+const { Sequelize } = require('sequelize');
+require('dotenv').config();
+
+const DB_NAME = process.env.DB_NAME || 'guerra';
+const DB_USER = process.env.DB_USER || 'root';
+const DB_PASS = process.env.DB_PASS || 'sua_senha';
+const DB_HOST = process.env.DB_HOST || 'localhost';
+
+const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASS, {
+  host: DB_HOST,
+  dialect: 'mysql',
+  logging: false,
+});
+
+module.exports = sequelize;
+
+
+
+// models/User.js
+const { DataTypes } = require('sequelize');
+const sequelize = require('./index');
+const Establishment = require('./establishment');
+
+const User = sequelize.define('User', {
+  username: { 
+    type: DataTypes.STRING, 
+    allowNull: false, 
+    unique: true 
+  },
+  password: { 
+    type: DataTypes.STRING, 
+    allowNull: false 
+  },
+  establishmentId: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  }
+}, {
+  tableName: 'Users',
+  timestamps: false
+});
+
+// Associações com onDelete e onUpdate CASCADE
+Establishment.hasMany(User, { 
+  foreignKey: { name: 'establishmentId', allowNull: false },
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE'
+});
+User.belongsTo(Establishment, { 
+  foreignKey: { name: 'establishmentId', allowNull: false },
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE'
+});
+
+module.exports = User;
+
+
+
 // public/app.js
 
 // Define a URL base da API já com o prefixo /api
@@ -36,19 +355,10 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: inputUsername, password: inputPassword })
     });
-
-    let data;
-    try {
-      data = await response.json(); // Tenta converter a resposta em JSON
-    } catch (jsonError) {
-      console.error('Erro ao processar JSON:', jsonError);
-      alert('Erro inesperado. Tente novamente mais tarde.');
-      return;
-    }
-
+    const data = await response.json();
     if (response.ok) {
-      // Login bem-sucedido
       alert('Login bem-sucedido!');
+      // Extrai os dados do usuário e armazena o establishmentId globalmente
       const user = data.user;
       currentEstablishmentId = user.establishmentId;
 
@@ -82,22 +392,13 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
       document.getElementById('dashboard').style.display = 'block';
       loadClients();
     } else {
-      // Se o erro for de pagamento pendente, sugira o pagamento
-      if (data.message && data.message.includes('Pagamento pendente')) {
-        if (confirm(`${data.message}\nDeseja efetuar o pagamento agora?`)) {
-          // Redireciona para o link do MercadoPago (substitua pelo seu link real)
-          window.location.href = "https://mpago.la/1Mc6Lnc";
-        }
-      } else {
-        alert(data.message || 'Usuário ou senha inválidos!');
-      }
+      alert(data.message || 'Usuário ou senha inválidos!');
     }
   } catch (error) {
     console.error('Erro no login:', error);
-    alert('Erro no login. Tente novamente.');
+    alert('Erro no login');
   }
 });
-
 
 // --- Função para Carregar Clientes ---
 async function loadClients() {

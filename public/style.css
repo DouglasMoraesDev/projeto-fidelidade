@@ -1,7 +1,7 @@
 /* Variáveis de cores para personalização */
 :root {
   --primary-color: #000000;      /* Cor principal: botões, cabeçalho da tabela, etc. */
-  --secondary-color: #2ecc71;    /* Cor secundária: hover e destaques alternativos */
+  --secondary-color: #7451d6;    /* Cor secundária: hover e destaques alternativos */
   --background-color: #f5f5f5;   /* Fundo geral da página */
   --container-bg: #500537;       /* Fundo dos containers (login, formulários, etc.) */
   --text-color: #000000;         /* Cor padrão do texto */
@@ -25,7 +25,7 @@ body {
   display: flex;
   flex-direction: column;
   font-family: 'Montserrat', sans-serif;
-  background-color: var(--background-color);
+  background-color: black;
   color: var(--text-color);
   line-height: 1.6;
 }

@@ -7,7 +7,7 @@ const sequelize = require('./models/index');
 const establishmentRoutes = require('./routes/establishmentRoutes');
 const clientRoutes = require('./routes/clientRoutes');
 const userRoutes = require('./routes/userRoutes');
-const errorHandler = require('./middlewares/errorHandler');
+//const errorHandler = require('./middlewares/errorHandler');
 const app = express();
 
 // Middlewares
@@ -23,7 +23,7 @@ app.use('/api/establishments', establishmentRoutes);
 app.use(express.static('public'));
 
 // Middleware de tratamento de erros
-app.use(errorHandler);
+//app.use(errorHandler);
 
 // Sincroniza os modelos e inicia o servidor
 sequelize.sync({ alter: true })
