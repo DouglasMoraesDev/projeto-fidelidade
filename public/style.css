@@ -161,42 +161,52 @@ button:hover {
 }
 
 /* Estilo da Tabela de Clientes */
+#clientTableContainer {
+  max-height: 400px; /* Defina a altura máxima da tabela */
+  overflow-y: auto;  /* Habilita a rolagem vertical */
+  margin-top: 20px;  /* Espaçamento opcional acima da tabela */
+  border-radius: 10px;
+  background-color: #fff; /* Cor de fundo, ajuste conforme necessário */
+}
+
+/* Estilos da Tabela dentro do container */
 #clientTable {
   
-  margin: 20px;
-  padding: 20px;
-  border-radius: 10px;
+  background-color: var(--container-bg);
   width: 100%;
-  overflow-x: auto;
+  border-collapse: collapse; /* Remove o espaço entre as bordas */
 }
-#clientTable table {
-  
-  padding: 2px;
-  width: 100%;
-  border-collapse: collapse;
-}
+
+
 #clientTable th,
 #clientTable td {
   
-  padding: 2px;
-  min-width: 80px;
-  text-align: left;
-  border: 1px solid var(--input-border);
+  padding: 0.2px;
+  border: 2px solid var(--input-border);
+  text-align: center;
 }
-#clientTable th {
 
-  background-color: var(--text-color);
+#clientTable th {
+  color: var(--text-color);
+  background-color: var(--container-bg);
   color: var(--button-text);
 }
 
-/* Botões de ação (Editar e Excluir) na Tabela */
 #clientTable td#acoes {
- 
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  gap: 1px; /* Espaço entre os botões, ajuste conforme necessário */
+  display: flex;               /* Usar flexbox para alinhar os botões lado a lado */
+  justify-content: space-between; /* Garante que os botões fiquem com espaçamento entre eles */
+  gap: 10px;                    /* Espaçamento entre os botões */
+  align-items: center;          /* Alinha os botões verticalmente no centro */
+  width: 100%;                  /* Garante que a célula ocupe a largura máxima */
+}
+
+/* Estilo dos botões dentro da tabela */
+#clientTable td#acoes button {
+  flex: 1;                       /* Garante que os botões se expandam igualmente */
+  max-width: 150px;              /* Impede que os botões fiquem muito largos */
+  height: 35px;                  /* Ajuste de altura para os botões */
+  white-space: nowrap;           /* Impede que o texto dos botões quebre */
+  margin: 0;                     /* Garante que não haja espaçamento extra */
 }
 
 /* Lista de Clientes com 10 Pontos */
@@ -221,16 +231,22 @@ footer {
   background-color: var(--footer-bg)
 }
 
-/* Responsividade (ajustes da V1) */
+
+/* Responsividade */
 @media screen and (max-width: 600px) {
-  #clientTable table {
-    font-size: 0.8em;
+  #clientTable td#acoes {
+    display: flex;
+    justify-content: space-between; /* Garante que os botões fiquem com espaçamento entre eles */
+    gap: 10px;
   }
-  #clientTable th,
-  #clientTable td {
-    padding: 4px;
-    min-width: 40px;
+
+  #clientTable td#acoes button {
+    width: 48%;            /* Limita a largura dos botões para eles ficarem lado a lado */
+    height: 35px;          /* Ajusta a altura dos botões */
+    max-width: 120px;      /* Ajusta o tamanho máximo dos botões */
   }
+
+
   #loginDiv {
     width: 90%;
     font-size: 1rem;
@@ -254,12 +270,5 @@ footer {
   button {
     font-size: 0.9em;
   }
-  #clientTable table {
-    font-size: 0.8em;
-  }
-  #clientTable th,
-  #clientTable td {
-    padding: 0.5px 0.5px;
-    min-width: 30px;
-  }
+
 }

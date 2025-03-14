@@ -325,41 +325,79 @@ document.getElementById('addPointsBtn').addEventListener('click', async () => {
   }
 });
 
-// --- Função para Resetar (Excluir) Todos os Clientes ---
-document.getElementById('resetClientsBtn').addEventListener('click', async () => {
-  if (!confirm('Tem certeza que deseja remover todos os clientes?')) return;
-  try {
-    const response = await fetch(`${apiBaseUrl}/clients?establishmentId=${currentEstablishmentId}`, { method: 'DELETE' });
-    const data = await response.json();
-    if (response.ok) {
-      alert('Todos os clientes foram removidos!');
-      loadClients();
-    } else {
-      alert(data.message || 'Erro ao remover clientes');
-    }
-  } catch (error) {
-    console.error('Erro ao remover clientes:', error);
-    alert('Erro ao remover clientes');
-  }
-});
+
 
 // --- Função para Exibir Clientes com 10 ou Mais Pontos ---
+
 function displayClients(clients) {
   const clientList = document.getElementById('clients');
-  clientList.innerHTML = '';
-  clients.forEach(client => {
+  clientList.innerHTML = ''; // Limpa a lista existente
+
+  // Filtra os clientes com 10 ou mais pontos
+  const filteredClients = clients.filter(client => client.points >= 10);
+
+  // Exibe apenas os clientes com 10 ou mais pontos
+  filteredClients.forEach(client => {
     const listItem = document.createElement('li');
     listItem.textContent = `${client.fullName} - Pontos: ${client.points || 0}`;
-    if (client.points >= 10) {
-      const whatsappButton = document.createElement('button');
-      whatsappButton.textContent = 'Enviar Voucher';
-      // Ao clicar, chama a função sendVoucher passando o objeto cliente
-      whatsappButton.addEventListener('click', () => sendVoucher(client));
-      listItem.appendChild(whatsappButton);
-    }
+
+    // Adiciona o botão para clientes com 10 ou mais pontos
+    const whatsappButton = document.createElement('button');
+    whatsappButton.textContent = 'Enviar Voucher';
+
+    // Ao clicar, chama a função sendVoucher passando o objeto cliente
+    whatsappButton.addEventListener('click', () => sendVoucher(client));
+    
+    listItem.appendChild(whatsappButton);
     clientList.appendChild(listItem);
   });
 }
+
+
+async function importClientes() {
+  const fileInput = document.getElementById("fileInput");
+  const establishmentId = 2; // Define o ID do estabelecimento como 2
+
+  if (!fileInput.files[0]) {
+      alert("Selecione um arquivo primeiro!");
+      return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = async function(event) {
+      let clientes = JSON.parse(event.target.result);
+
+      // Adiciona o campo establishment_id com o valor 2 para cada cliente
+      clientes = clientes.map(cliente => ({
+          ...cliente,
+          establishment_id: establishmentId
+      }));
+
+      try {
+          const response = await fetch('http://localhost:3000/importar-clientes', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(clientes)
+});
+
+          const textResponse = await response.text();
+          let result;
+          if (textResponse) {
+              result = JSON.parse(textResponse);
+              alert(result.message);
+          } else {
+              alert("Operação concluída, mas não houve retorno de mensagem.");
+          }
+      } catch (error) {
+          console.error("Erro na importação:", error);
+          alert("Erro na importação dos clientes.");
+      }
+  };
+
+  reader.readAsText(fileInput.files[0]);
+}
+
+
 
 // --- Função para Enviar Voucher via WhatsApp e Resetar Pontos no Banco de Dados ---
 // Esta função é chamada quando o cliente tem 10 ou mais pontos e clica no botão "Enviar Voucher".

@@ -6,7 +6,9 @@ require('dotenv').config();
 const sequelize = require('./models/index');
 const establishmentRoutes = require('./routes/establishmentRoutes');
 const clientRoutes = require('./routes/clientRoutes');
+const importRoutes = require('./routes/importRoutes'); // Importa a rota de importação
 const userRoutes = require('./routes/userRoutes');
+
 //const errorHandler = require('./middlewares/errorHandler');
 const app = express();
 
@@ -18,6 +20,8 @@ app.use(bodyParser.json());
 app.use('/api/clients', clientRoutes);
 app.use('/api', userRoutes); // Exemplo: rota de login: /api/login
 app.use('/api/establishments', establishmentRoutes);
+
+app.use('/importar-clientes', importRoutes); // Rota para importar clientes
 
 // Serve arquivos estáticos da pasta public
 app.use(express.static('public'));
