@@ -4,10 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cartão Fidelidade</title>
+  <!-- Estilos e fontes -->
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oxanium:wght@200..800&display=swap" rel="stylesheet">
 </head>
 <body>
+  <!-- Container Principal -->
   <div class="container">
     <!-- Tela de Login -->
     <div id="loginDiv">
@@ -20,16 +22,15 @@
     </div>
   </div>
 
+  <!-- Dashboard (inicialmente oculto) -->
   <div id="dashboard" style="display:none;">
-
     <!-- Cabeçalho: Título e Logo -->
-
     <div class="dashboard-container header-container" id="headerSection">
       <h1>Cartão Fidelidade</h1>
       <img id="logo" src="Logo.jpeg" alt="Logo">
     </div>
-    <!-- Seção: Tabela de Clientes -->
-     
+
+    <!-- Seção: Formulário para Adicionar Novo Cliente -->
     <div class="dashboard-container" id="clientFormSection">
       <h3>Adicionar Novo Cliente</h3>
       <label for="clientFullName">Nome Completo:</label>
@@ -60,17 +61,19 @@
       <button id="addPointsBtn">Adicionar Pontos</button>
     </div>
 
+    <!-- Seção: Importar Clientes -->
     <section id="actionsSection" class="dashboard-container">
       <input type="file" id="fileInput" accept=".json">
       <button onclick="importClientes()">Importar Clientes</button>
     </section>
     
-    <!-- Seção: Tabela de Clientes (Agora Está Abaixo do Formulário) -->
+    <!-- Seção: Tabela de Clientes -->
     <div id="clientTableContainer">
       <table id="clientTable">
+        <caption>Tabela de Clientes</caption>
         <thead>
           <tr>
-            <th>Nome Completo</th>
+            <th>Nome</th>
             <th>Email</th>
             <th>Telefone</th>
             <th>Pontos</th>
@@ -92,17 +95,16 @@
     </div>
   </div>
 
+  <!-- Footer -->
   <footer>
-    <p>&copy; Douglas Moraes Dev <br>
+    <p>
+      &copy; Douglas Moraes Dev <br>
       <a href="https://wa.me/qr/F2Z744R5KWEPB1" target="_blank">Contato</a>
     </p>
   </footer>
 
-  <!-- Scripts: app.js deve ser carregado antes do whatsapp.js -->
+  <!-- Scripts: app.js deve ser carregado antes de whatsapp.js -->
   <script src="app.js"></script>
   <script src="whatsapp.js"></script>
-
-  </script>
-
 </body>
 </html>

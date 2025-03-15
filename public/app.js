@@ -115,25 +115,25 @@ async function loadClients() {
 
 // --- Função para Renderizar Tabela de Clientes ---
 function renderClientsTable(clients) {
-  const clientTable = document.getElementById('clientTable');
-  let tableContent = '<table><tr><th>Nome Completo</th><th>Email</th><th>Telefone</th><th>Pontos</th><th>Ações</th></tr>';
+  const tableBody = document.getElementById('clientTableBody');
+  let rows = '';
   clients.forEach(client => {
-    tableContent += `
+    rows += `
       <tr>
         <td>${client.fullName}</td>
         <td>${client.email || ''}</td>
         <td>${client.phone}</td>
         <td>${client.points}</td>
-        <td>
+        <td id="acoes">
           <button onclick="editClient('${client.id}')">Editar</button>
           <button onclick="deleteClient('${client.id}')">Excluir</button>
         </td>
       </tr>
     `;
   });
-  tableContent += '</table>';
-  clientTable.innerHTML = tableContent;
+  tableBody.innerHTML = rows;
 }
+
 
 // --- Função para Adicionar Novo Cliente ---
 async function addClient() {
@@ -356,7 +356,7 @@ function displayClients(clients) {
 
 async function importClientes() {
   const fileInput = document.getElementById("fileInput");
-  const establishmentId = 2; // Define o ID do estabelecimento como 2
+  const establishmentId = 0; // Define o ID do estabelecimento como 2
 
   if (!fileInput.files[0]) {
       alert("Selecione um arquivo primeiro!");
