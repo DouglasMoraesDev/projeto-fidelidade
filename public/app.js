@@ -376,7 +376,7 @@ async function importClientes() {
       }));
 
       try {
-          const response = await fetch('http://localhost:3000/importar-clientes', {
+          const response = await fetch('https://projeto-fidelidade-production.up.railway.app/api/importar-clientes', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(clientes)
