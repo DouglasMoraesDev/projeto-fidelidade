@@ -34,7 +34,7 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
   }
 
   try {
-    const response = await fetch(`${apiBaseUrl}/login`, {
+    const response = await fetch(`${API_URL}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: inputUsername, password: inputPassword })
@@ -106,7 +106,7 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
 async function loadClients() {
   try {
     // Inclui o establishmentId na query string
-    const response = await fetch(`${apiBaseUrl}/clients?establishmentId=${currentEstablishmentId}`);
+    const response = await fetch(`${API_URL}/clients?establishmentId=${currentEstablishmentId}`);
     const clients = await response.json();
     console.log('Clientes carregados:', clients);
     renderClientsTable(clients);
@@ -152,7 +152,7 @@ async function addClient() {
   }
 
   try {
-    const response = await fetch(`${apiBaseUrl}/clients`, {
+    const response = await fetch(`${API_URL}/clients`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
@@ -197,7 +197,7 @@ document.getElementById('saveClientBtn').addEventListener('click', async () => {
     }
     
     try {
-      const res = await fetch(`${apiBaseUrl}/clients/${editingClientId}`, {
+      const res = await fetch(`${API_URL}/clients/${editingClientId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -237,7 +237,7 @@ document.getElementById('saveClientBtn').addEventListener('click', async () => {
 // --- Função para Editar Cliente ---
 async function editClient(clientId) {
   try {
-    const response = await fetch(`${apiBaseUrl}/clients?establishmentId=${currentEstablishmentId}`);
+    const response = await fetch(`${API_URL}/clients?establishmentId=${currentEstablishmentId}`);
     const clients = await response.json();
     const client = clients.find(c => c.id == clientId);
     if (!client) {
@@ -263,7 +263,7 @@ async function editClient(clientId) {
 async function deleteClient(clientId) {
   if (!confirm('Tem certeza que deseja excluir este cliente?')) return;
   try {
-    const response = await fetch(`${apiBaseUrl}/clients/${clientId}?establishmentId=${currentEstablishmentId}`, { 
+    const response = await fetch(`${API_URL}/clients/${clientId}?establishmentId=${currentEstablishmentId}`, { 
       method: 'DELETE' 
     });
     const data = await response.json();
@@ -310,7 +310,7 @@ document.getElementById('addPointsBtn').addEventListener('click', async () => {
     return;
   }
   try {
-    const response = await fetch(`${apiBaseUrl}/clients/${clientId}/points`, {
+    const response = await fetch(`${API_URL}/clients/${clientId}/points`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ pointsToAdd, establishmentId: currentEstablishmentId })
@@ -409,7 +409,7 @@ async function sendVoucher(client) {
     console.log(`Enviando voucher para: ${client.fullName}, ID do estabelecimento: ${client.establishmentId}`);
 
     // Chama o endpoint único que envia voucher e reseta os pontos
-    const response = await fetch(`${apiBaseUrl}/clients/${client.id}/send-voucher`, {
+    const response = await fetch(`${API_URL}/clients/${client.id}/send-voucher`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ establishmentId: currentEstablishmentId })
