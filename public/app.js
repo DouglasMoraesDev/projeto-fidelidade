@@ -282,7 +282,7 @@ async function deleteClient(clientId) {
 document.getElementById('searchBtn').addEventListener('click', async () => {
   const searchTerm = document.getElementById('searchClient').value.toLowerCase();
   try {
-    const response = await fetch(`${apiBaseUrl}/clients?establishmentId=${currentEstablishmentId}`);
+    const response = await fetch(`${API_URL}/clients?establishmentId=${currentEstablishmentId}`);
     const clients = await response.json();
     const filteredClients = clients.filter(client => 
       client.fullName && client.fullName.toLowerCase().includes(searchTerm)
