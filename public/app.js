@@ -1,9 +1,7 @@
 // public/app.js
 
 // Define a URL base da API já com o prefixo /api
-const API_BASE_URL = window.location.hostname === 'localhost' 
-  ? 'http://localhost:3000' 
-  : 'https://seu-projeto-backend.railway.app';
+const apiBaseUrl = 'http://localhost:3000/api';
 
 // Variável global para armazenar o establishmentId do usuário logado
 let currentEstablishmentId = null;
