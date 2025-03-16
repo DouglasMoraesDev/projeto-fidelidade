@@ -1,7 +1,7 @@
 // public/app.js
 
 // Define a URL base da API já com o prefixo /api
-const apiBaseUrl = 'http://localhost:3000/api';
+const apiBaseUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000/api' : '/api';
 
 // Variável global para armazenar o establishmentId do usuário logado
 let currentEstablishmentId = null;
