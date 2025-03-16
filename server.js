@@ -34,6 +34,8 @@ sequelize.sync({ alter: true })
   .then(() => {
     const PORT = process.env.PORT || 3000;
     console.log('Banco de dados sincronizado.');
+    console.log(app._router.stack.map(r => r.route?.path).filter(Boolean));
+
     app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
   })
   .catch(err => {

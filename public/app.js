@@ -2,9 +2,8 @@
 
 // Define a URL base da API já com o prefixo /api
 // No seu frontend, substitua todas as chamadas para localhost:3000 por
-const API_URL = window.location.hostname === 'localhost' 
-  ? 'http://localhost:3000' 
-  : 'https://projeto-fidelidade-production.up.railway.app';
+const API_URL = 'https://projeto-fidelidade-production.up.railway.app/api';
+
 
 // Variável global para armazenar o establishmentId do usuário logado
 let currentEstablishmentId = null;
