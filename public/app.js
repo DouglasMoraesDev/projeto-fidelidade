@@ -1,7 +1,9 @@
 // public/app.js
 
 // Define a URL base da API já com o prefixo /api
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://projeto-fidelidade-production.up.railway.app/';
+const API_BASE_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:3000' 
+  : 'https://seu-projeto-backend.railway.app';
 
 // Variável global para armazenar o establishmentId do usuário logado
 let currentEstablishmentId = null;
@@ -356,7 +358,7 @@ function displayClients(clients) {
 
 async function importClientes() {
   const fileInput = document.getElementById("fileInput");
-  const establishmentId = currentEstablishmentId; // Usa o ID do estabelecimento atual
+  const establishmentId = 0; // Define o ID do estabelecimento como 2
 
   if (!fileInput.files[0]) {
       alert("Selecione um arquivo primeiro!");
@@ -367,18 +369,18 @@ async function importClientes() {
   reader.onload = async function(event) {
       let clientes = JSON.parse(event.target.result);
 
-      // Adiciona o campo establishment_id para cada cliente
+      // Adiciona o campo establishment_id com o valor 2 para cada cliente
       clientes = clientes.map(cliente => ({
           ...cliente,
           establishment_id: establishmentId
       }));
 
       try {
-          const response = await fetch(`${apiBaseUrl}/importar-clientes`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(clientes)
-          });
+          const response = await fetch('http://localhost:3000/importar-clientes', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(clientes)
+});
 
           const textResponse = await response.text();
           let result;
@@ -396,6 +398,7 @@ async function importClientes() {
 
   reader.readAsText(fileInput.files[0]);
 }
+
 
 
 // --- Função para Enviar Voucher via WhatsApp e Resetar Pontos no Banco de Dados ---
