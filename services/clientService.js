@@ -1,8 +1,5 @@
 // services/clientService.js
 
-
-
-
 const { Op } = require('sequelize');
 const Client = require('../models/Client');
 

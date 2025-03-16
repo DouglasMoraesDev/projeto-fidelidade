@@ -1,7 +1,7 @@
 // public/app.js
 
 // Define a URL base da API já com o prefixo /api
-const apiBaseUrl = 'http://localhost:3000/api';
+const apiBaseUrl = 'https://projeto-fidelidade-production.up.railway.app/api';
 
 // Variável global para armazenar o establishmentId do usuário logado
 let currentEstablishmentId = null;
