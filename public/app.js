@@ -1,7 +1,7 @@
 // public/app.js
 
 // Define a URL base da API já com o prefixo /api
-const apiBaseUrl = window.location.hostname === 'localhost' ? 'https://projeto-fidelidade-production.up.railway.app/' : '/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://projeto-fidelidade-production.up.railway.app/';
 
 // Variável global para armazenar o establishmentId do usuário logado
 let currentEstablishmentId = null;
