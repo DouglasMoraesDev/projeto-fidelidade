@@ -1,35 +1,29 @@
 const express = require('express');
 const router = express.Router();
-const sequelize = require('../models/index'); // Certifique-se do caminho correto
+const { Clients, Establishments } = require('../models'); // Ajuste para corresponder ao seu modelo Sequelize
 
 router.post('/', async (req, res) => {
   try {
-    const clientes = req.body; // Dados importados do JSON (array de objetos)
+    const clientes = req.body;
     
-    // Para cada cliente, definimos establishmentId como 2 e usamos os campos corretos
     for (const cliente of clientes) {
       const { fullName, phone, email, points } = cliente;
-      const establishmentId = 2; // Forçando o ID do estabelecimento para 2
+      const establishmentId = 2; // ID fixo do estabelecimento
 
-      // Verifica se o estabelecimento existe (usar o nome da tabela conforme seu modelo)
-      const [establishment] = await sequelize.query(`
-        SELECT id FROM establishments WHERE id = ${establishmentId}
-      `);
-
-      if (establishment.length === 0) {
+      // Verifica se o estabelecimento existe
+      const establishment = await Establishments.findByPk(establishmentId);
+      if (!establishment) {
         return res.status(400).json({ error: `Estabelecimento ${establishmentId} não encontrado!` });
       }
 
-      // Insere no banco de dados usando os nomes de colunas definidos no modelo Client (lembre que a tabela é "Clients")
-      await sequelize.query(`
-        INSERT INTO Clients (fullName, phone, email, points, establishmentId)
-        VALUES ('${fullName}', '${phone}', '${email}', ${points}, ${establishmentId})
-        ON DUPLICATE KEY UPDATE 
-          fullName='${fullName}', 
-          phone='${phone}', 
-          email='${email}', 
-          points=${points}
-      `);
+      // Insere ou atualiza o cliente
+      await Clients.upsert({
+        fullName,
+        phone,
+        email,
+        points,
+        establishmentId
+      });
     }
 
     return res.json({ message: "Clientes importados com sucesso!" });
