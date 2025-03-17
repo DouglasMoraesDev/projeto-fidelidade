@@ -20,7 +20,7 @@
      Reset & Global Styles
      ========================================================================== */
   html, body {
-    background-image: url('./logo/image.png');
+  
     height: 100%;
   }
   
@@ -75,7 +75,7 @@
   
   /* Container Geral */
   .container {
-    background-image: url('./logo/image.png');
+
     height: 100%;
     width: 90%;
     margin: 0 auto;
