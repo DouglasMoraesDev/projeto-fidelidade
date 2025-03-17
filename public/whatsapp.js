@@ -2,7 +2,7 @@
 
 // Defina a URL base da sua API
 
-const apiBaseUrl = 'https://projeto-fidelidade-production.up.railway.app/api';
+const API_URL = 'https://projeto-fidelidade-production.up.railway.app/api';
 
 async function sendVoucher(client) {
   try {
