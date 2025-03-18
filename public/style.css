@@ -1,27 +1,34 @@
-/* ==========================================================================
-   Variáveis de Cores - Personalização Global
+/* ==========================================================================  
+   Variáveis de Cores - Personalização Global  
+   (As variáveis existentes foram mantidas e novas foram adicionadas para sombras e transições)  
    ========================================================================== */
    :root {
-    --primary-color: #ffffff;      /* Botões, cabeçalho da tabela, etc. */
+    --primary-color: #ffffff;      /* Botões, cabeçalhos, etc. */
     --secondary-color: #615e6b;    /* Hover e destaques alternativos */
     --background-color: #000000;   /* Fundo geral da página */
     --container-bg: #301442;       /* Fundo dos containers (login, formulários, etc.) */
     --text-color: #000000;         /* Cor padrão do texto */
     --header-bg: #500537;          /* Fundo do cabeçalho do dashboard */
-    --footer-bg: #00000000;          /* Fundo do rodapé */
+    --footer-bg: #00000000;        /* Fundo do rodapé */
     --footer-text: #ecf0f1;        /* Cor do texto do rodapé */
     --input-border: #cccccc;       /* Cor das bordas de inputs e selects */
     --button-bg: black;            /* Fundo padrão dos botões */
     --button-text: #ffffff;        /* Cor do texto dos botões */
     --section-margin: 20px;        /* Espaçamento entre seções */
+    
+    /* Novas variáveis para efeitos modernos */
+    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --transition-speed: 0.3s;
+    --table-row-hover: rgba(255, 255, 255, 0.1);
   }
   
-  /* ==========================================================================
-     Reset & Global Styles
+  /* ==========================================================================  
+     Reset & Global Styles  
      ========================================================================== */
   html, body {
-  
     height: 100%;
+    margin: 0;
+    padding: 0;
   }
   
   body {
@@ -33,13 +40,11 @@
     line-height: 1.6;
   }
   
-  /* ==========================================================================
-     Botões Específicos
+  /* ==========================================================================  
+     Botões  
      ========================================================================== */
-  
-  /* Botão de Pagamento */
   .payment-btn {
-    background-color: #28a745; /* verde */
+    background-color: #28a745;
     color: #fff;
     padding: 12px 20px;
     font-size: 16px;
@@ -47,11 +52,10 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition: background-color var(--transition-speed), transform 0.2s ease;
     margin: 10px 0;
   }
   
-  /* Botão padrão */
   button {
     font-family: 'Oxanium', sans-serif;
     padding: 10px 20px;
@@ -62,28 +66,26 @@
     border-radius: 4px;
     cursor: pointer;
     font-size: 1rem;
-    transition: background-color 0.3s ease;
+    transition: background-color var(--transition-speed), transform var(--transition-speed);
   }
   
   button:hover {
     background-color: var(--secondary-color);
+    transform: translateY(-2px);
   }
   
-  /* ==========================================================================
-     Containers e Estruturas Gerais
+  /* ==========================================================================  
+     Container Geral  
      ========================================================================== */
-  
-  /* Container Geral */
   .container {
-
     height: 100%;
     width: 90%;
     margin: 0 auto;
     padding: 20px;
   }
   
-  /* ==========================================================================
-     Tela de Login
+  /* ==========================================================================  
+     Tela de Login  
      ========================================================================== */
   #loginDiv {
     font-family: "Oxanium", sans-serif;
@@ -95,6 +97,7 @@
     text-align: center;
     width: 50%;
     margin: 0 auto;
+    box-shadow: var(--box-shadow);
   }
   
   #loginDiv h2 {
@@ -109,18 +112,21 @@
     margin: 10px;
     border: 1px solid var(--input-border);
     border-radius: 4px;
+    transition: border-color var(--transition-speed);
   }
   
-  /* ==========================================================================
-     Dashboard
-     ========================================================================== */
+  #loginDiv input:focus {
+    border-color: var(--secondary-color);
+  }
   
-  /* Área geral do dashboard */
+  /* ==========================================================================  
+     Dashboard  
+     ========================================================================== */
   #dashboard {
     padding: 20px;
   }
   
-  /* Container individual do dashboard */
+  /* Containers individuais do dashboard */
   .dashboard-container {
     font-family: 'Oxanium', sans-serif;
     display: flex;
@@ -132,6 +138,12 @@
     border-radius: 8px;
     margin: 10px;
     padding: 15px;
+    box-shadow: var(--box-shadow);
+    transition: transform var(--transition-speed);
+  }
+  
+  .dashboard-container:hover {
+    transform: translateY(-3px);
   }
   
   /* Cabeçalho do dashboard */
@@ -153,11 +165,9 @@
     color: var(--text-color);
   }
   
-  /* ==========================================================================
-     Formulários: Labels, Inputs e Selects
+  /* ==========================================================================  
+     Formulários: Labels, Inputs e Selects  
      ========================================================================== */
-  
-  /* Estilo para Labels */
   label {
     font-family: 'Oxanium', sans-serif;
     font-weight: 600;
@@ -166,7 +176,6 @@
     margin: 10px 0 5px;
   }
   
-  /* Inputs e Selects */
   input[type="text"],
   input[type="email"],
   input[type="password"],
@@ -180,80 +189,94 @@
     border-radius: 4px;
     background-color: var(--primary-color);
     color: var(--text-color);
+    transition: border-color var(--transition-speed);
   }
   
-  /* ==========================================================================
-     Tabela de Clientes
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="password"]:focus,
+  input[type="number"]:focus,
+  select:focus {
+    border-color: var(--secondary-color);
+  }
+  
+  /* ==========================================================================  
+     Tabela de Clientes - Visual Moderno  
      ========================================================================== */
+  #clientTableContainer {
+    font-family: 'Oxanium';
+    font-size: 15px;
+    padding: 0;
+    max-height: 400px;
+    overflow-y: auto;
+    margin-top: 20px;
+    border-radius: 10px;
+  }
   
-  /* Container da tabela */
-/* Container da tabela */
-#clientTableContainer {
-  font-family: 'Oxanium';
-  font-size: 15px;
-  padding: 0;
-  max-height: 400px; /* Altura máxima para rolagem */
-  overflow-y: auto;
-  margin-top: 20px;
-  border-radius: 10px solid var(--input-border);
-}
-
-/* Estilo da tabela */
-#clientTable {
-  background-color: var(--container-bg);
-  width: 99.5%;
-  border-collapse: collapse;
+  #clientTable {
+    background-color: var(--container-bg);
+    width: 100%;
+    border-collapse: collapse;
+  }
   
-}
-
-/* Título da tabela com <caption> */
-#clientTable caption {
-  font-family: 'Oxanium', sans-serif;
-  font-size: 20px;
-  color: var(--text-color);
-  padding: 5px;
-  text-align: center;
-  background-color: var(--container-bg);
-}
-
-/* Cabeçalho e células da tabela */
-#clientTable td {
-  margin: 10px;
-  padding: 10px 20px;
-  font-size: 15px;
-  padding: 8px;
-  border: px solid var(--input-border);
-}
-
-#clientTable th {
-  font-size: 18px;
-  border: 1.5px solid var(--input-border);
-  background-color: var(--container-bg);
-  color: var(--text-color);
-}
-
-/* Célula de Ações com botões */
-#clientTable td#acoes {
-  font-size: 18px;
-  display: flex;
-  flex-wrap: nowrap;  /* Impede que os botões quebrem para uma nova linha */
-  justify-content: space-between;
-  align-items: center;
-  gap: 5px;
-  width: 99.5%;
-}
-
-/* Estilo dos botões dentro da célula de ações */
-#clientTable td#acoes button {
-  margin: 10px;
-  padding: 10px 20px;
-  flex: 1;
-  white-space: nowrap;
-  min-width: 0;
-}
-
-  /* ==========================================================================
-     Lista de Clientes
+  /* Título da tabela */
+  #clientTable caption {
+    font-family: 'Oxanium', sans-serif;
+    font-size: 20px;
+    color: var(--text-color);
+    padding: 10px;
+    text-align: center;
+    background-color: var(--container-bg);
+  }
+  
+  /* Cabeçalho da tabela */
+  #clientTable th {
+    font-size: 18px;
+    border: 1px solid var(--input-border);
+    background-color: var(--container-bg);
+    color: var(--text-color);
+    padding: 10px;
+  }
+  
+  /* Células da tabela */
+  #clientTable td {
+    padding: 10px 20px;
+    font-size: 15px;
+    border: 1px solid var(--input-border);
+    text-align: center;
+  }
+  
+  /* Efeito zebra para linhas da tabela */
+  #clientTable tbody tr:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Hover nas linhas da tabela */
+  #clientTable tbody tr:hover {
+    background-color: var(--table-row-hover);
+  }
+  
+  /* Célula de Ações (mantendo o ID para a parte lógica) */
+  #clientTable td#acoes {
+    font-size: 18px;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  /* Botões dentro da célula de ações */
+  #clientTable td#acoes button {
+    margin: 10px;
+    padding: 10px 20px;
+    flex: 1;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  
+  /* ==========================================================================  
+     Lista de Clientes  
      ========================================================================== */
   ul#clients {
     list-style-type: none;
@@ -267,8 +290,8 @@
     border-radius: 4px;
   }
   
-  /* ==========================================================================
-     Footer e Links
+  /* ==========================================================================  
+     Footer e Links  
      ========================================================================== */
   footer, a {
     font-family: 'Oxanium', sans-serif;
@@ -278,13 +301,13 @@
   
   footer {
     background-color: var(--footer-bg);
+    padding: 10px;
   }
   
-  /* ==========================================================================
-     Responsividade
+  /* ==========================================================================  
+     Responsividade  
      ========================================================================== */
   @media screen and (max-width: 600px) {
-    /* Ajustes para a célula de ações na tabela */
     #clientTable td#acoes {
       gap: 1px;
     }
@@ -294,20 +317,17 @@
       font-size: 0.6em;
     }
     
-    /* Ajustes na tela de login */
     #loginDiv {
       width: 90%;
       font-size: 1rem;
       padding: 15px;
     }
     
-    /* Ajustes nos containers do dashboard */
     .dashboard-container {
       margin: 10px;
       padding: 15px;
     }
     
-    /* Redução de tamanhos em cabeçalhos e textos */
     h1 {
       font-size: 2rem;
     }
@@ -316,7 +336,6 @@
       font-size: 1.25rem;
     }
     
-    /* Redução geral do tamanho de inputs e botões */
     input[type="text"],
     input[type="email"],
     input[type="password"],
