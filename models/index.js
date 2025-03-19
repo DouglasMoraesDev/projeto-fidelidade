@@ -29,17 +29,6 @@ const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASS, {
   logging: console.log
 });
 
-const connectWithRetry = async () => {
-  try {
-    await sequelize.authenticate();
-    console.log('Conexão com o banco de dados estabelecida com sucesso!');
-  } catch (error) {
-    console.error('Erro ao conectar ao banco de dados, tentando novamente em 5 segundos...', error);
-    setTimeout(connectWithRetry, 5000);
-  }
-};
-
-connectWithRetry();
 
 
 module.exports = sequelize;
