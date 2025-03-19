@@ -1,13 +1,19 @@
 // services/userService.js
-const User = require('../models/User');
-const Establishment = require('../models/establishment');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+// Para segurança, considere usar hash (ex: bcrypt) para armazenar e comparar senhas
 
 const login = async (username, password) => {
-  const user = await User.findOne({ where: { username, password } });
-  if (!user) {
+  const user = await prisma.user.findUnique({
+    where: { username }
+  });
+  // Em produção, compare o hash da senha
+  if (!user || user.password !== password) {
     throw new Error('Usuário ou senha inválidos');
   }
-  const establishment = await Establishment.findByPk(user.establishmentId);
+  const establishment = await prisma.establishment.findUnique({
+    where: { id: user.establishmentId }
+  });
   if (!establishment) {
     throw new Error('Estabelecimento não encontrado');
   }
@@ -23,3 +29,4 @@ const login = async (username, password) => {
 };
 
 module.exports = { login };
+

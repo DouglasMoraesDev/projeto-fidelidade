@@ -1,28 +1,31 @@
 const express = require('express');
 const router = express.Router();
-const { Clients, Establishments } = require('../models'); // Ajuste para corresponder ao seu modelo Sequelize
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
+// Rota para importar clientes
 router.post('/', async (req, res) => {
   try {
     const clientes = req.body;
     
     for (const cliente of clientes) {
       const { fullName, phone, email, points } = cliente;
-      const establishmentId = 2; // ID fixo do estabelecimento
+      // Se o establishmentId não for informado, define um valor padrão (ou obtenha do contexto do usuário)
+      const establishmentId = cliente.establishmentId || 2;
 
       // Verifica se o estabelecimento existe
-      const establishment = await Establishments.findByPk(establishmentId);
+      const establishment = await prisma.establishment.findUnique({
+        where: { id: establishmentId }
+      });
       if (!establishment) {
         return res.status(400).json({ error: `Estabelecimento ${establishmentId} não encontrado!` });
       }
 
-      // Insere ou atualiza o cliente
-      await Clients.upsert({
-        fullName,
-        phone,
-        email,
-        points,
-        establishmentId
+      // Upsert do cliente baseado em phone (assumindo que seja único)
+      await prisma.client.upsert({
+        where: { phone },
+        update: { fullName, email, points, establishmentId },
+        create: { fullName, phone, email, points, establishmentId }
       });
     }
 
@@ -34,3 +37,4 @@ router.post('/', async (req, res) => {
 });
 
 module.exports = router;
+

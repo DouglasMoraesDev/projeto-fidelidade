@@ -1,14 +1,15 @@
 // controllers/establishmentController.js
-const Establishment = require('../models/establishment');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 exports.getVoucherMessage = async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = parseInt(req.params.id);
     console.log(`🔍 Buscando voucher_message para o estabelecimento com ID: ${id}`);
 
-    const establishment = await Establishment.findOne({
+    const establishment = await prisma.establishment.findUnique({
       where: { id },
-      attributes: ['id', 'voucher_message']
+      select: { id: true, voucherMessage: true }
     });
 
     if (!establishment) {
@@ -16,9 +17,8 @@ exports.getVoucherMessage = async (req, res) => {
       return res.status(404).json({ message: 'Estabelecimento não encontrado' });
     }
 
-    console.log(`✅ Voucher_message encontrado: ${establishment.voucher_message}`);
-
-    res.json({ voucherMessage: establishment.voucher_message });
+    console.log(`✅ Voucher_message encontrado: ${establishment.voucherMessage}`);
+    res.json({ voucherMessage: establishment.voucherMessage });
   } catch (error) {
     console.error('🔥 Erro ao buscar voucher_message:', error);
     res.status(500).json({ message: 'Erro no servidor' });
