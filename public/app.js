@@ -328,107 +328,76 @@ document.getElementById('addPointsBtn').addEventListener('click', async () => {
 });
 
 
-
 // --- Função para Exibir Clientes com 10 ou Mais Pontos ---
-
 function displayClients(clients) {
-  const clientList = document.getElementById('clients');
-  clientList.innerHTML = ''; // Limpa a lista existente
+  const clientList = document.getElementById("clients");
+  clientList.innerHTML = ""; // Limpa a lista existente
 
   // Filtra os clientes com 10 ou mais pontos
   const filteredClients = clients.filter(client => client.points >= 10);
 
   // Exibe apenas os clientes com 10 ou mais pontos
   filteredClients.forEach(client => {
-    const listItem = document.createElement('li');
+    const listItem = document.createElement("li");
     listItem.textContent = `${client.fullName} - Pontos: ${client.points || 0}`;
 
     // Adiciona o botão para clientes com 10 ou mais pontos
-    const whatsappButton = document.createElement('button');
-    whatsappButton.textContent = 'Enviar Voucher';
+    const whatsappButton = document.createElement("button");
+    whatsappButton.textContent = "Enviar Voucher";
 
-    // Ao clicar, chama a função sendVoucher passando o objeto cliente
-    whatsappButton.addEventListener('click', () => sendVoucher(client));
+    // Ao clicar, chama a função sendVoucher passando o ID do cliente
+    whatsappButton.addEventListener("click", () => sendVoucher(client.id));
     
     listItem.appendChild(whatsappButton);
     clientList.appendChild(listItem);
   });
 }
 
+// --- Função para Enviar o Voucher via WhatsApp e Resetar Pontos ---
+async function sendVoucher(clienteId) {
+  try {
+    const response = await fetch(`/api/voucher/${clienteId}`);
+    const data = await response.json();
 
-async function importClientes() {
-  const fileInput = document.getElementById("fileInput");
-  const establishmentId = 0; // Define o ID do estabelecimento como 2
-
-  if (!fileInput.files[0]) {
-      alert("Selecione um arquivo primeiro!");
+    if (data.error) {
+      alert("Erro ao buscar o voucher: " + data.error);
       return;
+    }
+
+    const numeroCliente = data.numero;
+    const mensagem = encodeURIComponent(data.mensagem);
+    const linkWhatsApp = `https://wa.me/${numeroCliente}?text=${mensagem}`;
+
+    window.open(linkWhatsApp, "_blank");
+
+    // Após abrir o WhatsApp, reseta os pontos do cliente para 0
+    await resetClientPoints(clienteId);
+
+  } catch (error) {
+    console.error("Erro ao enviar voucher:", error);
+    alert("Erro ao enviar voucher.");
   }
-
-  const reader = new FileReader();
-  reader.onload = async function(event) {
-      let clientes = JSON.parse(event.target.result);
-
-      // Adiciona o campo establishment_id com o valor 2 para cada cliente
-      clientes = clientes.map(cliente => ({
-          ...cliente,
-          establishment_id: establishmentId
-      }));
-
-      try {
-          const response = await fetch('https://projeto-fidelidade-production.up.railway.app/api/importar-clientes', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(clientes)
-});
-
-          const textResponse = await response.text();
-          let result;
-          if (textResponse) {
-              result = JSON.parse(textResponse);
-              alert(result.message);
-          } else {
-              alert("Operação concluída, mas não houve retorno de mensagem.");
-          }
-      } catch (error) {
-          console.error("Erro na importação:", error);
-          alert("Erro na importação dos clientes.");
-      }
-  };
-
-  reader.readAsText(fileInput.files[0]);
 }
 
-
-
-// --- Função para Enviar Voucher via WhatsApp e Resetar Pontos no Banco de Dados ---
-// Esta função é chamada quando o cliente tem 10 ou mais pontos e clica no botão "Enviar Voucher".
-async function sendVoucher(client) {
+// --- Função para Resetar os Pontos do Cliente ---
+async function resetClientPoints(clienteId) {
   try {
-    console.log(`Enviando voucher para: ${client.fullName}, ID do estabelecimento: ${client.establishmentId}`);
-
-    // Chama o endpoint único que envia voucher e reseta os pontos
-    const response = await fetch(`${API_URL}/clients/${client.id}/send-voucher`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ establishmentId: currentEstablishmentId })
+    const response = await fetch(`/api/reset-points/${clienteId}`, {
+      method: "PUT"
     });
 
     if (!response.ok) {
-      throw new Error('Erro ao enviar voucher e resetar pontos do cliente.');
+      throw new Error("Erro ao resetar os pontos do cliente");
     }
-    const data = await response.json();
-    console.log(data.message);
 
-    // Abre o WhatsApp com a mensagem do voucher
-    const encodedMessage = encodeURIComponent(data.voucherMessage);
-    const whatsappUrl = `https://wa.me/${client.phone}?text=${encodedMessage}`;
-    window.open(whatsappUrl, '_blank');
+    alert("Voucher enviado e pontos resetados com sucesso!");
+    
+    // Atualiza a lista de clientes na interface
+    fetchClients(); 
 
-    alert('Voucher enviado e pontos zerados com sucesso!');
-    loadClients(); // Atualiza a lista de clientes
   } catch (error) {
-    console.error('Erro ao enviar voucher:', error);
-    alert('Erro ao enviar voucher');
+    console.error("Erro ao resetar pontos:", error);
+    alert("Erro ao resetar os pontos.");
   }
 }
+

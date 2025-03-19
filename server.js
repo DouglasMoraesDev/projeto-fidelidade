@@ -6,8 +6,8 @@ require('dotenv').config();
 
 const clientRoutes = require('./routes/clientRoutes');
 const establishmentRoutes = require('./routes/establishmentRoutes');
-const importRoutes = require('./routes/importRoutes');
 const userRoutes = require('./routes/userRoutes');
+const voucherRoutes = require("./routes/voucher");
 
 const app = express();
 
@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 app.use('/api/clients', clientRoutes);
 app.use('/api', userRoutes); // Exemplo: rota de login: /api/login
 app.use('/api/establishments', establishmentRoutes);
-app.use('/importar-clientes', importRoutes);
+app.use("/api", voucherRoutes);
 
 // Serve arquivos estáticos da pasta public
 app.use(express.static('public'));
