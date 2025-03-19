@@ -24,7 +24,7 @@ const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASS, {
     max: 5,
     min: 0,
     acquire: 60000,
-    idle: 60000
+    idle: 10000
   },
   logging: console.log
 });
