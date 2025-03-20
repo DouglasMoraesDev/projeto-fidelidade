@@ -1,0 +1,29 @@
+name: Backup MySQL Database
+
+on:
+  schedule:
+    # Executa a cada hora (horário UTC)
+    - cron: '0 * * * *'
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Executar backup do MySQL
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: |
+          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+          BACKUP_FILE="backup_${DB_NAME}_${TIMESTAMP}.sql"
+          echo "Realizando backup em $BACKUP_FILE"
+          mysqldump -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" --password="$DB_PASSWORD" "$DB_NAME" > "$BACKUP_FILE"
+      
+      - name: Upload do artifact de backup
+        uses: actions/upload-artifact@v3
+        with:
+          name: backup-mysql
+          path: backup_${{ env.DB_NAME }}_*.sql
