@@ -2,13 +2,17 @@ name: Backup MySQL Database
 
 on:
   schedule:
-    # Executa a cada hora (horário UTC)
-    - cron: '0 * * * *'
+    # Executa a cada 30 minutos (horário UTC)
+    - cron: '*/30 * * * *'
+  workflow_dispatch:  # Permite execução manual
 
 jobs:
   backup:
     runs-on: ubuntu-latest
     steps:
+      - name: Instalar MySQL Client
+        run: sudo apt-get install -y mysql-client
+
       - name: Executar backup do MySQL
         env:
           DB_HOST: ${{ secrets.DB_HOST }}
@@ -21,9 +25,15 @@ jobs:
           BACKUP_FILE="backup_${DB_NAME}_${TIMESTAMP}.sql"
           echo "Realizando backup em $BACKUP_FILE"
           mysqldump -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" --password="$DB_PASSWORD" "$DB_NAME" > "$BACKUP_FILE"
-      
-      - name: Upload do artifact de backup
+
+      - name: Upload do backup como artifact no GitHub
         uses: actions/upload-artifact@v3
         with:
           name: backup-mysql
           path: backup_${{ env.DB_NAME }}_*.sql
+
+      - name: Enviar backup para Dropbox
+        env:
+          DROPBOX_ACCESS_TOKEN: ${{ secrets.DROPBOX_ACCESS_TOKEN }}
+        run: |
+          TIMESTAMP=$(date
