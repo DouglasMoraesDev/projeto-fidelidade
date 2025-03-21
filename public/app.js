@@ -105,6 +105,18 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
   }
 });
 
+// Listener para o botão de logout
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  // Remove os dados de autenticação do localStorage
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('currentEstablishmentId');
+  localStorage.removeItem('userTheme'); // Se você estiver salvando o tema
+
+  // Exibe a tela de login e oculta o dashboard
+  document.getElementById('loginDiv').style.display = 'block';
+  document.getElementById('dashboard').style.display = 'none';
+});
+
 
 // --- Função para Carregar Clientes ---
 async function loadClients() {

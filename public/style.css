@@ -156,7 +156,7 @@ button:hover {
 #loginDiv {
   font-family: "Oxanium", sans-serif;
   font-size: 1.25rem;
-  color: var(--text-color);
+  color: black;
   background-color: #34495e;
   padding: 20px;
   border-radius: 8px;
