@@ -22,6 +22,7 @@ function applyTheme(theme) {
   });
 }
 
+
 // --- Função de Login ---
 document.getElementById('loginBtn').addEventListener('click', async () => {
   const inputUsername = document.getElementById('username').value;
@@ -53,6 +54,10 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
       alert('Login bem-sucedido!');
       const user = data.user;
       currentEstablishmentId = user.establishmentId;
+
+      // Salva o token e o establishmentId no localStorage para persistir o login
+      localStorage.setItem('authToken', data.token);
+      localStorage.setItem('currentEstablishmentId', user.establishmentId);
 
       // Cria o objeto de tema com as configurações vindas do Establishment
       const theme = {
@@ -392,6 +397,15 @@ async function resetClientPoints(clienteId) {
 
     alert("Voucher enviado e pontos resetados com sucesso!");
     
+    const data = await response.json();
+    alert(data.message);
+
+    if (data.reload) {
+      window.location.reload();
+    } else {
+      // Caso não precise recarregar, você pode atualizar a lista ou fazer outra ação
+      fetchClients();
+    }
     // Atualiza a lista de clientes na interface
     fetchClients(); 
 
