@@ -40,9 +40,17 @@ function applyTheme(theme) {
 async function loadEstablishmentTheme() {
   try {
     const response = await fetch(`${API_URL}/establishments/${currentEstablishmentId}`);
+    
+    // Logar a resposta para debug
     const data = await response.json();
-
+    console.log('Resposta da API para o tema:', data);
+    
+    // Verifique se a resposta está OK
     if (response.ok) {
+      if (!data.primaryColor || !data.secondaryColor) {
+        throw new Error('Cores do tema não encontradas na resposta da API.');
+      }
+      
       // Extrai as configurações de tema do estabelecimento
       const theme = {
         "primary-color": data.primaryColor,
@@ -68,13 +76,14 @@ async function loadEstablishmentTheme() {
         logoElement.src = data.logoURL;
       }
     } else {
-      alert('Erro ao carregar o tema do estabelecimento');
+      throw new Error(`Erro na resposta da API: ${response.status} ${response.statusText}`);
     }
   } catch (error) {
     console.error('Erro ao carregar o tema do estabelecimento:', error);
-    alert('Erro ao carregar o tema do estabelecimento');
+    alert('Erro ao carregar o tema do estabelecimento: ' + error.message);
   }
 }
+
 
 // --- Função de Login ---
 document.getElementById('loginBtn').addEventListener('click', async () => {
