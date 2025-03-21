@@ -1,30 +1,16 @@
 // public/app.js
 
 // Define a URL base da API já com o prefixo /api
+// No seu frontend, substitua todas as chamadas para localhost:3000 por
 const API_URL = 'https://projeto-fidelidade-production.up.railway.app/api';
+
 
 // Variável global para armazenar o establishmentId do usuário logado
 let currentEstablishmentId = null;
 
-// Verifica se o usuário está logado ao carregar a página
-window.onload = function() {
-  const storedToken = localStorage.getItem('authToken');
-  const storedEstablishmentId = localStorage.getItem('currentEstablishmentId');
-
-  // Se não estiver logado, mostra a tela de login
-  if (!storedToken || !storedEstablishmentId) {
-    document.getElementById('loginDiv').style.display = 'block';
-    document.getElementById('dashboard').style.display = 'none';
-    return;
-  }
-
-  // Se já estiver logado, busca as configurações do estabelecimento e aplica o tema
-  currentEstablishmentId = storedEstablishmentId;
-  loadEstablishmentTheme(); // Carregar o tema diretamente da API
-  loadClients();  // Carregar clientes após aplicar o tema
-  document.getElementById('loginDiv').style.display = 'none';
-  document.getElementById('dashboard').style.display = 'block';
-};
+// Variáveis para controle do estado de edição
+let isEditing = false;
+let editingClientId = null;
 
 /**
  * Aplica as configurações de tema atualizando as variáveis CSS.
@@ -34,54 +20,6 @@ function applyTheme(theme) {
   Object.entries(theme).forEach(([key, value]) => {
     document.documentElement.style.setProperty(`--${key}`, value);
   });
-}
-
-// Função para buscar o tema do estabelecimento na API e aplicar as cores
-async function loadEstablishmentTheme() {
-  try {
-    const response = await fetch(`${API_URL}/establishments/${currentEstablishmentId}`);
-    
-    // Logar a resposta para debug
-    const data = await response.json();
-    console.log('Resposta da API para o tema:', data);
-    
-    // Verifique se a resposta está OK
-    if (response.ok) {
-      if (!data.primaryColor || !data.secondaryColor) {
-        throw new Error('Cores do tema não encontradas na resposta da API.');
-      }
-      
-      // Extrai as configurações de tema do estabelecimento
-      const theme = {
-        "primary-color": data.primaryColor,
-        "secondary-color": data.secondaryColor,
-        "background-color": data.backgroundColor,
-        "container-bg": data.containerBg,
-        "text-color": data.textColor,
-        "header-bg": data.headerBg,
-        "footer-bg": data.footerBg,
-        "footer-text": data.footerText,
-        "input-border": data.inputBorder,
-        "button-bg": data.buttonBg,
-        "button-text": data.buttonText,
-        "section-margin": data.sectionMargin
-      };
-
-      // Aplica as configurações de tema
-      applyTheme(theme);
-
-      // Atualiza o logo, se existir um elemento com id "logo"
-      const logoElement = document.getElementById('logo');
-      if (logoElement) {
-        logoElement.src = data.logoURL;
-      }
-    } else {
-      throw new Error(`Erro na resposta da API: ${response.status} ${response.statusText}`);
-    }
-  } catch (error) {
-    console.error('Erro ao carregar o tema do estabelecimento:', error);
-    alert('Erro ao carregar o tema do estabelecimento: ' + error.message);
-  }
 }
 
 
@@ -121,8 +59,30 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
       localStorage.setItem('authToken', data.token);
       localStorage.setItem('currentEstablishmentId', user.establishmentId);
 
-      // Carregar o tema do estabelecimento diretamente da API
-      loadEstablishmentTheme();
+      // Cria o objeto de tema com as configurações vindas do Establishment
+      const theme = {
+        "primary-color": user["primary-color"],
+        "secondary-color": user["secondary-color"],
+        "background-color": user["background-color"],
+        "container-bg": user["container-bg"],
+        "text-color": user["text-color"],
+        "header-bg": user["header-bg"],
+        "footer-bg": user["footer-bg"],
+        "footer-text": user["footer-text"],
+        "input-border": user["input-border"],
+        "button-bg": user["button-bg"],
+        "button-text": user["button-text"],
+        "section-margin": user["section-margin"]
+      };
+
+      // Aplica as configurações do tema
+      applyTheme(theme);
+
+      // Atualiza o logo, se existir um elemento com id "logo"
+      const logoElement = document.getElementById('logo');
+      if (logoElement) {
+        logoElement.src = user.logoURL;
+      }
 
       // Alterna para o dashboard
       document.getElementById('loginDiv').style.display = 'none';
