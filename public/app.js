@@ -1,9 +1,7 @@
 // public/app.js
 
 // Define a URL base da API já com o prefixo /api
-// No seu frontend, substitua todas as chamadas para localhost:3000 por
 const API_URL = 'https://projeto-fidelidade-production.up.railway.app/api';
-
 
 // Variável global para armazenar o establishmentId do usuário logado
 let currentEstablishmentId = null;
@@ -11,6 +9,21 @@ let currentEstablishmentId = null;
 // Variáveis para controle do estado de edição
 let isEditing = false;
 let editingClientId = null;
+
+// Verifica se o usuário está logado ao carregar a página
+window.onload = function() {
+  const storedToken = localStorage.getItem('authToken');
+  const storedEstablishmentId = localStorage.getItem('currentEstablishmentId');
+
+  if (storedToken && storedEstablishmentId) {
+    currentEstablishmentId = storedEstablishmentId;
+    // Carrega o tema e o dashboard
+    loadClients();
+    applyThemeFromLocalStorage();
+    document.getElementById('loginDiv').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+  }
+};
 
 /**
  * Aplica as configurações de tema atualizando as variáveis CSS.
@@ -22,6 +35,25 @@ function applyTheme(theme) {
   });
 }
 
+// Função para aplicar tema do localStorage
+function applyThemeFromLocalStorage() {
+  const theme = {
+    "primary-color": localStorage.getItem('primary-color'),
+    "secondary-color": localStorage.getItem('secondary-color'),
+    "background-color": localStorage.getItem('background-color'),
+    "container-bg": localStorage.getItem('container-bg'),
+    "text-color": localStorage.getItem('text-color'),
+    "header-bg": localStorage.getItem('header-bg'),
+    "footer-bg": localStorage.getItem('footer-bg'),
+    "footer-text": localStorage.getItem('footer-text'),
+    "input-border": localStorage.getItem('input-border'),
+    "button-bg": localStorage.getItem('button-bg'),
+    "button-text": localStorage.getItem('button-text'),
+    "section-margin": localStorage.getItem('section-margin')
+  };
+
+  applyTheme(theme);
+}
 
 // --- Função de Login ---
 document.getElementById('loginBtn').addEventListener('click', async () => {
@@ -59,24 +91,15 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
       localStorage.setItem('authToken', data.token);
       localStorage.setItem('currentEstablishmentId', user.establishmentId);
 
-      // Cria o objeto de tema com as configurações vindas do Establishment
-      const theme = {
-        "primary-color": user["primary-color"],
-        "secondary-color": user["secondary-color"],
-        "background-color": user["background-color"],
-        "container-bg": user["container-bg"],
-        "text-color": user["text-color"],
-        "header-bg": user["header-bg"],
-        "footer-bg": user["footer-bg"],
-        "footer-text": user["footer-text"],
-        "input-border": user["input-border"],
-        "button-bg": user["button-bg"],
-        "button-text": user["button-text"],
-        "section-margin": user["section-margin"]
-      };
+      // Salva o tema no localStorage para persistir após o reload
+      Object.entries(user).forEach(([key, value]) => {
+        if (key.includes('color') || key === 'logoURL') {
+          localStorage.setItem(key, value);
+        }
+      });
 
       // Aplica as configurações do tema
-      applyTheme(theme);
+      applyTheme(user);
 
       // Atualiza o logo, se existir um elemento com id "logo"
       const logoElement = document.getElementById('logo');
@@ -105,8 +128,28 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
   }
 });
 
+// --- Função de Logout ---
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('currentEstablishmentId');
+  localStorage.removeItem('primary-color');
+  localStorage.removeItem('secondary-color');
+  localStorage.removeItem('background-color');
+  localStorage.removeItem('container-bg');
+  localStorage.removeItem('text-color');
+  localStorage.removeItem('header-bg');
+  localStorage.removeItem('footer-bg');
+  localStorage.removeItem('footer-text');
+  localStorage.removeItem('input-border');
+  localStorage.removeItem('button-bg');
+  localStorage.removeItem('button-text');
+  localStorage.removeItem('section-margin');
 
-
+  // Redireciona para a tela de login
+  document.getElementById('loginDiv').style.display = 'block';
+  document.getElementById('dashboard').style.display = 'none';
+  alert('Logout realizado com sucesso!');
+});
 
 // --- Função para Carregar Clientes ---
 async function loadClients() {
@@ -142,7 +185,6 @@ function renderClientsTable(clients) {
   });
   tableBody.innerHTML = rows;
 }
-
 
 // --- Função para Adicionar Novo Cliente ---
 async function addClient() {
@@ -195,13 +237,13 @@ document.getElementById('saveClientBtn').addEventListener('click', async () => {
     const updatedPhone = document.getElementById('clientPhone').value;
     const updatedEmail = document.getElementById('clientEmail').value;
     const updatedPoints = parseInt(document.getElementById('clientPoints').value) || 0;
-    
+
     // Validação: apenas nome e telefone são obrigatórios
     if (!updatedFullName || !updatedPhone) {
       alert('Por favor, preencha os campos obrigatórios: Nome e Telefone.');
       return;
     }
-    
+
     try {
       const res = await fetch(`${API_URL}/clients/${editingClientId}`, {
         method: 'PUT',
@@ -240,7 +282,7 @@ document.getElementById('saveClientBtn').addEventListener('click', async () => {
   }
 });
 
-// --- Função para Editar Cliente ---
+// --- Função para Editar Cliente --- 
 async function editClient(clientId) {
   try {
     const response = await fetch(`${API_URL}/clients?establishmentId=${currentEstablishmentId}`);
@@ -255,7 +297,7 @@ async function editClient(clientId) {
     document.getElementById('clientPhone').value = client.phone;
     document.getElementById('clientEmail').value = client.email || '';
     document.getElementById('clientPoints').value = client.points;
-    
+
     // Muda o estado para edição
     isEditing = true;
     editingClientId = clientId;
@@ -265,7 +307,7 @@ async function editClient(clientId) {
   }
 }
 
-// --- Função para Excluir Cliente ---
+// --- Função para Excluir Cliente --- 
 async function deleteClient(clientId) {
   if (!confirm('Tem certeza que deseja excluir este cliente?')) return;
   try {
@@ -334,7 +376,6 @@ document.getElementById('addPointsBtn').addEventListener('click', async () => {
   }
 });
 
-
 // --- Função para Exibir Clientes com 10 ou Mais Pontos ---
 function displayClients(clients) {
   const clientList = document.getElementById("clients");
@@ -354,7 +395,7 @@ function displayClients(clients) {
 
     // Ao clicar, chama a função sendVoucher passando o ID do cliente
     whatsappButton.addEventListener("click", () => sendVoucher(client.id));
-    
+
     listItem.appendChild(whatsappButton);
     clientList.appendChild(listItem);
   });
@@ -398,22 +439,18 @@ async function resetClientPoints(clienteId) {
     }
 
     alert("Voucher enviado e pontos resetados com sucesso!");
-    
+
     const data = await response.json();
     alert(data.message);
 
     if (data.reload) {
       window.location.reload();
     } else {
-      // Caso não precise recarregar, você pode atualizar a lista ou fazer outra ação
-      fetchClients();
+      loadClients(); // Carrega a lista de clientes novamente sem recarregar a página
     }
-    // Atualiza a lista de clientes na interface
-    fetchClients(); 
 
   } catch (error) {
     console.error("Erro ao resetar pontos:", error);
     alert("Erro ao resetar os pontos.");
   }
 }
-
