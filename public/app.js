@@ -6,23 +6,24 @@ const API_URL = 'https://projeto-fidelidade-production.up.railway.app/api';
 // Variável global para armazenar o establishmentId do usuário logado
 let currentEstablishmentId = null;
 
-// Variáveis para controle do estado de edição
-let isEditing = false;
-let editingClientId = null;
-
 // Verifica se o usuário está logado ao carregar a página
 window.onload = function() {
   const storedToken = localStorage.getItem('authToken');
   const storedEstablishmentId = localStorage.getItem('currentEstablishmentId');
 
-  if (storedToken && storedEstablishmentId) {
-    currentEstablishmentId = storedEstablishmentId;
-    // Carrega o tema e o dashboard
-    loadClients();
-    applyThemeFromLocalStorage();
-    document.getElementById('loginDiv').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'block';
+  // Se não estiver logado, mostra a tela de login
+  if (!storedToken || !storedEstablishmentId) {
+    document.getElementById('loginDiv').style.display = 'block';
+    document.getElementById('dashboard').style.display = 'none';
+    return;
   }
+
+  // Se já estiver logado, busca as configurações do estabelecimento e aplica o tema
+  currentEstablishmentId = storedEstablishmentId;
+  loadEstablishmentTheme(); // Carregar o tema diretamente da API
+  loadClients();  // Carregar clientes após aplicar o tema
+  document.getElementById('loginDiv').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
 };
 
 /**
@@ -35,24 +36,44 @@ function applyTheme(theme) {
   });
 }
 
-// Função para aplicar tema do localStorage
-function applyThemeFromLocalStorage() {
-  const theme = {
-    "primary-color": localStorage.getItem('primary-color'),
-    "secondary-color": localStorage.getItem('secondary-color'),
-    "background-color": localStorage.getItem('background-color'),
-    "container-bg": localStorage.getItem('container-bg'),
-    "text-color": localStorage.getItem('text-color'),
-    "header-bg": localStorage.getItem('header-bg'),
-    "footer-bg": localStorage.getItem('footer-bg'),
-    "footer-text": localStorage.getItem('footer-text'),
-    "input-border": localStorage.getItem('input-border'),
-    "button-bg": localStorage.getItem('button-bg'),
-    "button-text": localStorage.getItem('button-text'),
-    "section-margin": localStorage.getItem('section-margin')
-  };
+// Função para buscar o tema do estabelecimento na API e aplicar as cores
+async function loadEstablishmentTheme() {
+  try {
+    const response = await fetch(`${API_URL}/establishments/${currentEstablishmentId}`);
+    const data = await response.json();
 
-  applyTheme(theme);
+    if (response.ok) {
+      // Extrai as configurações de tema do estabelecimento
+      const theme = {
+        "primary-color": data.primaryColor,
+        "secondary-color": data.secondaryColor,
+        "background-color": data.backgroundColor,
+        "container-bg": data.containerBg,
+        "text-color": data.textColor,
+        "header-bg": data.headerBg,
+        "footer-bg": data.footerBg,
+        "footer-text": data.footerText,
+        "input-border": data.inputBorder,
+        "button-bg": data.buttonBg,
+        "button-text": data.buttonText,
+        "section-margin": data.sectionMargin
+      };
+
+      // Aplica as configurações de tema
+      applyTheme(theme);
+
+      // Atualiza o logo, se existir um elemento com id "logo"
+      const logoElement = document.getElementById('logo');
+      if (logoElement) {
+        logoElement.src = data.logoURL;
+      }
+    } else {
+      alert('Erro ao carregar o tema do estabelecimento');
+    }
+  } catch (error) {
+    console.error('Erro ao carregar o tema do estabelecimento:', error);
+    alert('Erro ao carregar o tema do estabelecimento');
+  }
 }
 
 // --- Função de Login ---
@@ -91,21 +112,8 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
       localStorage.setItem('authToken', data.token);
       localStorage.setItem('currentEstablishmentId', user.establishmentId);
 
-      // Salva o tema no localStorage para persistir após o reload
-      Object.entries(user).forEach(([key, value]) => {
-        if (key.includes('color') || key === 'logoURL') {
-          localStorage.setItem(key, value);
-        }
-      });
-
-      // Aplica as configurações do tema
-      applyTheme(user);
-
-      // Atualiza o logo, se existir um elemento com id "logo"
-      const logoElement = document.getElementById('logo');
-      if (logoElement) {
-        logoElement.src = user.logoURL;
-      }
+      // Carregar o tema do estabelecimento diretamente da API
+      loadEstablishmentTheme();
 
       // Alterna para o dashboard
       document.getElementById('loginDiv').style.display = 'none';
@@ -132,24 +140,13 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
 document.getElementById('logoutBtn').addEventListener('click', () => {
   localStorage.removeItem('authToken');
   localStorage.removeItem('currentEstablishmentId');
-  localStorage.removeItem('primary-color');
-  localStorage.removeItem('secondary-color');
-  localStorage.removeItem('background-color');
-  localStorage.removeItem('container-bg');
-  localStorage.removeItem('text-color');
-  localStorage.removeItem('header-bg');
-  localStorage.removeItem('footer-bg');
-  localStorage.removeItem('footer-text');
-  localStorage.removeItem('input-border');
-  localStorage.removeItem('button-bg');
-  localStorage.removeItem('button-text');
-  localStorage.removeItem('section-margin');
 
   // Redireciona para a tela de login
   document.getElementById('loginDiv').style.display = 'block';
   document.getElementById('dashboard').style.display = 'none';
   alert('Logout realizado com sucesso!');
 });
+
 
 // --- Função para Carregar Clientes ---
 async function loadClients() {
