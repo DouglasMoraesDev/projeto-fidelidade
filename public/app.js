@@ -4,14 +4,12 @@
 // No seu frontend, substitua todas as chamadas para localhost:3000 por
 const API_URL = 'https://projeto-fidelidade-production.up.railway.app/api';
 
-
 // Variável global para armazenar o establishmentId do usuário logado
 let currentEstablishmentId = null;
 
 // Variáveis para controle do estado de edição
 let isEditing = false;
 let editingClientId = null;
-
 
 /**
  * Aplica as configurações de tema atualizando as variáveis CSS.
@@ -23,25 +21,72 @@ function applyTheme(theme) {
   });
 }
 
+// Verifica se o usuário está logado ao carregar a página
+window.onload = async function() {
+  const storedToken = localStorage.getItem('authToken');
+  const storedEstablishmentId = localStorage.getItem('currentEstablishmentId');
+
+  if (!storedToken || !storedEstablishmentId) {
+    // Se não houver token ou ID, mostra a tela de login
+    document.getElementById('loginDiv').style.display = 'block';
+    document.getElementById('dashboard').style.display = 'none';
+    return;
+  }
+
+  // Se o usuário estiver logado, busca os dados do estabelecimento para aplicar o tema
+  try {
+    const response = await fetch(`${API_URL}/establishments/${storedEstablishmentId}`, {
+      headers: { 'Authorization': `Bearer ${storedToken}` }
+    });
+
+    if (!response.ok) throw new Error('Falha ao recuperar os dados do estabelecimento');
+
+    const establishment = await response.json();
+
+    // Define o ID do estabelecimento globalmente
+    currentEstablishmentId = storedEstablishmentId;
+
+    // Aplica as configurações do tema do estabelecimento
+    applyTheme({
+      "primary-color": establishment["primary-color"],
+      "secondary-color": establishment["secondary-color"],
+      "background-color": establishment["background-color"],
+      "container-bg": establishment["container-bg"],
+      "text-color": establishment["text-color"],
+      "header-bg": establishment["header-bg"],
+      "footer-bg": establishment["footer-bg"],
+      "footer-text": establishment["footer-text"],
+      "input-border": establishment["input-border"],
+      "button-bg": establishment["button-bg"],
+      "button-text": establishment["button-text"],
+      "section-margin": establishment["section-margin"]
+    });
+
+    // Atualiza o logo, se existir um elemento com id "logo"
+    const logoElement = document.getElementById('logo');
+    if (logoElement) {
+      logoElement.src = establishment.logoURL;
+    }
+
+    // Mostra o dashboard e carrega os clientes
+    document.getElementById('loginDiv').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadClients();
+    
+  } catch (error) {
+    console.error('Erro ao manter login:', error);
+    alert('Erro ao carregar os dados do estabelecimento. Faça login novamente.');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentEstablishmentId');
+    document.getElementById('loginDiv').style.display = 'block';
+    document.getElementById('dashboard').style.display = 'none';
+  }
+};
 
 // --- Função de Login ---
 document.getElementById('loginBtn').addEventListener('click', async () => {
   const inputUsername = document.getElementById('username').value;
   const inputPassword = document.getElementById('password').value;
-
-  // Verifica se o usuário está logado ao carregar a página
-window.onload = function() {
-  const storedToken = localStorage.getItem('authToken');
-  const storedEstablishmentId = localStorage.getItem('currentEstablishmentId');
-
-  // Se não estiver logado, mostra a tela de login
-  if (!storedToken || !storedEstablishmentId) {
-    document.getElementById('loginDiv').style.display = 'block';
-    document.getElementById('dashboard').style.display = 'none';
-    return;
-  }
-}
-
 
   if (!inputUsername || !inputPassword) {
     alert('Por favor, preencha todos os campos!');
@@ -99,7 +144,7 @@ window.onload = function() {
         logoElement.src = user.logoURL;
       }
 
-      // Alterna para o dashboard
+      // Alterna para o dashboard e carrega os clientes
       document.getElementById('loginDiv').style.display = 'none';
       document.getElementById('dashboard').style.display = 'block';
       loadClients();
@@ -130,7 +175,6 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
   document.getElementById('dashboard').style.display = 'none';
   alert('Logout realizado com sucesso!');
 });
-
 
 // --- Função para Carregar Clientes ---
 async function loadClients() {
@@ -263,7 +307,7 @@ document.getElementById('saveClientBtn').addEventListener('click', async () => {
   }
 });
 
-// --- Função para Editar Cliente --- 
+// --- Função para Editar Cliente ---
 async function editClient(clientId) {
   try {
     const response = await fetch(`${API_URL}/clients?establishmentId=${currentEstablishmentId}`);
@@ -288,7 +332,7 @@ async function editClient(clientId) {
   }
 }
 
-// --- Função para Excluir Cliente --- 
+// --- Função para Excluir Cliente ---
 async function deleteClient(clientId) {
   if (!confirm('Tem certeza que deseja excluir este cliente?')) return;
   try {
