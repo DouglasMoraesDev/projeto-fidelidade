@@ -49,18 +49,18 @@ window.onload = async function() {
 
     // Aplica as configurações do tema do estabelecimento
     applyTheme({
-      "primary-color": establishment["primary-color"],
-      "secondary-color": establishment["secondary-color"],
-      "background-color": establishment["background-color"],
-      "container-bg": establishment["container-bg"],
-      "text-color": establishment["text-color"],
-      "header-bg": establishment["header-bg"],
-      "footer-bg": establishment["footer-bg"],
-      "footer-text": establishment["footer-text"],
-      "input-border": establishment["input-border"],
-      "button-bg": establishment["button-bg"],
-      "button-text": establishment["button-text"],
-      "section-margin": establishment["section-margin"]
+      "primary-color": establishment.primaryColor,
+      "secondary-color": establishment.secondaryColor,
+      "background-color": establishment.backgroundColor,
+      "container-bg": establishment.containerBg,
+      "text-color": establishment.textColor,
+      "header-bg": establishment.headerBg,
+      "footer-bg": establishment.footerBg,
+      "footer-text": establishment.footerText,
+      "input-border": establishment.inputBorder,
+      "button-bg": establishment.buttonBg,
+      "button-text": establishment.buttonText,
+      "section-margin": establishment.sectionMargin
     });
 
     // Atualiza o logo, se existir um elemento com id "logo"
