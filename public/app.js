@@ -35,7 +35,8 @@ window.onload = async function() {
 
   // Se o usuário estiver logado, busca os dados do estabelecimento para aplicar o tema
   try {
-    const response = await fetch(`${API_URL}/establishment/${storedEstablishmentId}`, {
+    // Alterado para "establishments" (plural) de acordo com a rota definida no backend
+    const response = await fetch(`${API_URL}/establishments/${storedEstablishmentId}`, {
       headers: { 'Authorization': `Bearer ${storedToken}` }
     });
 

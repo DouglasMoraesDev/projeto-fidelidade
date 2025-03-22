@@ -24,3 +24,27 @@ exports.getVoucherMessage = async (req, res) => {
     res.status(500).json({ message: 'Erro no servidor' });
   }
 };
+
+// Nova função para retornar todos os dados do estabelecimento pelo ID
+exports.getEstablishmentById = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    console.log(`🔍 Buscando estabelecimento com ID: ${id}`);
+
+    const establishment = await prisma.establishment.findUnique({
+      where: { id }
+    });
+
+    if (!establishment) {
+      console.log(`❌ Estabelecimento com ID ${id} não encontrado`);
+      return res.status(404).json({ message: 'Estabelecimento não encontrado' });
+    }
+
+    console.log(`✅ Estabelecimento encontrado`);
+    res.json(establishment);
+  } catch (error) {
+    console.error('🔥 Erro ao buscar estabelecimento:', error);
+    res.status(500).json({ message: 'Erro no servidor' });
+  }
+};
+
