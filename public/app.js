@@ -29,20 +29,6 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
   const inputUsername = document.getElementById('username').value;
   const inputPassword = document.getElementById('password').value;
 
-  // Verifica se o usuário está logado ao carregar a página
-window.onload = function() {
-  const storedToken = localStorage.getItem('authToken');
-  const storedEstablishmentId = localStorage.getItem('currentEstablishmentId');
-
-  // Se não estiver logado, mostra a tela de login
-  if (!storedToken || !storedEstablishmentId) {
-    document.getElementById('loginDiv').style.display = 'block';
-    document.getElementById('dashboard').style.display = 'none';
-    return;
-  }
-}
-
-
   if (!inputUsername || !inputPassword) {
     alert('Por favor, preencha todos os campos!');
     return;
@@ -119,6 +105,60 @@ window.onload = function() {
     alert('Erro no login. Tente novamente.');
   }
 });
+
+// --- Verificação e Manutenção do Estado de Login ao Recarregar a Página ---
+window.onload = function() {
+  const storedToken = localStorage.getItem('authToken');
+  const storedEstablishmentId = localStorage.getItem('currentEstablishmentId');
+
+  // Se o token e o estabelecimento estiverem no localStorage, mantém o usuário logado
+  if (storedToken && storedEstablishmentId) {
+    // Aqui você pode pegar os dados do usuário (se necessário, como o ID do estabelecimento) da API
+    fetch(`${API_URL}/establishments/${storedEstablishmentId}`)
+      .then(response => response.json())
+      .then(user => {
+        // Aplica o tema do estabelecimento, já que o usuário está logado
+        const theme = {
+          "primary-color": user["primary-color"],
+          "secondary-color": user["secondary-color"],
+          "background-color": user["background-color"],
+          "container-bg": user["container-bg"],
+          "text-color": user["text-color"],
+          "header-bg": user["header-bg"],
+          "footer-bg": user["footer-bg"],
+          "footer-text": user["footer-text"],
+          "input-border": user["input-border"],
+          "button-bg": user["button-bg"],
+          "button-text": user["button-text"],
+          "section-margin": user["section-margin"]
+        };
+
+        // Aplica o tema
+        applyTheme(theme);
+
+        // Atualiza o logo, se houver
+        const logoElement = document.getElementById('logo');
+        if (logoElement) {
+          logoElement.src = user.logoURL;
+        }
+
+        // Mostra o dashboard e esconde o login
+        document.getElementById('loginDiv').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+
+        // Carrega os dados do cliente, ou qualquer outra lógica necessária para o dashboard
+        loadClients();
+      })
+      .catch(error => {
+        console.error('Erro ao carregar dados do estabelecimento:', error);
+        alert('Erro ao carregar o tema ou dados do estabelecimento.');
+      });
+  } else {
+    // Se não estiver logado, mostra a tela de login
+    document.getElementById('loginDiv').style.display = 'block';
+    document.getElementById('dashboard').style.display = 'none';
+  }
+};
 
 // --- Função de Logout ---
 document.getElementById('logoutBtn').addEventListener('click', () => {
