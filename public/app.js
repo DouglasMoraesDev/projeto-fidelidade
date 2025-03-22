@@ -12,6 +12,19 @@ let currentEstablishmentId = null;
 let isEditing = false;
 let editingClientId = null;
 
+// Verifica se o usuário está logado ao carregar a página
+window.onload = function() {
+  const storedToken = localStorage.getItem('authToken');
+  const storedEstablishmentId = localStorage.getItem('currentEstablishmentId');
+
+  // Se não estiver logado, mostra a tela de login
+  if (!storedToken || !storedEstablishmentId) {
+    document.getElementById('loginDiv').style.display = 'block';
+    document.getElementById('dashboard').style.display = 'none';
+    return;
+  }
+}
+
 /**
  * Aplica as configurações de tema atualizando as variáveis CSS.
  * @param {Object} theme - Objeto contendo as configurações de tema.
