@@ -1,7 +1,4 @@
-// public/app.js
-
 // Define a URL base da API já com o prefixo /api
-// No seu frontend, substitua todas as chamadas para localhost:3000 por
 const API_URL = 'https://projeto-fidelidade-production.up.railway.app/api';
 
 // Variável global para armazenar o establishmentId do usuário logado
@@ -27,15 +24,13 @@ window.onload = async function() {
   const storedEstablishmentId = localStorage.getItem('currentEstablishmentId');
 
   if (!storedToken || !storedEstablishmentId) {
-    // Se não houver token ou ID, mostra a tela de login
     document.getElementById('loginDiv').style.display = 'block';
     document.getElementById('dashboard').style.display = 'none';
     return;
   }
 
-  // Se o usuário estiver logado, busca os dados do estabelecimento para aplicar o tema
   try {
-    // Alterado para "establishments" (plural) de acordo com a rota definida no backend
+    // Busca os dados do estabelecimento para aplicar o tema
     const response = await fetch(`${API_URL}/establishments/${storedEstablishmentId}`, {
       headers: { 'Authorization': `Bearer ${storedToken}` }
     });
@@ -43,11 +38,9 @@ window.onload = async function() {
     if (!response.ok) throw new Error('Falha ao recuperar os dados do estabelecimento');
 
     const establishment = await response.json();
-
-    // Define o ID do estabelecimento globalmente
     currentEstablishmentId = storedEstablishmentId;
 
-    // Aplica as configurações do tema do estabelecimento
+    // Aplica o tema com base nas configurações do estabelecimento
     applyTheme({
       "primary-color": establishment.primaryColor,
       "secondary-color": establishment.secondaryColor,
@@ -63,13 +56,11 @@ window.onload = async function() {
       "section-margin": establishment.sectionMargin
     });
 
-    // Atualiza o logo, se existir um elemento com id "logo"
     const logoElement = document.getElementById('logo');
     if (logoElement) {
       logoElement.src = establishment.logoURL;
     }
 
-    // Mostra o dashboard e carrega os clientes
     document.getElementById('loginDiv').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
     loadClients();
@@ -84,7 +75,7 @@ window.onload = async function() {
   }
 };
 
-// --- Função de Login ---
+// Função de Login
 document.getElementById('loginBtn').addEventListener('click', async () => {
   const inputUsername = document.getElementById('username').value;
   const inputPassword = document.getElementById('password').value;
@@ -103,7 +94,7 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
 
     let data;
     try {
-      data = await response.json(); // Tenta converter a resposta em JSON
+      data = await response.json();
     } catch (jsonError) {
       console.error('Erro ao processar JSON:', jsonError);
       alert('Erro inesperado. Tente novamente mais tarde.');
@@ -111,16 +102,14 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
     }
 
     if (response.ok) {
-      // Login bem-sucedido
       alert('Login bem-sucedido!');
       const user = data.user;
       currentEstablishmentId = user.establishmentId;
 
-      // Salva o token e o establishmentId no localStorage para persistir o login
       localStorage.setItem('authToken', data.token);
       localStorage.setItem('currentEstablishmentId', user.establishmentId);
 
-      // Cria o objeto de tema com as configurações vindas do Establishment
+      // Aplica tema baseado nas configurações do usuário/estabelecimento
       const theme = {
         "primary-color": user["primary-color"],
         "secondary-color": user["secondary-color"],
@@ -136,24 +125,19 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
         "section-margin": user["section-margin"]
       };
 
-      // Aplica as configurações do tema
       applyTheme(theme);
 
-      // Atualiza o logo, se existir um elemento com id "logo"
       const logoElement = document.getElementById('logo');
       if (logoElement) {
         logoElement.src = user.logoURL;
       }
 
-      // Alterna para o dashboard e carrega os clientes
       document.getElementById('loginDiv').style.display = 'none';
       document.getElementById('dashboard').style.display = 'block';
       loadClients();
     } else {
-      // Se o erro for de pagamento pendente, sugira o pagamento
       if (data.message && data.message.includes('Pagamento pendente')) {
         if (confirm(`${data.message}\nDeseja efetuar o pagamento agora?`)) {
-          // Redireciona para o link do MercadoPago (substitua pelo seu link real)
           window.location.href = "https://mpago.la/1Mc6Lnc";
         }
       } else {
@@ -166,24 +150,20 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
   }
 });
 
-// --- Função de Logout ---
+// Função de Logout
 document.getElementById('logoutBtn').addEventListener('click', () => {
   localStorage.removeItem('authToken');
   localStorage.removeItem('currentEstablishmentId');
-
-  // Redireciona para a tela de login
   document.getElementById('loginDiv').style.display = 'block';
   document.getElementById('dashboard').style.display = 'none';
   alert('Logout realizado com sucesso!');
 });
 
-// --- Função para Carregar Clientes ---
+// Função para Carregar Clientes
 async function loadClients() {
   try {
-    // Inclui o establishmentId na query string
     const response = await fetch(`${API_URL}/clients?establishmentId=${currentEstablishmentId}`);
     const clients = await response.json();
-    console.log('Clientes carregados:', clients);
     renderClientsTable(clients);
     displayClients(clients);
   } catch (error) {
@@ -191,7 +171,7 @@ async function loadClients() {
   }
 }
 
-// --- Função para Renderizar Tabela de Clientes ---
+// Renderiza tabela de clientes
 function renderClientsTable(clients) {
   const tableBody = document.getElementById('clientTableBody');
   let rows = '';
@@ -212,14 +192,13 @@ function renderClientsTable(clients) {
   tableBody.innerHTML = rows;
 }
 
-// --- Função para Adicionar Novo Cliente ---
+// Adiciona novo cliente
 async function addClient() {
   const clientFullName = document.getElementById('clientFullName').value;
   const clientPhone = document.getElementById('clientPhone').value;
-  const clientEmail = document.getElementById('clientEmail').value; // Opcional
+  const clientEmail = document.getElementById('clientEmail').value;
   const clientPoints = parseInt(document.getElementById('clientPoints').value) || 0;
 
-  // Validação: apenas nome e telefone são obrigatórios
   if (!clientFullName || !clientPhone) {
     alert('Por favor, preencha os campos obrigatórios: Nome e Telefone.');
     return;
@@ -241,7 +220,6 @@ async function addClient() {
     if (response.ok) {
       alert('Cliente salvo com sucesso!');
       loadClients();
-      // Opcional: limpar os campos do formulário
       document.getElementById('clientFullName').value = '';
       document.getElementById('clientPhone').value = '';
       document.getElementById('clientEmail').value = '';
@@ -255,16 +233,14 @@ async function addClient() {
   }
 }
 
-// Listener único para o botão de salvar cliente, utilizando controle de estado
+// Listener para salvar cliente (add ou update)
 document.getElementById('saveClientBtn').addEventListener('click', async () => {
   if (isEditing) {
-    // Modo de atualização
     const updatedFullName = document.getElementById('clientFullName').value;
     const updatedPhone = document.getElementById('clientPhone').value;
     const updatedEmail = document.getElementById('clientEmail').value;
     const updatedPoints = parseInt(document.getElementById('clientPoints').value) || 0;
 
-    // Validação: apenas nome e telefone são obrigatórios
     if (!updatedFullName || !updatedPhone) {
       alert('Por favor, preencha os campos obrigatórios: Nome e Telefone.');
       return;
@@ -285,12 +261,10 @@ document.getElementById('saveClientBtn').addEventListener('click', async () => {
       const data = await res.json();
       if (res.ok) {
         alert('Cliente atualizado com sucesso!');
-        // Reseta o estado de edição
         isEditing = false;
         editingClientId = null;
         document.getElementById('saveClientBtn').textContent = "Salvar Cliente";
         loadClients();
-        // Opcional: limpar os campos do formulário
         document.getElementById('clientFullName').value = '';
         document.getElementById('clientPhone').value = '';
         document.getElementById('clientEmail').value = '';
@@ -303,12 +277,11 @@ document.getElementById('saveClientBtn').addEventListener('click', async () => {
       alert('Erro ao atualizar cliente');
     }
   } else {
-    // Modo de adicionar cliente
     addClient();
   }
 });
 
-// --- Função para Editar Cliente ---
+// Editar cliente
 async function editClient(clientId) {
   try {
     const response = await fetch(`${API_URL}/clients?establishmentId=${currentEstablishmentId}`);
@@ -318,13 +291,11 @@ async function editClient(clientId) {
       alert('Cliente não encontrado!');
       return;
     }
-    // Preenche os campos com os dados do cliente (email pode estar vazio)
     document.getElementById('clientFullName').value = client.fullName;
     document.getElementById('clientPhone').value = client.phone;
     document.getElementById('clientEmail').value = client.email || '';
     document.getElementById('clientPoints').value = client.points;
 
-    // Muda o estado para edição
     isEditing = true;
     editingClientId = clientId;
     document.getElementById('saveClientBtn').textContent = "Atualizar Cliente";
@@ -333,7 +304,7 @@ async function editClient(clientId) {
   }
 }
 
-// --- Função para Excluir Cliente ---
+// Excluir cliente
 async function deleteClient(clientId) {
   if (!confirm('Tem certeza que deseja excluir este cliente?')) return;
   try {
@@ -353,7 +324,7 @@ async function deleteClient(clientId) {
   }
 }
 
-// --- Função para Buscar Clientes ---
+// Buscar clientes e preencher select
 document.getElementById('searchBtn').addEventListener('click', async () => {
   const searchTerm = document.getElementById('searchClient').value.toLowerCase();
   try {
@@ -375,7 +346,7 @@ document.getElementById('searchBtn').addEventListener('click', async () => {
   }
 });
 
-// --- Função para Adicionar Pontos a um Cliente ---
+// Adicionar pontos a um cliente
 document.getElementById('addPointsBtn').addEventListener('click', async () => {
   const clientId = document.getElementById('clientSelect').value;
   const pointsToAdd = parseInt(document.getElementById('points').value);
@@ -402,79 +373,56 @@ document.getElementById('addPointsBtn').addEventListener('click', async () => {
   }
 });
 
-// --- Função para Exibir Clientes com 10 ou Mais Pontos ---
+// Exibe clientes com 10 ou mais pontos
 function displayClients(clients) {
   const clientList = document.getElementById("clients");
-  clientList.innerHTML = ""; // Limpa a lista existente
-
-  // Filtra os clientes com 10 ou mais pontos
+  clientList.innerHTML = "";
   const filteredClients = clients.filter(client => client.points >= 10);
-
-  // Exibe apenas os clientes com 10 ou mais pontos
   filteredClients.forEach(client => {
     const listItem = document.createElement("li");
     listItem.textContent = `${client.fullName} - Pontos: ${client.points || 0}`;
-
-    // Adiciona o botão para clientes com 10 ou mais pontos
     const whatsappButton = document.createElement("button");
     whatsappButton.textContent = "Enviar Voucher";
-
-    // Ao clicar, chama a função sendVoucher passando o ID do cliente
     whatsappButton.addEventListener("click", () => sendVoucher(client.id));
-
     listItem.appendChild(whatsappButton);
     clientList.appendChild(listItem);
   });
 }
 
-// --- Função para Enviar o Voucher via WhatsApp e Resetar Pontos ---
+// Envia voucher via WhatsApp e reseta pontos
 async function sendVoucher(clienteId) {
   try {
-    const response = await fetch(`/api/voucher/${clienteId}`);
+    const response = await fetch(`${API_URL}/voucher/${clienteId}`);
     const data = await response.json();
-
     if (data.error) {
       alert("Erro ao buscar o voucher: " + data.error);
       return;
     }
-
     const numeroCliente = data.numero;
     const mensagem = encodeURIComponent(data.mensagem);
     const linkWhatsApp = `https://wa.me/${numeroCliente}?text=${mensagem}`;
-
     window.open(linkWhatsApp, "_blank");
-
-    // Após abrir o WhatsApp, reseta os pontos do cliente para 0
     await resetClientPoints(clienteId);
-
   } catch (error) {
     console.error("Erro ao enviar voucher:", error);
     alert("Erro ao enviar voucher.");
   }
 }
 
-// --- Função para Resetar os Pontos do Cliente ---
+// Reseta os pontos do cliente
 async function resetClientPoints(clienteId) {
   try {
-    const response = await fetch(`/api/reset-points/${clienteId}`, {
-      method: "PUT"
+    const response = await fetch(`${API_URL}/clients/${clienteId}/reset`, {
+      method: "PUT",
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ establishmentId: currentEstablishmentId })
     });
-
     if (!response.ok) {
       throw new Error("Erro ao resetar os pontos do cliente");
     }
-
-    alert("Voucher enviado e pontos resetados com sucesso!");
-
     const data = await response.json();
     alert(data.message);
-
-    if (data.reload) {
-      window.location.reload();
-    } else {
-      loadClients(); // Carrega a lista de clientes novamente sem recarregar a página
-    }
-
+    loadClients();
   } catch (error) {
     console.error("Erro ao resetar pontos:", error);
     alert("Erro ao resetar os pontos.");

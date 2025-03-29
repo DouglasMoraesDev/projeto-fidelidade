@@ -1,4 +1,3 @@
-// controllers/clientController.js
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
@@ -18,14 +17,23 @@ const listClients = async (req, res, next) => {
 };
 
 const createClient = async (req, res, next) => {
-  const clientData = req.body;
-  const establishmentId = parseInt(clientData.establishmentId, 10);
-  if (!establishmentId) {
-    return res.status(400).json({ message: 'EstablishmentId é obrigatório' });
+  const { fullName, phone, email, points, establishmentId } = req.body;
+  const establishmentIdNumber = parseInt(establishmentId, 10);
+  
+  // Valida os campos obrigatórios
+  if (!fullName || !phone || !establishmentIdNumber) {
+    return res.status(400).json({ message: 'fullName, phone e establishmentId são obrigatórios' });
   }
+  
   try {
     const newClient = await prisma.client.create({
-      data: clientData
+      data: {
+        fullName,
+        phone,
+        email,
+        points: points || 0,
+        establishmentId: establishmentIdNumber
+      }
     });
     res.status(201).json(newClient);
   } catch (error) {
@@ -35,15 +43,17 @@ const createClient = async (req, res, next) => {
 
 const updateClient = async (req, res, next) => {
   const clientId = parseInt(req.params.id, 10);
-  const { establishmentId, ...clientData } = req.body;
+  const { fullName, phone, email, points, establishmentId } = req.body;
   const establishmentIdNumber = parseInt(establishmentId, 10);
-  if (!establishmentIdNumber) {
-    return res.status(400).json({ message: 'EstablishmentId é obrigatório' });
+  
+  if (!fullName || !phone || !establishmentIdNumber) {
+    return res.status(400).json({ message: 'fullName, phone e establishmentId são obrigatórios' });
   }
+  
   try {
     const updatedClient = await prisma.client.update({
       where: { id: clientId },
-      data: clientData
+      data: { fullName, phone, email, points, establishmentId: establishmentIdNumber }
     });
     res.json({ message: 'Cliente atualizado', client: updatedClient });
   } catch (error) {

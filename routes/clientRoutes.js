@@ -1,4 +1,3 @@
-// routes/clientRoutes.js
 const express = require('express');
 const router = express.Router();
 const clientController = require('../controllers/clientController');
@@ -12,4 +11,3 @@ router.put('/:id/reset', clientController.resetClientPoints);
 router.put('/:id/send-voucher', clientController.sendVoucherAndResetPoints);
 
 module.exports = router;
-
