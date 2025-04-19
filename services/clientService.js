@@ -2,6 +2,7 @@
 
 const { Op } = require('sequelize');
 const Client = require('../models/Client');
+const { getPoints } = require('../controllers/clientController');
 
 const getClients = async (establishmentId) => {
   return await Client.findAll({ where: { establishmentId } });
@@ -67,4 +68,15 @@ const resetClientPoints = async (clientId, establishmentId) => {
   return client;
 };
 
-module.exports = { getClients, createClient, updateClient, deleteClient, addPoints, resetClientPoints };
+exports.getPoints = async (clientNumber, establishmentId) => {
+  const client = await Client.findOne({
+    where: {
+      number: clientNumber,
+      establishmentId: establishmentId
+    },
+    attributes: ['points']
+  });
+  return client ? client.points : null;
+};
+
+module.exports = { getClients, createClient, updateClient, deleteClient, addPoints, resetClientPoints, getPoints };

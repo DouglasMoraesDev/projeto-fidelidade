@@ -164,7 +164,19 @@ const sendVoucherAndResetPoints = async (req, res, next) => {
   }
 };
 
+exports.getPoints = async (phone, establishmentId) => {
+  const client = await Client.findOne({
+    where: {
+      phone,
+      establishmentId
+    },
+    attributes: ['points']
+  });
+  return client ? client.points : null;
+};
+
 module.exports = { 
+  getPoints,
   listClients, 
   createClient, 
   updateClient, 
