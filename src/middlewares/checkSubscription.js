@@ -1,5 +1,5 @@
 // src/middlewares/checkSubscription.js
-const { prisma } = require('../db');
+const { prisma } = require('./checkAuth'); // ajuste o caminho conforme necessário
 
 async function checkSubscription(req, res, next) {
   const estId = req.user.establishmentId; // supondo que o auth já tenha populado req.user
