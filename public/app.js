@@ -203,8 +203,7 @@ function renderClientsTable(clients) {
   tableBody.innerHTML = rows;
 }
 
-const BASE_URL = API_URL.replace(/\/api$/, '');
-
+// Renderiza QR Code e link para pontos
 function renderQRCode() {
   const qrImg = document.getElementById('qrCodeImg');
   const link  = document.getElementById('pointsLink');
