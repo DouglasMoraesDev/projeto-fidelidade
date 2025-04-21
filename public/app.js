@@ -1,18 +1,26 @@
-// Define a URL base da API já com o prefixo /api
-const API_URL = 'https://projeto-fidelidade-production.up.railway.app/api';
-BASE_URL="https://projeto-fidelidade-production.up.railway.app"
+// =========================
+// Configuração de URLs
+// =========================
+// Definimos BASE_URL e API_URL logo no início, para evitar duplicações
+const BASE_URL = 'https://projeto-fidelidade-production.up.railway.app';
+const API_URL  = `${BASE_URL}/api`;
 
-
-// Variável global para armazenar o establishmentId do usuário logado
+// =========================
+// Estado global
+// =========================
+// Armazena o establishmentId do usuário logado (inicialmente nulo)
 let currentEstablishmentId = null;
-
-// Variáveis para controle do estado de edição
+// Controle de edição de clientes
 let isEditing = false;
 let editingClientId = null;
 
+// =========================
+// Funções utilitárias
+// =========================
+
 /**
- * Aplica as configurações de tema atualizando as variáveis CSS.
- * @param {Object} theme - Objeto contendo as configurações de tema.
+ * Aplica as configurações de tema, atualizando variáveis CSS.
+ * @param {Object} theme - mapeamento de variáveis CSS para valores.
  */
 function applyTheme(theme) {
   Object.entries(theme).forEach(([key, value]) => {
@@ -20,56 +28,73 @@ function applyTheme(theme) {
   });
 }
 
-// Verifica se o usuário está logado ao carregar a página
-window.onload = async function() {
-  const storedToken = localStorage.getItem('authToken');
-  const storedEstablishmentId = localStorage.getItem('currentEstablishmentId');
+/**
+ * Renderiza o QR Code e atualiza o link de consulta de pontos.
+ * Deve ser chamado somente após currentEstablishmentId estar definido.
+ */
+function renderQRCode() {
+  const qrImg = document.getElementById('qrCodeImg');
+  const link  = document.getElementById('pointsLink');
 
-  if (!storedToken || !storedEstablishmentId) {
+  // URL do endpoint que gera o QR Code
+  qrImg.src = `${API_URL}/establishments/${currentEstablishmentId}/qrcode`;
+  // Link para a página de pontos, passando o establishmentId
+  link.href = `${BASE_URL}/points.html?establishmentId=${currentEstablishmentId}`;
+}
+
+// =========================
+// Fluxo de inicialização
+// =========================
+window.onload = async function() {
+  // 1) Recupera token e establishmentId do localStorage
+  const storedToken = localStorage.getItem('authToken');
+  const storedEstId = localStorage.getItem('currentEstablishmentId');
+
+  // 2) Se faltar token ou ID, exibe tela de login e retorna
+  if (!storedToken || !storedEstId) {
     document.getElementById('loginDiv').style.display = 'block';
     document.getElementById('dashboard').style.display = 'none';
     return;
   }
 
   try {
-    // Busca os dados do estabelecimento para aplicar o tema
-    const response = await fetch(`${API_URL}/establishments/${storedEstablishmentId}`, {
+    // 3) Busca dados do estabelecimento para tema e logo
+    const res = await fetch(`${API_URL}/establishments/${storedEstId}`, {
       headers: { 'Authorization': `Bearer ${storedToken}` }
     });
+    if (!res.ok) throw new Error('Falha ao recuperar dados do estabelecimento');
 
-    if (!response.ok) throw new Error('Falha ao recuperar os dados do estabelecimento');
+    const establishment = await res.json();
+    currentEstablishmentId = storedEstId; // define o ID global
 
-    const establishment = await response.json();
-    currentEstablishmentId = storedEstablishmentId;
-
-    // Aplica o tema com base nas configurações do estabelecimento
+    // 4) Aplica tema e atualiza logo
     applyTheme({
-      "primary-color": establishment.primaryColor,
+      "primary-color":   establishment.primaryColor,
       "secondary-color": establishment.secondaryColor,
       "background-color": establishment.backgroundColor,
-      "container-bg": establishment.containerBg,
-      "text-color": establishment.textColor,
-      "header-bg": establishment.headerBg,
-      "footer-bg": establishment.footerBg,
-      "footer-text": establishment.footerText,
-      "input-border": establishment.inputBorder,
-      "button-bg": establishment.buttonBg,
-      "button-text": establishment.buttonText,
-      "section-margin": establishment.sectionMargin
+      "container-bg":    establishment.containerBg,
+      "text-color":      establishment.textColor,
+      "header-bg":       establishment.headerBg,
+      "footer-bg":       establishment.footerBg,
+      "footer-text":     establishment.footerText,
+      "input-border":    establishment.inputBorder,
+      "button-bg":       establishment.buttonBg,
+      "button-text":     establishment.buttonText,
+      "section-margin":  establishment.sectionMargin
     });
-
     const logoElement = document.getElementById('logo');
-    if (logoElement) {
-      logoElement.src = establishment.logoURL;
-    }
+    if (logoElement) logoElement.src = establishment.logoURL;
 
+    // 5) Exibe dashboard e carrega clientes
     document.getElementById('loginDiv').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
     loadClients();
-    
+
+    // 6) Por fim, renderiza o QR Code
+    renderQRCode();
   } catch (error) {
     console.error('Erro ao manter login:', error);
-    alert('Erro ao carregar os dados do estabelecimento. Faça login novamente.');
+    alert('Erro ao carregar dados do estabelecimento. Faça login novamente.');
     localStorage.removeItem('authToken');
     localStorage.removeItem('currentEstablishmentId');
     document.getElementById('loginDiv').style.display = 'block';
@@ -77,91 +102,76 @@ window.onload = async function() {
   }
 };
 
+// =========================
 // Função de Login
+// =========================
 document.getElementById('loginBtn').addEventListener('click', async () => {
-  const inputUsername = document.getElementById('username').value;
-  const inputPassword = document.getElementById('password').value;
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
 
-  if (!inputUsername || !inputPassword) {
-    alert('Por favor, preencha todos os campos!');
-    return;
+  if (!username || !password) {
+    return alert('Por favor, preencha todos os campos!');
   }
 
   try {
-    const response = await fetch(`${API_URL}/login`, {
+    const res = await fetch(`${API_URL}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: inputUsername, password: inputPassword })
+      body: JSON.stringify({ username, password })
     });
+    const data = await res.json();
 
-    let data;
-    try {
-      data = await response.json();
-    } catch (jsonError) {
-      console.error('Erro ao processar JSON:', jsonError);
-      alert('Erro inesperado. Tente novamente mais tarde.');
-      return;
-    }
-
-    if (response.ok) {
-      alert('Login bem-sucedido!');
-      const user = data.user;
-      currentEstablishmentId = user.establishmentId;
-
-      localStorage.setItem('authToken', data.token);
-      localStorage.setItem('currentEstablishmentId', user.establishmentId);
-
-      // Aplica tema baseado nas configurações do usuário/estabelecimento
-      const theme = {
-        "primary-color": user["primary-color"],
-        "secondary-color": user["secondary-color"],
-        "background-color": user["background-color"],
-        "container-bg": user["container-bg"],
-        "text-color": user["text-color"],
-        "header-bg": user["header-bg"],
-        "footer-bg": user["footer-bg"],
-        "footer-text": user["footer-text"],
-        "input-border": user["input-border"],
-        "button-bg": user["button-bg"],
-        "button-text": user["button-text"],
-        "section-margin": user["section-margin"]
-      };
-
-      applyTheme(theme);
-
-      const logoElement = document.getElementById('logo');
-      if (logoElement) {
-        logoElement.src = user.logoURL;
-      }
-
-      document.getElementById('loginDiv').style.display = 'none';
-      document.getElementById('dashboard').style.display = 'block';
-      loadClients();
-    } else {
+    if (!res.ok) {
+      // caso de pagamento pendente ou credenciais inválidas
       if (data.message && data.message.includes('Pagamento pendente')) {
         if (confirm(`${data.message}\nDeseja efetuar o pagamento agora?`)) {
-          window.location.href = "https://mpago.la/1Mc6Lnc";
+          window.location.href = 'https://mpago.la/1Mc6Lnc';
         }
       } else {
         alert(data.message || 'Usuário ou senha inválidos!');
       }
+      return;
     }
-  } catch (error) {
-    console.error('Erro no login:', error);
+
+    // 1) Ajusta estado global e armazena credenciais
+    currentEstablishmentId = data.user.establishmentId;
+    localStorage.setItem('authToken', data.token);
+    localStorage.setItem('currentEstablishmentId', currentEstablishmentId);
+
+    // 2) Aplica tema e logo do usuário
+    applyTheme({
+      "primary-color":   data.user['primary-color'],
+      "secondary-color": data.user['secondary-color'],
+      "background-color":data.user['background-color'],
+      "container-bg":    data.user['container-bg'],
+      "text-color":      data.user['text-color'],
+      "header-bg":       data.user['header-bg'],
+      "footer-bg":       data.user['footer-bg'],
+      "footer-text":     data.user['footer-text'],
+      "input-border":    data.user['input-border'],
+      "button-bg":       data.user['button-bg'],
+      "button-text":     data.user['button-text'],
+      "section-margin":  data.user['section-margin']
+    });
+    const logoEl = document.getElementById('logo');
+    if (logoEl) logoEl.src = data.user.logoURL;
+
+    // 3) Exibe dashboard, carrega clientes e QR Code
+    document.getElementById('loginDiv').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadClients();
+    renderQRCode();
+
+    alert('Login bem‑sucedido!');
+  } catch (err) {
+    console.error('Erro no login:', err);
     alert('Erro no login. Tente novamente.');
   }
 });
 
-
-
-// No window.onload, depois de loadClients():
-renderQRCode();
-
-// E também, dentro do bloco de sucesso do login, depois de loadClients():
-renderQRCode();
-
-
+// =========================
 // Função de Logout
+// =========================
 document.getElementById('logoutBtn').addEventListener('click', () => {
   localStorage.removeItem('authToken');
   localStorage.removeItem('currentEstablishmentId');
@@ -170,284 +180,212 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
   alert('Logout realizado com sucesso!');
 });
 
-// Função para Carregar Clientes
+// =========================
+// Funções de Cliente
+// =========================
+
+/**
+ * Busca e renderiza a lista de clientes do estabelecimento.
+ */
 async function loadClients() {
   try {
-    const response = await fetch(`${API_URL}/clients?establishmentId=${currentEstablishmentId}`);
-    const clients = await response.json();
+    const res = await fetch(`${API_URL}/clients?establishmentId=${currentEstablishmentId}`);
+    const clients = await res.json();
     renderClientsTable(clients);
     displayClients(clients);
-  } catch (error) {
-    console.error('Erro ao carregar clientes:', error);
+  } catch (err) {
+    console.error('Erro ao carregar clientes:', err);
   }
 }
 
-// Renderiza tabela de clientes
+/**
+ * Gera as linhas da tabela de clientes.
+ */
 function renderClientsTable(clients) {
-  const tableBody = document.getElementById('clientTableBody');
-  let rows = '';
-  clients.forEach(client => {
-    rows += `
-      <tr>
-        <td>${client.fullName}</td>
-        <td>${client.email || ''}</td>
-        <td>${client.phone}</td>
-        <td>${client.points}</td>
-        <td id="acoes">
-          <button onclick="editClient('${client.id}')">Editar</button>
-          <button onclick="deleteClient('${client.id}')">Excluir</button>
-        </td>
-      </tr>
-    `;
+  const tbody = document.getElementById('clientTableBody');
+  tbody.innerHTML = clients.map(c => `
+    <tr>
+      <td>${c.fullName}</td>
+      <td>${c.email || ''}</td>
+      <td>${c.phone}</td>
+      <td>${c.points}</td>
+      <td id="acoes">
+        <button onclick="editClient('${c.id}')">Editar</button>
+        <button onclick="deleteClient('${c.id}')">Excluir</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+/**
+ * Exibe somente clientes com ao menos 10 pontos e botão de voucher.
+ */
+function displayClients(clients) {
+  const list = document.getElementById('clients');
+  list.innerHTML = '';
+  clients.filter(c => c.points >= 10).forEach(c => {
+    const li = document.createElement('li');
+    li.textContent = `${c.fullName} - Pontos: ${c.points}`;
+    const btn = document.createElement('button');
+    btn.textContent = 'Enviar Voucher';
+    btn.addEventListener('click', () => sendVoucher(c.id));
+    li.appendChild(btn);
+    list.appendChild(li);
   });
-  tableBody.innerHTML = rows;
 }
 
-// Renderiza QR Code e link para pontos
-function renderQRCode() {
-  const qrImg = document.getElementById('qrCodeImg');
-  const link  = document.getElementById('pointsLink');
-  qrImg.src   = `${API_URL}/establishments/${currentEstablishmentId}/qrcode`;
-  link.href   = `${BASE_URL}/points.html?establishmentId=${currentEstablishmentId}`;
-}
+/**
+ * Adiciona ou atualiza um cliente, baseado em isEditing.
+ */
+async function saveClient() {
+  const fullName = document.getElementById('clientFullName').value.trim();
+  const phone    = document.getElementById('clientPhone').value.trim();
+  const email    = document.getElementById('clientEmail').value.trim();
+  const points   = parseInt(document.getElementById('clientPoints').value) || 0;
 
-// No window.onload e após login bem‑sucedido:
-renderQRCode();
-
-
-// Adiciona novo cliente
-async function addClient() {
-  const clientFullName = document.getElementById('clientFullName').value;
-  const clientPhone = document.getElementById('clientPhone').value;
-  const clientEmail = document.getElementById('clientEmail').value;
-  const clientPoints = parseInt(document.getElementById('clientPoints').value) || 0;
-
-  if (!clientFullName || !clientPhone) {
-    alert('Por favor, preencha os campos obrigatórios: Nome e Telefone.');
-    return;
+  if (!fullName || !phone) {
+    return alert('Nome e telefone são obrigatórios!');
   }
 
+  const method = isEditing ? 'PUT' : 'POST';
+  const url    = isEditing
+    ? `${API_URL}/clients/${editingClientId}`
+    : `${API_URL}/clients`;
+  const body   = { fullName, phone, email, points, establishmentId: currentEstablishmentId };
+
   try {
-    const response = await fetch(`${API_URL}/clients`, {
-      method: 'POST',
+    const res = await fetch(url, {
+      method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        fullName: clientFullName, 
-        phone: clientPhone, 
-        email: clientEmail, 
-        points: clientPoints, 
-        establishmentId: currentEstablishmentId 
-      })
+      body: JSON.stringify(body)
     });
-    const data = await response.json();
-    if (response.ok) {
-      alert('Cliente salvo com sucesso!');
-      loadClients();
-      document.getElementById('clientFullName').value = '';
-      document.getElementById('clientPhone').value = '';
-      document.getElementById('clientEmail').value = '';
-      document.getElementById('clientPoints').value = '';
-    } else {
-      alert(data.message || 'Erro ao salvar cliente');
-    }
-  } catch (error) {
-    console.error('Erro ao salvar cliente:', error);
-    alert('Erro ao salvar cliente');
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Erro ao salvar cliente');
+
+    alert(isEditing ? 'Cliente atualizado!' : 'Cliente criado!');
+    isEditing = false;
+    editingClientId = null;
+    document.getElementById('saveClientBtn').textContent = 'Salvar Cliente';
+    ['clientFullName','clientPhone','clientEmail','clientPoints'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    loadClients();
+  } catch (err) {
+    console.error('Erro no saveClient:', err);
+    alert(err.message);
   }
 }
+document.getElementById('saveClientBtn').addEventListener('click', saveClient);
 
-// Listener para salvar cliente (add ou update)
-document.getElementById('saveClientBtn').addEventListener('click', async () => {
-  if (isEditing) {
-    const updatedFullName = document.getElementById('clientFullName').value;
-    const updatedPhone = document.getElementById('clientPhone').value;
-    const updatedEmail = document.getElementById('clientEmail').value;
-    const updatedPoints = parseInt(document.getElementById('clientPoints').value) || 0;
-
-    if (!updatedFullName || !updatedPhone) {
-      alert('Por favor, preencha os campos obrigatórios: Nome e Telefone.');
-      return;
-    }
-
-    try {
-      const res = await fetch(`${API_URL}/clients/${editingClientId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          fullName: updatedFullName, 
-          phone: updatedPhone, 
-          email: updatedEmail,
-          points: updatedPoints,
-          establishmentId: currentEstablishmentId 
-        })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        alert('Cliente atualizado com sucesso!');
-        isEditing = false;
-        editingClientId = null;
-        document.getElementById('saveClientBtn').textContent = "Salvar Cliente";
-        loadClients();
-        document.getElementById('clientFullName').value = '';
-        document.getElementById('clientPhone').value = '';
-        document.getElementById('clientEmail').value = '';
-        document.getElementById('clientPoints').value = '';
-      } else {
-        alert(data.message || 'Erro ao atualizar cliente');
-      }
-    } catch (error) {
-      console.error('Erro ao atualizar cliente:', error);
-      alert('Erro ao atualizar cliente');
-    }
-  } else {
-    addClient();
-  }
-});
-
-// Editar cliente
-async function editClient(clientId) {
+/**
+ * Popula o form para editar um cliente existente.
+ */
+async function editClient(id) {
   try {
-    const response = await fetch(`${API_URL}/clients?establishmentId=${currentEstablishmentId}`);
-    const clients = await response.json();
-    const client = clients.find(c => c.id == clientId);
-    if (!client) {
-      alert('Cliente não encontrado!');
-      return;
-    }
-    document.getElementById('clientFullName').value = client.fullName;
-    document.getElementById('clientPhone').value = client.phone;
-    document.getElementById('clientEmail').value = client.email || '';
-    document.getElementById('clientPoints').value = client.points;
+    const res = await fetch(`${API_URL}/clients?establishmentId=${currentEstablishmentId}`);
+    const clients = await res.json();
+    const client = clients.find(c => c.id === id);
+    if (!client) throw new Error('Cliente não encontrado');
+
+    ['clientFullName','clientPhone','clientEmail','clientPoints'].forEach(field => {
+      document.getElementById(field).value = client[field.replace('client','').toLowerCase()] || '';
+    });
 
     isEditing = true;
-    editingClientId = clientId;
-    document.getElementById('saveClientBtn').textContent = "Atualizar Cliente";
-  } catch (error) {
-    console.error('Erro:', error);
+    editingClientId = id;
+    document.getElementById('saveClientBtn').textContent = 'Atualizar Cliente';
+  } catch (err) {
+    console.error('Erro no editClient:', err);
+    alert(err.message);
   }
 }
 
-// Excluir cliente
-async function deleteClient(clientId) {
-  if (!confirm('Tem certeza que deseja excluir este cliente?')) return;
+/**
+ * Exclui um cliente após confirmação.
+ */
+async function deleteClient(id) {
+  if (!confirm('Deseja realmente excluir este cliente?')) return;
   try {
-    const response = await fetch(`${API_URL}/clients/${clientId}?establishmentId=${currentEstablishmentId}`, { 
-      method: 'DELETE' 
-    });
-    const data = await response.json();
-    if (response.ok) {
-      alert('Cliente excluído com sucesso!');
-      loadClients();
-    } else {
-      alert(data.message || 'Erro ao excluir cliente');
-    }
-  } catch (error) {
-    console.error('Erro ao excluir cliente:', error);
-    alert('Erro ao excluir cliente');
+    const res = await fetch(`${API_URL}/clients/${id}?establishmentId=${currentEstablishmentId}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Erro ao excluir cliente');
+    alert('Cliente excluído!');
+    loadClients();
+  } catch (err) {
+    console.error('Erro no deleteClient:', err);
+    alert(err.message);
   }
 }
 
-// Buscar clientes e preencher select
+// Busca clientes para o select de pontos
 document.getElementById('searchBtn').addEventListener('click', async () => {
-  const searchTerm = document.getElementById('searchClient').value.toLowerCase();
+  const term = document.getElementById('searchClient').value.trim().toLowerCase();
   try {
-    const response = await fetch(`${API_URL}/clients?establishmentId=${currentEstablishmentId}`);
-    const clients = await response.json();
-    const filteredClients = clients.filter(client => 
-      client.fullName && client.fullName.toLowerCase().includes(searchTerm)
-    );
-    const clientSelect = document.getElementById('clientSelect');
-    clientSelect.innerHTML = '<option value="">Selecione o cliente</option>';
-    filteredClients.forEach(client => {
-      const option = document.createElement('option');
-      option.value = client.id;
-      option.textContent = client.fullName;
-      clientSelect.appendChild(option);
-    });
-  } catch (error) {
-    console.error('Erro ao buscar clientes:', error);
+    const res = await fetch(`${API_URL}/clients?establishmentId=${currentEstablishmentId}`);
+    const clients = await res.json();
+    const select = document.getElementById('clientSelect');
+    select.innerHTML = '<option value="">Selecione o cliente</option>';
+    clients.filter(c => c.fullName.toLowerCase().includes(term))
+           .forEach(c => select.append(new Option(c.fullName, c.id)));
+  } catch (err) {
+    console.error('Erro no searchClient:', err);
   }
 });
 
-// Adicionar pontos a um cliente
+// Adiciona pontos a um cliente selecionado
 document.getElementById('addPointsBtn').addEventListener('click', async () => {
   const clientId = document.getElementById('clientSelect').value;
-  const pointsToAdd = parseInt(document.getElementById('points').value);
-  if (!clientId || !pointsToAdd) {
-    alert('Selecione um cliente e informe os pontos!');
-    return;
-  }
+  const pts      = parseInt(document.getElementById('points').value);
+  if (!clientId || !pts) return alert('Selecione cliente e pontos válidos');
+
   try {
-    const response = await fetch(`${API_URL}/clients/${clientId}/points`, {
+    const res = await fetch(`${API_URL}/clients/${clientId}/points`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pointsToAdd, establishmentId: currentEstablishmentId })
+      body: JSON.stringify({ pointsToAdd: pts, establishmentId: currentEstablishmentId })
     });
-    const data = await response.json();
-    if (response.ok) {
-      alert('Pontos adicionados com sucesso!');
-      loadClients();
-    } else {
-      alert(data.message || 'Erro ao adicionar pontos');
-    }
-  } catch (error) {
-    console.error('Erro ao adicionar pontos:', error);
-    alert('Erro ao adicionar pontos');
+    if (!res.ok) throw new Error('Falha ao adicionar pontos');
+    alert('Pontos adicionados com sucesso!');
+    loadClients();
+  } catch (err) {
+    console.error('Erro no addPoints:', err);
+    alert(err.message);
   }
 });
 
-// Exibe clientes com 10 ou mais pontos
-function displayClients(clients) {
-  const clientList = document.getElementById("clients");
-  clientList.innerHTML = "";
-  const filteredClients = clients.filter(client => client.points >= 10);
-  filteredClients.forEach(client => {
-    const listItem = document.createElement("li");
-    listItem.textContent = `${client.fullName} - Pontos: ${client.points || 0}`;
-    const whatsappButton = document.createElement("button");
-    whatsappButton.textContent = "Enviar Voucher";
-    whatsappButton.addEventListener("click", () => sendVoucher(client.id));
-    listItem.appendChild(whatsappButton);
-    clientList.appendChild(listItem);
-  });
-}
-
-// Envia voucher via WhatsApp e reseta pontos
+/**
+ * Envia voucher via WhatsApp e reseta os pontos do cliente.
+ */
 async function sendVoucher(clienteId) {
   try {
-    const response = await fetch(`${API_URL}/voucher/${clienteId}`);
-    const data = await response.json();
-    if (data.error) {
-      alert("Erro ao buscar o voucher: " + data.error);
-      return;
-    }
-    const numeroCliente = data.numero;
-    const mensagem = encodeURIComponent(data.mensagem);
-    const linkWhatsApp = `https://wa.me/${numeroCliente}?text=${mensagem}`;
-    window.open(linkWhatsApp, "_blank");
+    const res = await fetch(`${API_URL}/voucher/${clienteId}`);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    const url = `https://wa.me/${data.numero}?text=${encodeURIComponent(data.mensagem)}`;
+    window.open(url, '_blank');
     await resetClientPoints(clienteId);
-  } catch (error) {
-    console.error("Erro ao enviar voucher:", error);
-    alert("Erro ao enviar voucher.");
+  } catch (err) {
+    console.error('Erro no sendVoucher:', err);
+    alert(err.message);
   }
 }
 
-// Reseta os pontos do cliente
+/**
+ * Reseta os pontos do cliente após enviar voucher.
+ */
 async function resetClientPoints(clienteId) {
   try {
-    const response = await fetch(`${API_URL}/clients/${clienteId}/reset`, {
-      method: "PUT",
+    const res = await fetch(`${API_URL}/clients/${clienteId}/reset`, {
+      method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ establishmentId: currentEstablishmentId })
     });
-    if (!response.ok) {
-      throw new Error("Erro ao resetar os pontos do cliente");
-    }
-    const data = await response.json();
-    alert(data.message);
+    if (!res.ok) throw new Error('Falha ao resetar pontos');
+    const data = await res.json();
+    alert(data.message || 'Pontos resetados com sucesso!');
     loadClients();
-  } catch (error) {
-    console.error("Erro ao resetar pontos:", error);
-    alert("Erro ao resetar os pontos.");
+  } catch (err) {
+    console.error('Erro no resetClientPoints:', err);
+    alert(err.message);
   }
 }
