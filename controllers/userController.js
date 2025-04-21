@@ -1,13 +1,25 @@
 // controllers/userController.js
+const jwt = require('jsonwebtoken');
 const { login } = require('../services/userService');
+
+const SECRET = process.env.JWT_SECRET || 'sua_chave_secreta_de_teste';
 
 const loginController = async (req, res, next) => {
   const { username, password } = req.body;
   try {
     const { user, establishment } = await login(username, password);
+
+    // Gera token JWT
+    const token = jwt.sign(
+      { id: user.id, establishmentId: user.establishmentId },
+      SECRET,
+      { expiresIn: '7d' } // token válido por 7 dias (ajustável)
+    );
+
     res.json({
       success: true,
       message: 'Login bem-sucedido',
+      token, // ← Aqui está o token!
       user: {
         id: user.id,
         username: user.username,
@@ -36,4 +48,3 @@ const loginController = async (req, res, next) => {
 };
 
 module.exports = { login: loginController };
-
