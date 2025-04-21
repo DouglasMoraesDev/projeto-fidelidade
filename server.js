@@ -28,8 +28,7 @@ app.use(express.static('public'));
 
 app.use('/api',
   checkAuth,           // valida JWT e popula req.user
-  checkSubscription,   // valida pagamento
-  apiRouter            // suas rotas de clients, vendas, etc.
+  checkSubscription,   // valida pagamento            // suas rotas de clients, vendas, etc.
 );
 
 // Middleware de tratamento de erros (importante para depuração)
