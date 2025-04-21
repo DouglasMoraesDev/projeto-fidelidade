@@ -26,6 +26,17 @@
   <!-- Dashboard (inicialmente oculto) -->
   <div id="dashboard" style="display:none;">
 
+      <!-- Seção de QR Code -->
+  <div class="dashboard-container" id="qrSection">
+    <h3>QR Code para consulta de pontos</h3>
+    <img id="qrCodeImg" alt="QR Code do estabelecimento" style="max-width:200px;"/>
+    <p>
+      Ou abra diretamente:
+      <a id="pointsLink" href="#" target="_blank">Consultar meus pontos</a>
+    </p>
+  </div>
+
+
     <button id="logoutBtn" style="position: fixed; top: 20px; right: 20px;">Sair</button> <br>
     <!-- Cabeçalho: Título e Logo -->
     <div class="dashboard-container header-container" id="headerSection">

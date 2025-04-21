@@ -1,6 +1,7 @@
 // Define a URL base da API já com o prefixo /api
 const API_URL = 'https://projeto-fidelidade-production.up.railway.app/api';
 
+
 // Variável global para armazenar o establishmentId do usuário logado
 let currentEstablishmentId = null;
 
@@ -149,6 +150,26 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
     alert('Erro no login. Tente novamente.');
   }
 });
+
+// Defina logo acima de tudo:
+const BASE_URL = API_URL.replace(/\/api$/, '');
+
+function renderQRCode() {
+  const qrImg = document.getElementById('qrCodeImg');
+  const link  = document.getElementById('pointsLink');
+
+  // Aponta para a API que gera o QR
+  qrImg.src = `${API_URL}/establishments/${currentEstablishmentId}/qrcode`;
+  // Link direto para a página de consulta
+  link.href = `${BASE_URL}/points.html?establishmentId=${currentEstablishmentId}`;
+}
+
+// No window.onload, depois de loadClients():
+renderQRCode();
+
+// E também, dentro do bloco de sucesso do login, depois de loadClients():
+renderQRCode();
+
 
 // Função de Logout
 document.getElementById('logoutBtn').addEventListener('click', () => {

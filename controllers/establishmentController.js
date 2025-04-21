@@ -49,16 +49,14 @@ exports.getEstablishmentById = async (req, res) => {
   }
 };
 
-const QRCode = require('qrcode');
-
 exports.getQRCode = async (req, res) => {
   try {
-    const establishmentId = req.params.id;
-    // URL pública que serve a página de consulta de pontos
-    const baseUrl = process.env.BASE_URL || 'https://https://projeto-fidelidade-production.up.railway.app/points.html';
+    const establishmentId = parseInt(req.params.id, 10);
+
+    // Use a variável de ambiente BASE_URL, ou localhost:3000 em dev
+    const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
     const targetUrl = `${baseUrl}/points.html?establishmentId=${establishmentId}`;
 
-    // Gera imagem em PNG e retorna direto no response
     res.type('png');
     await QRCode.toFileStream(res, targetUrl);
   } catch (err) {
