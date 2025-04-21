@@ -1,4 +1,3 @@
-// routes/establishmentRoutes.js
 const express = require('express');
 const router = express.Router();
 const {
@@ -7,10 +6,10 @@ const {
   getQRCode
 } = require('../controllers/establishmentController');
 
-// Rota de QR Code
+// QR Code
 router.get('/:id/qrcode', getQRCode);
 
-// Rota de dados e de voucher message
+// Dados do estabelecimento e mensagem de voucher
 router.get('/:id', getEstablishmentById);
 router.get('/:id/voucher-message', getVoucherMessage);
 
