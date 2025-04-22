@@ -8,7 +8,7 @@ const clientRoutes = require('./routes/clientRoutes');
 const establishmentRoutes = require('./routes/establishmentRoutes');
 const userRoutes = require('./routes/userRoutes');
 const voucherRoutes = require('./routes/voucher');
-const checkAuth = require('./src/middlewares/checkAuth');
+const { checkAuth } = require('./src/middlewares/checkAuth');
 const { checkSubscription } = require('./src/middlewares/checkSubscription');
 
 const app = express();
