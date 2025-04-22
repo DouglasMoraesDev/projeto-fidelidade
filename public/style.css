@@ -206,6 +206,10 @@ button:hover {
   transform: translateY(-3px);
 }
 
+#qrSection{
+  color: var(--text-color);
+}
+
 /* ==========================================================================  
    Formulários: Labels, Inputs e Selects  
    ========================================================================== */
