@@ -1,4 +1,4 @@
-// app.js
+// public/app.js
 
 // =========================
 // Configuração de URLs
@@ -16,17 +16,14 @@ async function apiFetch(url, options = {}) {
     alert('Sessão expirada. Faça login novamente.');
     localStorage.removeItem('authToken');
     localStorage.removeItem('currentEstablishmentId');
-    window.location.href = '/';
-    throw new Error('Unauthorized');
+    return window.location.href = '/'; 
   }
-
   if (res.status === 402) {
     const err = await res.json();
     alert(err.message || 'Assinatura expirada');
     localStorage.removeItem('authToken');
     localStorage.removeItem('currentEstablishmentId');
-    window.location.href = '/payment.html';
-    throw new Error('Subscription expired');
+    return window.location.href = '/payment.html';
   }
 
   return res;
@@ -40,7 +37,7 @@ let isEditing = false;
 let editingClientId = null;
 
 // =========================
-// Funções utilitárias
+// Utilitários de tema e QR
 // =========================
 function applyTheme(theme) {
   Object.entries(theme).forEach(([key, value]) => {
@@ -59,25 +56,40 @@ function renderQRCode() {
 // Fluxo de inicialização
 // =========================
 window.onload = async function() {
-  const storedToken = localStorage.getItem('authToken');
-  const storedEstId = localStorage.getItem('currentEstablishmentId');
+  const token = localStorage.getItem('authToken');
+  const estId = localStorage.getItem('currentEstablishmentId');
 
-  if (!storedToken || !storedEstId) {
+  if (!token || !estId) {
     document.getElementById('loginDiv').style.display  = 'block';
     document.getElementById('dashboard').style.display = 'none';
     return;
   }
 
   try {
-    // Busca dados do estabelecimento (rota pública)
+    // 1) Busca dados do estabelecimento (rota pública)
     const res = await apiFetch(
-      `${API_URL}/establishments/${storedEstId}`,
-      { headers: { 'Authorization': `Bearer ${storedToken}` } }
+      `${API_URL}/establishments/${estId}`,
+      { headers: { 'Authorization': `Bearer ${token}` } }
     );
     const establishment = await res.json();
-    currentEstablishmentId = storedEstId;
+    currentEstablishmentId = estId;
 
-    // Aplica tema e logo
+    // 2) Checa 28 dias de assinatura
+    const lastPay = establishment.lastPaymentDate && new Date(establishment.lastPaymentDate).getTime();
+    const now     = Date.now();
+    const TWENTY_EIGHT_DAYS = 28 * 24 * 60 * 60 * 1000;
+    if (!lastPay || now - lastPay > TWENTY_EIGHT_DAYS) {
+      alert(
+        lastPay
+          ? `Sua assinatura expirou em ${new Date(lastPay).toLocaleDateString()}.`
+          : 'Nenhuma data de pagamento registrada. Entre em contato.'
+      );
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('currentEstablishmentId');
+      return window.location.href = '/payment.html';
+    }
+
+    // 3) Aplica tema e logo
     applyTheme({
       "primary-color":   establishment.primaryColor,
       "secondary-color": establishment.secondaryColor,
@@ -95,15 +107,15 @@ window.onload = async function() {
     const logoEl = document.getElementById('logo');
     if (logoEl) logoEl.src = establishment.logoURL;
 
-    // Exibe dashboard e carrega clientes
+    // 4) Exibe dashboard e carrega clientes
     document.getElementById('loginDiv').style.display  = 'none';
     document.getElementById('dashboard').style.display = 'block';
     loadClients();
     renderQRCode();
 
   } catch (error) {
-    console.error('Erro ao manter sessão:', error);
-    // Já foi tratado pelo apiFetch (401 ou 402) ou é outro erro
+    console.error('Erro na inicialização:', error);
+    // apiFetch já redireciona em 401/402. Outros erros podem ser tratados aqui.
   }
 };
 
@@ -113,23 +125,25 @@ window.onload = async function() {
 document.getElementById('loginBtn').addEventListener('click', async () => {
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value.trim();
-  if (!username || !password) return alert('Preencha todos os campos!');
+  if (!username || !password) {
+    return alert('Preencha todos os campos!');
+  }
 
   try {
     const res = await fetch(`${API_URL}/login`, {
       method: 'POST',
-      headers: { 'Content-Type':'application/json' },
+      headers:{ 'Content-Type':'application/json' },
       body: JSON.stringify({ username, password })
     });
     const data = await res.json();
 
     if (!res.ok) {
-      if (res.status === 402 && data.message) {
-        if (confirm(`${data.message}\nDeseja pagar agora?`)) {
-          window.location.href = '/payment.html';
+      if (res.status === 402) {
+        if (confirm(`${data.message}\nDeseja renovar agora?`)) {
+          return window.location.href = '/payment.html';
         }
       } else {
-        alert(data.message || 'Usuário ou senha inválidos!');
+        alert(data.message || 'Usuário ou senha inválidos');
       }
       return;
     }
@@ -158,6 +172,7 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
     if (logo) logo.src = data.user.logoURL;
 
     // Exibe dashboard
+    document.getElementById('loginDiv').style.display  = 'block';
     document.getElementById('loginDiv').style.display  = 'none';
     document.getElementById('dashboard').style.display = 'block';
     loadClients();
@@ -182,7 +197,7 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
 });
 
 // =========================
-// Funções de Cliente
+// CRUD de Clientes
 // =========================
 async function loadClients() {
   try {
@@ -317,7 +332,7 @@ document.getElementById('searchBtn').addEventListener('click', async () => {
     );
     const clients = await res.json();
     const select = document.getElementById('clientSelect');
-    select.innerHTML = '<option value="">Selecione o cliente</option>';
+    select.innerHTML = '<option value=\"\">Selecione o cliente</option>';
     clients
       .filter(c => c.fullName.toLowerCase().includes(term))
       .forEach(c => select.append(new Option(c.fullName, c.id)));
