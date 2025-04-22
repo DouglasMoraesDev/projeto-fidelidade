@@ -10,7 +10,7 @@ const userRoutes = require('./routes/userRoutes');
 const voucherRoutes = require('./routes/voucher');
 const { checkAuth } = require('./src/middlewares/checkAuth');
 const { checkSubscription } = require('./src/middlewares/checkSubscription');
-
+const { checkAdmin } = require('./src/middlewares/checkAdmin');
 const app = express();
 
 // Middlewares
@@ -26,9 +26,11 @@ app.use('/api', voucherRoutes);
 // Serve arquivos estáticos da pasta public
 app.use(express.static('public'));
 
-app.use('/api',
+app.use('/api/admin',
   checkAuth,           // valida JWT e popula req.user
-  checkSubscription,   // valida pagamento            // suas rotas de clients, vendas, etc.
+  checkSubscription,  // valida pagamento
+  checkAdmin,
+  require('./routes/adminRoutes')
 );
 
 // Middleware de tratamento de erros (importante para depuração)
