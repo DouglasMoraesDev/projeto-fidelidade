@@ -2,6 +2,23 @@
 const API = '/api/admin/establishments';
 const token = localStorage.getItem('authToken');
 
+// === Helpers ===
+// Valida strings de cor hex no formato #rrggbb
+definition
+definition
+function isValidHexColor(color) {
+  return typeof color === 'string' && /^#[0-9A-Fa-f]{6}$/.test(color);
+}
+function safeHex(color, fallback = '#000000') {
+  return isValidHexColor(color) ? color : fallback;
+}
+// Faz parsing de inteiros, removendo unidades ou valores inválidos
+definition
+function safeNumber(value, fallback = 0) {
+  const num = parseInt(value, 10);
+  return !isNaN(num) ? num : fallback;
+}
+
 // Aplica tema via variáveis CSS (não relacionado ao establishment, mas mantido)
 function applyTheme(vars) {
   for (let key in vars) {
@@ -33,27 +50,42 @@ async function load() {
   const list = await res.json();
   const tbody = document.getElementById('adminTable');
 
-  // Monta linhas com campos editáveis para todas as propriedades
-  tbody.innerHTML = list.map(e => `
+  tbody.innerHTML = list.map(e => {
+    // Sanitiza valores antes de usar nos inputs
+    const primary     = safeHex(e.primaryColor);
+    const secondary   = safeHex(e.secondaryColor);
+    const background  = safeHex(e.backgroundColor);
+    const containerBg = safeHex(e.containerBg);
+    const textColor   = safeHex(e.textColor);
+    const headerBg    = safeHex(e.headerBg);
+    const footerBg    = safeHex(e.footerBg);
+    const footerText  = safeHex(e.footerText);
+    const inputBorder = safeHex(e.inputBorder);
+    const buttonBg    = safeHex(e.buttonBg);
+    const buttonText  = safeHex(e.buttonText);
+    const sectionMargin = safeNumber(e.sectionMargin);
+    const dateVal       = e.lastPaymentDate?.substring(0,10) || '';
+
+    return `
     <tr data-id="${e.id}">
       <td>${e.id}</td>
       <td>${e.name}</td>
-      <td><input type="date" class="payDate" value="${e.lastPaymentDate?.substring(0,10)||''}"></td>
+      <td><input type="date" class="payDate" value="${dateVal}"></td>
       <td class="theme-cell">
         <div class="color-inputs">
-          <label>Primária <input type="color" class="primaryColor" value="${e.primaryColor}"></label>
-          <label>Secundária <input type="color" class="secondaryColor" value="${e.secondaryColor}"></label>
-          <label>Fundo <input type="color" class="backgroundColor" value="${e.backgroundColor}"></label>
-          <label>Container <input type="color" class="containerBg" value="${e.containerBg}"></label>
-          <label>Texto <input type="color" class="textColor" value="${e.textColor}"></label>
-          <label>Header <input type="color" class="headerBg" value="${e.headerBg}"></label>
-          <label>Footer Bg <input type="color" class="footerBg" value="${e.footerBg}"></label>
-          <label>Footer Txt <input type="color" class="footerText" value="${e.footerText}"></label>
-          <label>Input Border <input type="color" class="inputBorder" value="${e.inputBorder}"></label>
-          <label>Button Bg <input type="color" class="buttonBg" value="${e.buttonBg}"></label>
-          <label>Button Txt <input type="color" class="buttonText" value="${e.buttonText}"></label>
-          <label>Margin <input type="number" class="sectionMargin" value="${e.sectionMargin}" step="1"></label>
-          <label>Logo URL <input type="text" class="logoURL" value="${e.logoURL || ''}"></label>
+          <label>Primária <input type="color" class="primaryColor"     value="${primary}"></label>
+          <label>Secundária <input type="color" class="secondaryColor" value="${secondary}"></label>
+          <label>Fundo      <input type="color" class="backgroundColor"  value="${background}"></label>
+          <label>Container  <input type="color" class="containerBg"      value="${containerBg}"></label>
+          <label>Texto      <input type="color" class="textColor"       value="${textColor}"></label>
+          <label>Header     <input type="color" class="headerBg"        value="${headerBg}"></label>
+          <label>Footer Bg  <input type="color" class="footerBg"        value="${footerBg}"></label>
+          <label>Footer Txt <input type="color" class="footerText"      value="${footerText}"></label>
+          <label>Input Bdr  <input type="color" class="inputBorder"     value="${inputBorder}"></label>
+          <label>Button Bg  <input type="color" class="buttonBg"        value="${buttonBg}"></label>
+          <label>Button Txt <input type="color" class="buttonText"      value="${buttonText}"></label>
+          <label>Margin     <input type="number" class="sectionMargin" value="${sectionMargin}" step="1"></label>
+          <label>Logo URL   <input type="text"   class="logoURL"      value="${e.logoURL || ''}"></label>
         </div>
       </td>
       <td>
@@ -61,7 +93,8 @@ async function load() {
         <button class="delBtn">Excluir</button>
       </td>
     </tr>
-  `).join('');
+    `;
+  }).join('');
 
   // Handler de Salvamento
   document.querySelectorAll('.saveBtn').forEach(btn => {
@@ -109,4 +142,3 @@ async function load() {
 }
 
 load();
-
