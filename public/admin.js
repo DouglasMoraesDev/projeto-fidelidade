@@ -3,20 +3,18 @@ const API = '/api/admin/establishments';
 const token = localStorage.getItem('authToken');
 
 // === Helpers ===
-// Valida strings de cor hex no formato #rrggbb
 function isValidHexColor(color) {
   return typeof color === 'string' && /^#[0-9A-Fa-f]{6}$/.test(color);
 }
 function safeHex(color, fallback = '#000000') {
   return isValidHexColor(color) ? color : fallback;
 }
-// Faz parsing de inteiros, removendo unidades ou valores inválidos
 function safeNumber(value, fallback = 0) {
   const num = parseInt(value, 10);
   return !isNaN(num) ? num : fallback;
 }
 
-// Aplica tema via variáveis CSS (não relacionado ao establishment, mas mantido)
+// Aplica tema via variáveis CSS
 function applyTheme(vars) {
   for (let key in vars) {
     document.documentElement.style.setProperty(`--${key}`, vars[key]);
@@ -48,41 +46,44 @@ async function load() {
   const tbody = document.getElementById('adminTable');
 
   tbody.innerHTML = list.map(e => {
-    // Sanitiza valores antes de usar nos inputs
-    const primary       = safeHex(e.primaryColor);
-    const secondary     = safeHex(e.secondaryColor);
-    const background    = safeHex(e.backgroundColor);
-    const containerBg   = safeHex(e.containerBg);
-    const textColor     = safeHex(e.textColor);
-    const headerBg      = safeHex(e.headerBg);
-    const footerBg      = safeHex(e.footerBg);
-    const footerText    = safeHex(e.footerText);
-    const inputBorder   = safeHex(e.inputBorder);
-    const buttonBg      = safeHex(e.buttonBg);
-    const buttonText    = safeHex(e.buttonText);
-    const sectionMargin = safeNumber(e.sectionMargin);
-    const dateVal       = e.lastPaymentDate?.substring(0,10) || '';
-
+    const cols = {
+      id: e.id,
+      name: e.name,
+      lastPaymentDate: e.lastPaymentDate?.substring(0,10) || '',
+      primaryColor:   safeHex(e.primaryColor),
+      secondaryColor: safeHex(e.secondaryColor),
+      backgroundColor:safeHex(e.backgroundColor),
+      containerBg:    safeHex(e.containerBg),
+      textColor:      safeHex(e.textColor),
+      headerBg:       safeHex(e.headerBg),
+      footerBg:       safeHex(e.footerBg),
+      footerText:     safeHex(e.footerText),
+      inputBorder:    safeHex(e.inputBorder),
+      buttonBg:       safeHex(e.buttonBg),
+      buttonText:     safeHex(e.buttonText),
+      sectionMargin:  safeNumber(e.sectionMargin),
+      logoURL:        e.logoURL || ''
+    };
     return `
-    <tr data-id="${e.id}">
-      <td>${e.id}</td>
-      <td>${e.name}</td>
-      <td><input type="date" class="payDate" value="${dateVal}"></td>
+    <tr data-id="${cols.id}">
+      <td>${cols.id}</td>
+      <td>${cols.name}</td>
+      <td><input type="date" class="payDate" value="${cols.lastPaymentDate}"></td>
       <td class="theme-cell">
         <div class="color-inputs">
-          <label>Primária <input type="color" class="primaryColor"     value="${primary}"></label>
-          <label>Secundária <input type="color" class="secondaryColor" value="${secondary}"></label>
-          <label>Fundo      <input type="color" class="backgroundColor"  value="${background}"></label>
-          <label>Container  <input type="color" class="containerBg"      value="${containerBg}"></label>
-          <label>Texto      <input type="color" class="textColor"       value="${textColor}"></label>
-          <label>Header     <input type="color" class="headerBg"        value="${headerBg}"></label>
-          <label>Footer Bg  <input type="color" class="footerBg"        value="${footerBg}"></label>
-          <label>Footer Txt <input type="color" class="footerText"      value="${footerText}"></label>
-          <label>Input Bdr  <input type="color" class="inputBorder"     value="${inputBorder}"></label>
-          <label>Button Bg  <input type="color" class="buttonBg"        value="${buttonBg}"></label>
-          <label>Button Txt <input type="color" class="buttonText"      value="${buttonText}"></label>
-          <label>Margin     <input type="number" class="sectionMargin" value="${sectionMargin}" step="1"></label>
-          <label>Logo URL   <input type="text"   class="logoURL"      value="${e.logoURL || ''}"></label>
+          <label>Primária <input type="color" class="primaryColor" value="${cols.primaryColor}"></label>
+          <label>Secundária <input type="color" class="secondaryColor" value="${cols.secondaryColor}"></label>
+          <label>Fundo <input type="color" class="backgroundColor" value="${cols.backgroundColor}"></label>
+          <label>Container <input type="color" class="containerBg" value="${cols.containerBg}"></label>
+          <label>Texto <input type="color" class="textColor" value="${cols.textColor}"></label>
+          <label>Header <input type="color" class="headerBg" value="${cols.headerBg}"></label>
+          <label>Footer Bg <input type="color" class="footerBg" value="${cols.footerBg}"></label>
+          <label>Footer Txt <input type="color" class="footerText" value="${cols.footerText}"></label>
+          <label>Input Bdr <input type="color" class="inputBorder" value="${cols.inputBorder}"></label>
+          <label>Button Bg <input type="color" class="buttonBg" value="${cols.buttonBg}"></label>
+          <label>Button Txt <input type="color" class="buttonText" value="${cols.buttonText}"></label>
+          <label>Margin <input type="number" class="sectionMargin" value="${cols.sectionMargin}" step="1"></label>
+          <label>Logo URL <input type="text" class="logoURL" value="${cols.logoURL}"></label>
         </div>
       </td>
       <td>
@@ -93,26 +94,26 @@ async function load() {
     `;
   }).join('');
 
-  // Handler de Salvamento
+  // Salvamento com keys camelCase para combinar com backend
   document.querySelectorAll('.saveBtn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const row = btn.closest('tr');
       const id = row.dataset.id;
       const body = {
         lastPaymentDate: row.querySelector('.payDate').value,
-        'primary-color':    row.querySelector('.primaryColor').value,
-        'secondary-color':  row.querySelector('.secondaryColor').value,
-        'background-color': row.querySelector('.backgroundColor').value,
-        'container-bg':     row.querySelector('.containerBg').value,
-        'text-color':       row.querySelector('.textColor').value,
-        'header-bg':        row.querySelector('.headerBg').value,
-        'footer-bg':        row.querySelector('.footerBg').value,
-        'footer-text':      row.querySelector('.footerText').value,
-        'input-border':     row.querySelector('.inputBorder').value,
-        'button-bg':        row.querySelector('.buttonBg').value,
-        'button-text':      row.querySelector('.buttonText').value,
-        'section-margin':   row.querySelector('.sectionMargin').value,
-        logoURL:            row.querySelector('.logoURL').value
+        primaryColor:    row.querySelector('.primaryColor').value,
+        secondaryColor:  row.querySelector('.secondaryColor').value,
+        backgroundColor: row.querySelector('.backgroundColor').value,
+        containerBg:     row.querySelector('.containerBg').value,
+        textColor:       row.querySelector('.textColor').value,
+        headerBg:        row.querySelector('.headerBg').value,
+        footerBg:        row.querySelector('.footerBg').value,
+        footerText:      row.querySelector('.footerText').value,
+        inputBorder:     row.querySelector('.inputBorder').value,
+        buttonBg:        row.querySelector('.buttonBg').value,
+        buttonText:      row.querySelector('.buttonText').value,
+        sectionMargin:   safeNumber(row.querySelector('.sectionMargin').value),
+        logoURL:         row.querySelector('.logoURL').value
       };
       await fetch(`${API}/${id}`, {
         method: 'PUT',
@@ -126,7 +127,7 @@ async function load() {
     });
   });
 
-  // Handler de Exclusão
+  // Exclusão
   document.querySelectorAll('.delBtn').forEach(btn => {
     btn.addEventListener('click', async () => {
       if (!confirm('Confirma exclusão?')) return;
