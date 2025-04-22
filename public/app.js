@@ -290,7 +290,7 @@ async function editClient(id) {
       { headers:{ 'Authorization':`Bearer ${token}` } }
     );
     const clients = await res.json();
-    const client  = clients.find(c => c.id === id);
+    const client  = clients.find(c => c.id === Number(id));
     if (!client) throw new Error('Cliente não encontrado');
 
     ['clientFullName','clientPhone','clientEmail','clientPoints'].forEach(field => {
