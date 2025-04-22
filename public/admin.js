@@ -9,23 +9,17 @@ function isValidHexColor(color) {
 function safeHex(color, fallback = '#000000') {
   return isValidHexColor(color) ? color : fallback;
 }
-function safeNumber(value, fallback = 0) {
-  const num = parseInt(value, 10);
-  return !isNaN(num) ? num : fallback;
-}
 
 // Aplica tema via variáveis CSS
 function applyTheme(vars) {
-  for (let key in vars) {
-    document.documentElement.style.setProperty(`--${key}`, vars[key]);
-  }
+  Object.entries(vars).forEach(([key, val]) => {
+    document.documentElement.style.setProperty(`--${key}`, val);
+  });
 }
 
-// Carrega tema salvo do localStorage
+// Início: Carrega tema salvo do localStorage
 const savedTheme = JSON.parse(localStorage.getItem('adminTheme') || '{}');
 applyTheme(savedTheme);
-
-// Inicializa os color pickers do painel de tema
 ['bg','text','primary','secondary'].forEach(name => {
   const picker = document.getElementById(`${name}Picker`);
   const varName = `${name}-color`;
@@ -46,61 +40,51 @@ async function load() {
   const tbody = document.getElementById('adminTable');
 
   tbody.innerHTML = list.map(e => {
-    const cols = {
-      id: e.id,
-      name: e.name,
-      lastPaymentDate: e.lastPaymentDate?.substring(0,10) || '',
-      primaryColor:   safeHex(e.primaryColor),
-      secondaryColor: safeHex(e.secondaryColor),
-      backgroundColor:safeHex(e.backgroundColor),
-      containerBg:    safeHex(e.containerBg),
-      textColor:      safeHex(e.textColor),
-      headerBg:       safeHex(e.headerBg),
-      footerBg:       safeHex(e.footerBg),
-      footerText:     safeHex(e.footerText),
-      inputBorder:    safeHex(e.inputBorder),
-      buttonBg:       safeHex(e.buttonBg),
-      buttonText:     safeHex(e.buttonText),
-      sectionMargin:  safeNumber(e.sectionMargin),
-      logoURL:        e.logoURL || ''
-    };
+    const dateVal = e.lastPaymentDate ? e.lastPaymentDate.substring(0,10) : '';
     return `
-    <tr data-id="${cols.id}">
-      <td>${cols.id}</td>
-      <td>${cols.name}</td>
-      <td><input type="date" class="payDate" value="${cols.lastPaymentDate}"></td>
-      <td class="theme-cell">
-        <div class="color-inputs">
-          <label>Primária <input type="color" class="primaryColor" value="${cols.primaryColor}"></label>
-          <label>Secundária <input type="color" class="secondaryColor" value="${cols.secondaryColor}"></label>
-          <label>Fundo <input type="color" class="backgroundColor" value="${cols.backgroundColor}"></label>
-          <label>Container <input type="color" class="containerBg" value="${cols.containerBg}"></label>
-          <label>Texto <input type="color" class="textColor" value="${cols.textColor}"></label>
-          <label>Header <input type="color" class="headerBg" value="${cols.headerBg}"></label>
-          <label>Footer Bg <input type="color" class="footerBg" value="${cols.footerBg}"></label>
-          <label>Footer Txt <input type="color" class="footerText" value="${cols.footerText}"></label>
-          <label>Input Bdr <input type="color" class="inputBorder" value="${cols.inputBorder}"></label>
-          <label>Button Bg <input type="color" class="buttonBg" value="${cols.buttonBg}"></label>
-          <label>Button Txt <input type="color" class="buttonText" value="${cols.buttonText}"></label>
-          <label>Margin <input type="number" class="sectionMargin" value="${cols.sectionMargin}" step="1"></label>
-          <label>Logo URL <input type="text" class="logoURL" value="${cols.logoURL}"></label>
-        </div>
-      </td>
-      <td>
-        <button class="saveBtn">Salvar</button>
-        <button class="delBtn">Excluir</button>
-      </td>
-    </tr>
+      <tr data-id="${e.id}">
+        <td>${e.id}</td>
+        <td>${e.name}</td>
+        <td><input type="date" class="payDate" value="${dateVal}"></td>
+        <td class="theme-cell">
+          <div class="color-inputs">
+            <label>Primária <input type="color" class="primaryColor"     value="${safeHex(e.primaryColor)}"></label>
+            <label>Secundária <input type="color" class="secondaryColor" value="${safeHex(e.secondaryColor)}"></label>
+            <label>Fundo <input type="color" class="backgroundColor"    value="${safeHex(e.backgroundColor)}"></label>
+            <label>Container <input type="color" class="containerBg"     value="${safeHex(e.containerBg)}"></label>
+            <label>Texto <input type="color" class="textColor"          value="${safeHex(e.textColor)}"></label>
+            <label>Header <input type="color" class="headerBg"          value="${safeHex(e.headerBg)}"></label>
+            <label>Footer Bg <input type="color" class="footerBg"       value="${safeHex(e.footerBg)}"></label>
+            <label>Footer Txt <input type="color" class="footerText"    value="${safeHex(e.footerText)}"></label>
+            <label>Input Bdr <input type="color" class="inputBorder"    value="${safeHex(e.inputBorder)}"></label>
+            <label>Button Bg <input type="color" class="buttonBg"      value="${safeHex(e.buttonBg)}"></label>
+            <label>Button Txt <input type="color" class="buttonText"    value="${safeHex(e.buttonText)}"></label>
+            <label>Margin <input type="text" class="sectionMargin"     value="${e.sectionMargin}"></label>
+            <label>Logo URL <input type="text" class="logoURL"         value="${e.logoURL || ''}"></label>
+          </div>
+        </td>
+        <td>
+          <button class="saveBtn">Salvar</button>
+          <button class="delBtn">Excluir</button>
+        </td>
+      </tr>
     `;
   }).join('');
 
-  // Salvamento com keys camelCase para combinar com backend
+  // Handler de Salvamento
   document.querySelectorAll('.saveBtn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const row = btn.closest('tr');
       const id = row.dataset.id;
+
+      // Converte date para ISO completo
+      const rawDate = row.querySelector('.payDate').value;          
+      const lastPaymentDate = rawDate
+        ? new Date(rawDate + 'T00:00:00').toISOString()
+        : null;
+
       const body = {
-        lastPaymentDate: row.querySelector('.payDate').value,
+        lastPaymentDate,
         primaryColor:    row.querySelector('.primaryColor').value,
         secondaryColor:  row.querySelector('.secondaryColor').value,
         backgroundColor: row.querySelector('.backgroundColor').value,
@@ -112,10 +96,11 @@ async function load() {
         inputBorder:     row.querySelector('.inputBorder').value,
         buttonBg:        row.querySelector('.buttonBg').value,
         buttonText:      row.querySelector('.buttonText').value,
-        sectionMargin:   safeNumber(row.querySelector('.sectionMargin').value),
+        sectionMargin:   row.querySelector('.sectionMargin').value,
         logoURL:         row.querySelector('.logoURL').value
       };
-      await fetch(`${API}/${id}`, {
+
+      const res = await fetch(`${API}/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -123,11 +108,19 @@ async function load() {
         },
         body: JSON.stringify(body)
       });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert('Erro ao atualizar: ' + (err.message || res.status));
+        return;
+      }
+
       alert('Estabelecimento atualizado com sucesso!');
+      load();
     });
   });
 
-  // Exclusão
+  // Handler de Exclusão
   document.querySelectorAll('.delBtn').forEach(btn => {
     btn.addEventListener('click', async () => {
       if (!confirm('Confirma exclusão?')) return;
