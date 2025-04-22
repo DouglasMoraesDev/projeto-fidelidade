@@ -1,3 +1,5 @@
+// app.js
+
 // =========================
 // Configuração de URLs
 // =========================
@@ -5,10 +7,19 @@ const BASE_URL = 'https://projeto-fidelidade-production.up.railway.app';
 const API_URL  = `${BASE_URL}/api`;
 
 // =========================
-// Wrapper de fetch para tratar assinatura vencida
+// Wrapper de fetch para tratar 401 (token expirado) e 402 (assinatura expirada)
 // =========================
 async function apiFetch(url, options = {}) {
   const res = await fetch(url, options);
+
+  if (res.status === 401) {
+    alert('Sessão expirada. Faça login novamente.');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentEstablishmentId');
+    window.location.href = '/';
+    throw new Error('Unauthorized');
+  }
+
   if (res.status === 402) {
     const err = await res.json();
     alert(err.message || 'Assinatura expirada');
@@ -17,6 +28,7 @@ async function apiFetch(url, options = {}) {
     window.location.href = '/payment.html';
     throw new Error('Subscription expired');
   }
+
   return res;
 }
 
@@ -39,7 +51,7 @@ function applyTheme(theme) {
 function renderQRCode() {
   const qrImg = document.getElementById('qrCodeImg');
   const link  = document.getElementById('pointsLink');
-  qrImg.src = `${API_URL}/establishments/${currentEstablishmentId}/qrcode`;
+  qrImg.src  = `${API_URL}/establishments/${currentEstablishmentId}/qrcode`;
   link.href = `${BASE_URL}/points.html?establishmentId=${currentEstablishmentId}`;
 }
 
@@ -57,28 +69,13 @@ window.onload = async function() {
   }
 
   try {
-    // Busca dados do estabelecimento
+    // Busca dados do estabelecimento (rota pública)
     const res = await apiFetch(
       `${API_URL}/establishments/${storedEstId}`,
       { headers: { 'Authorization': `Bearer ${storedToken}` } }
     );
     const establishment = await res.json();
     currentEstablishmentId = storedEstId;
-
-    // Verifica assinatura
-    const paymentDate = establishment.lastPaymentDate
-      ? new Date(establishment.lastPaymentDate)
-      : null;
-    if (!paymentDate || new Date() > paymentDate) {
-      alert(
-        paymentDate
-          ? `Sua assinatura expirou em ${paymentDate.toLocaleDateString()}.`
-          : 'Nenhuma data de pagamento registrada. Entre em contato.'
-      );
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('currentEstablishmentId');
-      return window.location.href = '/payment.html';
-    }
 
     // Aplica tema e logo
     applyTheme({
@@ -105,12 +102,8 @@ window.onload = async function() {
     renderQRCode();
 
   } catch (error) {
-    console.error('Erro ao manter login:', error);
-    alert('Erro ao carregar dados. Faça login novamente.');
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('currentEstablishmentId');
-    document.getElementById('loginDiv').style.display  = 'block';
-    document.getElementById('dashboard').style.display = 'none';
+    console.error('Erro ao manter sessão:', error);
+    // Já foi tratado pelo apiFetch (401 ou 402) ou é outro erro
   }
 };
 
@@ -125,13 +118,13 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
   try {
     const res = await fetch(`${API_URL}/login`, {
       method: 'POST',
-      headers:{ 'Content-Type':'application/json' },
+      headers: { 'Content-Type':'application/json' },
       body: JSON.stringify({ username, password })
     });
     const data = await res.json();
 
     if (!res.ok) {
-      if (data.message?.includes('Pagamento pendente')) {
+      if (res.status === 402 && data.message) {
         if (confirm(`${data.message}\nDeseja pagar agora?`)) {
           window.location.href = '/payment.html';
         }
@@ -141,10 +134,12 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
       return;
     }
 
-    currentEstablishmentId = data.user.establishmentId;
+    // Salva token e estabelecimento
     localStorage.setItem('authToken', data.token);
+    currentEstablishmentId = data.user.establishmentId;
     localStorage.setItem('currentEstablishmentId', currentEstablishmentId);
 
+    // Aplica tema e logo
     applyTheme({
       "primary-color":   data.user['primary-color'],
       "secondary-color": data.user['secondary-color'],
@@ -159,9 +154,10 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
       "button-text":     data.user['button-text'],
       "section-margin":  data.user['section-margin']
     });
-    const logoEl = document.getElementById('logo');
-    if (logoEl) logoEl.src = data.user.logoURL;
+    const logo = document.getElementById('logo');
+    if (logo) logo.src = data.user.logoURL;
 
+    // Exibe dashboard
     document.getElementById('loginDiv').style.display  = 'none';
     document.getElementById('dashboard').style.display = 'block';
     loadClients();
@@ -188,7 +184,6 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
 // =========================
 // Funções de Cliente
 // =========================
-
 async function loadClients() {
   try {
     const token = localStorage.getItem('authToken');
@@ -322,7 +317,7 @@ document.getElementById('searchBtn').addEventListener('click', async () => {
     );
     const clients = await res.json();
     const select = document.getElementById('clientSelect');
-    select.innerHTML = '<option value=\"\">Selecione o cliente</option>';
+    select.innerHTML = '<option value="">Selecione o cliente</option>';
     clients
       .filter(c => c.fullName.toLowerCase().includes(term))
       .forEach(c => select.append(new Option(c.fullName, c.id)));

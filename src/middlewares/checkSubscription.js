@@ -1,32 +1,24 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
+const DAYS_28_MS = 28 * 24 * 60 * 60 * 1000;
+
 exports.checkSubscription = async (req, res, next) => {
-  const establishmentId = req.params.id;  // Assume que o ID vem da URL, ajuste conforme necessário
-
-  if (!establishmentId) {
-    return res.status(400).json({ message: 'ID inválido' });
-  }
-
   try {
-    // Recupera o estabelecimento do banco de dados
-    const establishment = await prisma.establishment.findUnique({
-      where: { id: establishmentId }
+    // pega establishmentId do token (req.user), ou da rota, se preferir
+    const establishmentId = req.user.establishmentId;
+    const est = await prisma.establishment.findUnique({
+      where: { id: establishmentId },
+      select: { lastPaymentDate: true }
     });
-
-    if (!establishment) {
-      return res.status(404).json({ message: 'Estabelecimento não encontrado' });
+    const paymentDate = est?.lastPaymentDate;
+    const now = Date.now();
+    if (!paymentDate || (now - new Date(paymentDate).getTime()) > DAYS_28_MS) {
+      // 402 = Payment Required
+      return res
+        .status(402)
+        .json({ message: 'Assinatura expirada. Por favor, renove seu plano.' });
     }
-
-    // Agora você pode acessar lastPaymentDate
-    const paymentDate = new Date(establishment.lastPaymentDate);
-
-    if (!paymentDate || new Date() > paymentDate) {
-      return res.status(403).json({ message: 'Assinatura expirada' });
-    }
-
-    // Passa o estabelecimento para os próximos middlewares ou lógica
-    req.establishment = establishment;
     next();
   } catch (err) {
     console.error('Erro ao verificar assinatura:', err);

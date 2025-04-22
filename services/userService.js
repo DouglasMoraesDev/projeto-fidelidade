@@ -1,16 +1,27 @@
 // services/userService.js
 const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
-// Para segurança, considere usar hash (ex: bcrypt) para armazenar e comparar senhas
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
+const prisma = new PrismaClient();
+const JWT_SECRET = process.env.JWT_SECRET || 'sua_chave_secreta_aqui';
+const SESSION_DURATION = '2h';             // sessão expira em 2 horas
+const DAYS_28_MS = 28 * 24 * 60 * 60 * 1000; // 28 dias em ms
+
+/**
+ * Autentica usuário, verifica pagamento e gera token JWT.
+ * @param {string} username
+ * @param {string} password
+ * @returns {Promise<{user:object, establishment:object, token:string}>}
+ */
 const login = async (username, password) => {
-  const user = await prisma.user.findUnique({
-    where: { username }
-  });
-  // Em produção, compare o hash da senha
+  // 1) Busca usuário
+  const user = await prisma.user.findUnique({ where: { username } });
   if (!user || user.password !== password) {
     throw new Error('Usuário ou senha inválidos');
   }
+
+  // 2) Busca dados do estabelecimento
   const establishment = await prisma.establishment.findUnique({
     where: { id: user.establishmentId }
   });
@@ -18,15 +29,21 @@ const login = async (username, password) => {
     throw new Error('Estabelecimento não encontrado');
   }
 
-  // Verifica se a data do último pagamento existe e está dentro de 30 dias
+  // 3) Verifica último pagamento (28 dias)
   const paymentDate = establishment.lastPaymentDate;
-  const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000; // 30 dias em milissegundos
-  if (!paymentDate || (new Date() - new Date(paymentDate)) > THIRTY_DAYS) {
-    throw new Error('Pagamento pendente. Efetue o pagamento para acessar o sistema.');
+  if (!paymentDate
+      || (Date.now() - new Date(paymentDate).getTime()) > DAYS_28_MS) {
+    throw new Error('Pagamento pendente ou expirado');
   }
 
-  return { user, establishment };
+  // 4) Gera JWT com expiração de 2h
+  const payload = {
+    userId: user.id,
+    establishmentId: user.establishmentId
+  };
+  const token = jwt.sign(payload, JWT_SECRET, { expiresIn: SESSION_DURATION });
+
+  return { user, establishment, token };
 };
 
 module.exports = { login };
-

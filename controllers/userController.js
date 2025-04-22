@@ -1,13 +1,17 @@
 // controllers/userController.js
 const { login } = require('../services/userService');
 
+/**
+ * POST /api/login
+ */
 const loginController = async (req, res, next) => {
   const { username, password } = req.body;
   try {
-    const { user, establishment } = await login(username, password);
-    res.json({
+    const { user, establishment, token } = await login(username, password);
+    return res.json({
       success: true,
-      message: 'Login bem-sucedido',
+      message: 'Login bem‑sucedido',
+      token,
       user: {
         id: user.id,
         username: user.username,
@@ -28,12 +32,12 @@ const loginController = async (req, res, next) => {
       }
     });
   } catch (error) {
-    if (error.message && error.message.includes("Pagamento pendente")) {
-      return res.status(403).json({ message: 'Pagamento pendente. Efetue o pagamento para acessar o sistema.' });
+    if (error.message.includes('Pagamento pendente') 
+     || error.message.includes('expirado')) {
+      return res.status(402).json({ message: error.message });
     }
     next(error);
   }
 };
 
 module.exports = { login: loginController };
-
