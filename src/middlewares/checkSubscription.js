@@ -1,41 +1,35 @@
-// src/middlewares/checkSubscription.js
-const { prisma } = require('../../config/db'); // ✅ caminho corrigido
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
-const today = new Date();
-today.setHours(0, 0, 0, 0);
+exports.checkSubscription = async (req, res, next) => {
+  const establishmentId = req.params.id;  // Assume que o ID vem da URL, ajuste conforme necessário
 
-const paymentDate = new Date(establishment?.lastPaymentDate);
-paymentDate.setHours(0, 0, 0, 0);
+  if (!establishmentId) {
+    return res.status(400).json({ message: 'ID inválido' });
+  }
 
-if (!paymentDate || today > paymentDate) {
-  return res.status(402).json({
-    message: 'Assinatura expirada',
-    paymentUrl: '/payment.html'
-  });
-}
+  try {
+    // Recupera o estabelecimento do banco de dados
+    const establishment = await prisma.establishment.findUnique({
+      where: { id: establishmentId }
+    });
 
-async function checkSubscription(req, res, next) {
-  const estId = req.user.establishmentId; // supondo que o auth já tenha populado req.user
-  const establishment = await prisma.establishment.findUnique({
-    where: { id: estId },
-    select: { lastPaymentDate: true }
-  });
+    if (!establishment) {
+      return res.status(404).json({ message: 'Estabelecimento não encontrado' });
+    }
 
+    // Agora você pode acessar lastPaymentDate
+    const paymentDate = new Date(establishment.lastPaymentDate);
 
-  const paymentDate = establishment?.lastPaymentDate
-  ? new Date(establishment.lastPaymentDate)
-  : null;
+    if (!paymentDate || new Date() > paymentDate) {
+      return res.status(403).json({ message: 'Assinatura expirada' });
+    }
 
-if (!paymentDate || new Date() > paymentDate) {
-  return res.status(402).json({
-    message: 'Assinatura expirada',
-    paymentUrl: '/payment.html'
-  });
-}
-
-  next();
-}
-
-
-
-module.exports = checkSubscription;
+    // Passa o estabelecimento para os próximos middlewares ou lógica
+    req.establishment = establishment;
+    next();
+  } catch (err) {
+    console.error('Erro ao verificar assinatura:', err);
+    res.status(500).json({ message: 'Erro ao verificar assinatura' });
+  }
+};
