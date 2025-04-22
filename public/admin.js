@@ -4,8 +4,6 @@ const token = localStorage.getItem('authToken');
 
 // === Helpers ===
 // Valida strings de cor hex no formato #rrggbb
-definition
-definition
 function isValidHexColor(color) {
   return typeof color === 'string' && /^#[0-9A-Fa-f]{6}$/.test(color);
 }
@@ -13,7 +11,6 @@ function safeHex(color, fallback = '#000000') {
   return isValidHexColor(color) ? color : fallback;
 }
 // Faz parsing de inteiros, removendo unidades ou valores inválidos
-definition
 function safeNumber(value, fallback = 0) {
   const num = parseInt(value, 10);
   return !isNaN(num) ? num : fallback;
@@ -52,17 +49,17 @@ async function load() {
 
   tbody.innerHTML = list.map(e => {
     // Sanitiza valores antes de usar nos inputs
-    const primary     = safeHex(e.primaryColor);
-    const secondary   = safeHex(e.secondaryColor);
-    const background  = safeHex(e.backgroundColor);
-    const containerBg = safeHex(e.containerBg);
-    const textColor   = safeHex(e.textColor);
-    const headerBg    = safeHex(e.headerBg);
-    const footerBg    = safeHex(e.footerBg);
-    const footerText  = safeHex(e.footerText);
-    const inputBorder = safeHex(e.inputBorder);
-    const buttonBg    = safeHex(e.buttonBg);
-    const buttonText  = safeHex(e.buttonText);
+    const primary       = safeHex(e.primaryColor);
+    const secondary     = safeHex(e.secondaryColor);
+    const background    = safeHex(e.backgroundColor);
+    const containerBg   = safeHex(e.containerBg);
+    const textColor     = safeHex(e.textColor);
+    const headerBg      = safeHex(e.headerBg);
+    const footerBg      = safeHex(e.footerBg);
+    const footerText    = safeHex(e.footerText);
+    const inputBorder   = safeHex(e.inputBorder);
+    const buttonBg      = safeHex(e.buttonBg);
+    const buttonText    = safeHex(e.buttonText);
     const sectionMargin = safeNumber(e.sectionMargin);
     const dateVal       = e.lastPaymentDate?.substring(0,10) || '';
 
