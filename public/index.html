@@ -3,8 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="shortcut icon" href="logo/favicon.ico" type="image/x-icon">
   <title>Cartão Fidelidade</title>
+
+  <!-- Cor da barra de status (Android Chrome) -->
+  <meta name="theme-color" content="#28a745">
+
+  <!-- Manifest para permitir “Adicionar à Tela Inicial” -->
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- Ícones para “Adicionar à Tela Inicial” -->
+  <!-- Android/Chrome -->
+  <link rel="icon" type="image/png" sizes="192x192" href="logo/icon.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="logo/icon.png">
+  <!-- iOS Safari -->
+  <link rel="apple-touch-icon" sizes="180x180" href="logo/icon.png">
+
+  <!-- Fallback de favicon -->
+  <link rel="shortcut icon" href="logo/favicon.ico" type="image/x-icon">
+  <link rel="icon" type="image/png" sizes="32x32" href="logo/icon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="logo/icon.png">
+
   <!-- Estilos e fontes -->
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oxanium:wght@200..800&display=swap" rel="stylesheet">
@@ -26,18 +44,18 @@
   <!-- Dashboard (inicialmente oculto) -->
   <div id="dashboard" style="display:none;">
 
-      <!-- Seção de QR Code -->
-  <div class="dashboard-container" id="qrSection">
-    <h3>QR Code para consulta de pontos</h3>
-    <img id="qrCodeImg" alt="QR Code do estabelecimento" style="max-width:200px;"/>
-    <p>
-      Ou abra diretamente:
-      <a id="pointsLink" href="#" target="_blank">Consultar meus pontos</a>
-    </p>
-  </div>
+    <!-- Seção de QR Code -->
+    <div class="dashboard-container" id="qrSection">
+      <h3>QR Code para consulta de pontos</h3>
+      <img id="qrCodeImg" alt="QR Code do estabelecimento" style="max-width:200px;"/>
+      <p>
+        Ou abra diretamente:
+        <a id="pointsLink" href="#" target="_blank">Consultar meus pontos</a>
+      </p>
+    </div>
 
+    <button id="logoutBtn" style="position: fixed; top: 20px; right: 20px;">Sair</button><br>
 
-    <button id="logoutBtn" style="position: fixed; top: 20px; right: 20px;">Sair</button> <br>
     <!-- Cabeçalho: Título e Logo -->
     <div class="dashboard-container header-container" id="headerSection">
       <h1>Cartão Fidelidade</h1>
@@ -75,9 +93,6 @@
       <button id="addPointsBtn">Adicionar Pontos</button>
     </div>
 
-    <!-- Seção: Importar Clientes -->
-  
-    
     <!-- Seção: Tabela de Clientes -->
     <div id="clientTableContainer">
       <table id="clientTable">
@@ -109,12 +124,12 @@
   <!-- Footer -->
   <footer>
     <p>
-      &copy; Douglas Moraes Dev <br>
+      &copy; Douglas Moraes Dev<br>
       <a href="https://wa.me/qr/F2Z744R5KWEPB1" target="_blank">Contato</a>
     </p>
   </footer>
 
-  <!-- Scripts: app.js deve ser carregado antes de whatsapp.js -->
+  <!-- Scripts -->
   <script src="app.js"></script>
 </body>
 </html>
