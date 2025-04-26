@@ -3,6 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Meta Pixel Code (sempre primeiro dentro do head) -->
+  <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1088314229773836');
+    fbq('track', 'PageView');
+  </script>
+  <noscript>
+    <img height="1" width="1" style="display:none"
+      src="https://www.facebook.com/tr?id=1088314229773836&ev=PageView&noscript=1"/>
+  </noscript>
+  <!-- End Meta Pixel Code -->
+
   <link rel="shortcut icon" href="logo/favicon.ico" type="image/x-icon">
   <title>Cartão Fidelidade Online BityLab</title>
   <style>
@@ -87,6 +107,7 @@
       <h1>Cartão Fidelidade Online</h1>
       <p>Simplifique seu programa de fidelidade com BityLab.</p>
     </header>
+
     <section class="features">
       <div class="feature">
         <img src="logo/addCliente.png" alt="Adicionar Novo Cliente">
@@ -98,44 +119,47 @@
         <h3>Gerencie Informações</h3>
         <p>Salve, busque e edite detalhes dos clientes facilmente.</p>
       </div>
-
       <div class="feature">
         <img src="logo/consultarPontos.png" alt="Consulta de Pontos via QR Code">
         <h3>Consulta de Pontos</h3>
         <p>Mostre o QR Code ou envie o link para seus clientes e conferirem seus pontos instantaneamente.</p>
       </div>
-
       <div class="feature">
-        <img src="logo/notificação.png" alt="Consulta de Pontos via QR Code">
+        <img src="logo/notificação.png" alt="Notificações">
         <h3>Notificações</h3>
         <p>Envie o voucher para seus clientes com 10 pontos.</p>
       </div>
 
-      <div class="highlight-item">
+      <div class="feature">
         <h3>Envio Automático de Vouchers</h3>
         <p>Ao atingir 10 pontos, o cliente recebe automaticamente seu voucher diretamente no WhatsApp — sem custo extra.</p>
       </div>
-
-    <div>
-         <h3>Layouts Padrão ou Personalizado</h3>
-         <p>Escolha nosso layout clássico ou, por apenas R$ 50, envie seu logo e deixe o cartão com a cara da sua marca.</p>
+      <div class="feature">
+        <h3>Layouts Padrão ou Personalizado</h3>
+        <p>Escolha nosso layout clássico ou, por apenas R$ 50, envie seu logo e deixe o cartão com a cara da sua marca.</p>
       </div>
-
-       <div class="highlight-item">
+      <div class="feature">
         <h3>Segurança em Nuvem</h3>
         <p>Dados criptografados, backup automático e alta disponibilidade para você não se preocupar com nada.</p>
       </div>
-
-      <div class="highlight-item">
+      <div class="feature">
         <h3>Suporte Dedicado</h3>
         <p>Nossa equipe está pronta para ajudar na configuração, personalização e tirar qualquer dúvida — tudo em português.</p>
       </div>
-
     </section>
+
     <section class="cta">
       <p style="font-size:1.125rem; margin-bottom:1rem;">Teste 7 dias grátis. Após, R$ 15/mês.</p>
-      <a href="https://wa.me/qr/F2Z744R5KWEPB1" target="_blank" rel="noopener">Entre em contato para adquirir o aplicativo</a>
+      <a
+        href="https://wa.me/qr/F2Z744R5KWEPB1"
+        onclick="fbq('track','Lead');"
+        target="_blank"
+        rel="noopener"
+      >
+        Entre em contato para adquirir o aplicativo
+      </a>
     </section>
+
     <footer>
       <p>&copy; 2024 BityLab. Todos os direitos reservados.</p>
     </footer>
