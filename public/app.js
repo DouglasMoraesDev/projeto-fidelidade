@@ -285,19 +285,24 @@ document.getElementById('saveClientBtn').addEventListener('click', saveClient);
 async function editClient(id) {
   try {
     const token = localStorage.getItem('authToken');
-    const res   = await apiFetch(
+    // 1) Buscar o cliente pelo ID (filtrando no backend ou, aqui, por enquanto, na lista)
+    const res = await apiFetch(
       `${API_URL}/clients?establishmentId=${currentEstablishmentId}`,
-      { headers:{ 'Authorization':`Bearer ${token}` } }
+      { headers: { 'Authorization': `Bearer ${token}` } }
     );
+    if (!res.ok) throw new Error('Erro ao buscar clientes');
     const clients = await res.json();
-    const client  = clients.find(c => c.id === Number(id));
+    const client = clients.find(c => c.id === Number(id));
     if (!client) throw new Error('Cliente não encontrado');
 
-    ['clientFullName','clientPhone','clientEmail','clientPoints'].forEach(field => {
-      document.getElementById(field).value =
-        client[field.replace('client','').toLowerCase()] || '';
-    });
-    isEditing = true;
+    // 2) Preencher cada input explicitamente com a propriedade correta
+    document.getElementById('clientFullName').value = client.fullName || '';
+    document.getElementById('clientPhone').value    = client.phone    || '';
+    document.getElementById('clientEmail').value    = client.email    || '';
+    document.getElementById('clientPoints').value   = client.points   || 0;
+
+    // 3) Ajustar flags e texto do botão
+    isEditing       = true;
     editingClientId = id;
     document.getElementById('saveClientBtn').textContent = 'Atualizar Cliente';
   } catch (err) {
@@ -305,6 +310,7 @@ async function editClient(id) {
     alert(err.message);
   }
 }
+
 
 async function deleteClient(id) {
   if (!confirm('Deseja realmente excluir este cliente?')) return;
