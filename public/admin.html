@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Administração — Fidelidade</title>
+  <style>
+    :root {
+      /* variáveis default */
+      --bg-color: #f5f7fa;
+      --text-color: #2c3e50;
+      --primary-color: #3498db;
+      --secondary-color: #2ecc71;
+      --header-bg: #34495e;
+      --header-text: #ecf0f1;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      padding: 2rem;
+      transition: background-color .3s, color .3s;
+    }
+
+    h1 {
+      margin-bottom: 1.5rem;
+      font-size: 2rem;
+      text-align: center;
+    }
+
+    #themePanel {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    #themePanel label {
+      display: flex;
+      flex-direction: column;
+      font-size: .9rem;
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      box-shadow: 0 2px 8px rgba(0,0,0,.1);
+      border-radius: .5rem;
+      overflow: hidden;
+    }
+
+    thead {
+      background-color: var(--header-bg);
+    }
+
+    thead th {
+      color: var(--header-text);
+      padding: .75rem;
+      text-align: left;
+    }
+
+    tbody tr:nth-child(odd) {
+      background-color: #fff;
+    }
+    tbody tr:nth-child(even) {
+      background-color: #ecf0f1;
+    }
+
+    tbody td {
+      padding: .75rem;
+      vertical-align: top;
+    }
+
+    .theme-cell .color-inputs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: .5rem;
+    }
+
+    input[type="date"],
+    input[type="color"],
+    input[type="number"],
+    input[type="text"] {
+      width: 100%;
+      padding: .3rem;
+      border: 1px solid #ccc;
+      border-radius: .25rem;
+    }
+
+    button {
+      background-color: var(--primary-color);
+      border: none;
+      color: #fff;
+      padding: .5rem .75rem;
+      border-radius: .25rem;
+      cursor: pointer;
+      transition: background-color .2s;
+      margin-right: .5rem;
+    }
+
+    button:hover {
+      background-color: var(--secondary-color);
+    }
+
+    button.delBtn {
+      background-color: #e74c3c;
+    }
+    button.delBtn:hover {
+      background-color: #c0392b;
+    }
+  </style>
+</head>
+<body>
+  <h1>Painel de Administração</h1>
+
+  <div id="themePanel">
+    <label>
+      Fundo
+      <input id="bgPicker" type="color" value="#f5f7fa">
+    </label>
+    <label>
+      Texto
+      <input id="textPicker" type="color" value="#2c3e50">
+    </label>
+    <label>
+      Primária
+      <input id="primaryPicker" type="color" value="#3498db">
+    </label>
+    <label>
+      Secundária
+      <input id="secondaryPicker" type="color" value="#2ecc71">
+    </label>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Último Pagamento</th>
+        <th>Editar Tema</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="adminTable"></tbody>
+  </table>
+
+  <script src="admin.js"></script>
+</body>
+</html>

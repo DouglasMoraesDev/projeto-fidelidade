@@ -1,0 +1,44 @@
+name: Backup MySQL Database
+
+on:
+  schedule:
+    # Executa a cada 30 minutos (horário UTC)
+    - cron: '*/10 * * * *'
+  workflow_dispatch:  # Permite execução manual
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Instalar MySQL Client
+        run: sudo apt-get install -y mysql-client
+
+      - name: Executar backup do MySQL
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: |
+          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+          BACKUP_FILE="backup_${DB_NAME}_${TIMESTAMP}.sql"
+          echo "Realizando backup em $BACKUP_FILE"
+          mysqldump -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" --password="$DB_PASSWORD" "$DB_NAME" > "$BACKUP_FILE"
+          echo "BACKUP_FILE=$BACKUP_FILE" >> $GITHUB_ENV  # Salva o nome do arquivo no ambiente
+
+      - name: Upload do backup como artifact no GitHub
+        uses: actions/upload-artifact@v4  # Atualizando para v4
+        with:
+          name: backup-mysql
+          path: ${{ env.BACKUP_FILE }}  # Referenciando a variável correta
+
+      - name: Enviar backup para Dropbox
+        env:
+          DROPBOX_ACCESS_TOKEN: ${{ secrets.DROPBOX_ACCESS_TOKEN }}
+        run: |
+          curl -X POST https://content.dropboxapi.com/2/files/upload \
+          --header "Authorization: Bearer $DROPBOX_ACCESS_TOKEN" \
+          --header "Dropbox-API-Arg: {\"path\": \"/${{ env.BACKUP_FILE }}\",\"mode\": \"overwrite\"}" \
+          --header "Content-Type: application/octet-stream" \
+          --data-binary @"${{ env.BACKUP_FILE }}"
