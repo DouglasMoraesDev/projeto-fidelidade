@@ -3,34 +3,47 @@
 <head>
   <meta charset="UTF-8" />
   <title>Consultar Pontos</title>
-  <!-- Fonte leve do Google Fonts -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
     href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500&display=swap"
     rel="stylesheet"
   />
+
   <style>
-    /* Reset mínimo */
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    :root {
+      /* valores padrão, serão sobrescritos */
+      --bg-gradient-from: #f0f4ff;
+      --bg-gradient-to:   #d9e8ff;
+      --container-bg:     #ffffffdd;
+      --text-color:       #333;
+      --heading-color:    #1a237e;
+      --button-bg:        #1a237e;
+      --button-text:      #fff;
     }
 
-    /* Layout geral */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0; padding: 0;
+    }
+
     body {
       font-family: 'Montserrat', sans-serif;
-      background: linear-gradient(135deg, #f0f4ff 0%, #d9e8ff 100%);
+      background: linear-gradient(
+        135deg,
+        var(--bg-gradient-from) 0%,
+        var(--bg-gradient-to) 100%
+      );
       height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #333;
+      color: var(--text-color);
     }
 
     .points-container {
-      background: #ffffffdd; /* branco semi-transparente */
+      background: var(--container-bg);
       padding: 2rem 1.5rem;
       border-radius: 12px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.1);
@@ -39,11 +52,17 @@
       text-align: center;
     }
 
-    .points-container h1 {
+    .points-container header img {
+      max-width: 120px;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .points-container header h1 {
       font-size: 1.8rem;
       margin-bottom: 1.5rem;
       font-weight: 500;
-      color: #1a237e;
+      color: var(--heading-color);
     }
 
     #pointsForm {
@@ -60,7 +79,7 @@
     }
 
     #pointsForm input:focus {
-      border-color: #1a237e;
+      border-color: var(--heading-color);
       outline: none;
     }
 
@@ -69,8 +88,8 @@
       padding: 0.75rem 1rem;
       font-size: 1rem;
       font-weight: 500;
-      background: #1a237e;
-      color: #fff;
+      background: var(--button-bg);
+      color: var(--button-text);
       border: none;
       border-radius: 8px;
       cursor: pointer;
@@ -78,8 +97,9 @@
     }
 
     #pointsForm button:hover {
-      background: #283593;
       transform: translateY(-2px);
+      /* opcional: escurecer um pouco */
+      filter: brightness(0.9);
     }
 
     #result {
@@ -89,20 +109,25 @@
       min-height: 1.5em;
     }
 
-    /* Responsividade */
     @media (max-width: 400px) {
       .points-container {
         padding: 1.5rem 1rem;
       }
-      .points-container h1 {
+      .points-container header h1 {
         font-size: 1.6rem;
       }
     }
   </style>
 </head>
+
 <body>
   <div class="points-container">
-    <h1>Consultar Pontos</h1>
+    <header>
+      <!-- logo será exibido aqui -->
+      <img id="est-logo" alt="Logo do estabelecimento" />
+      <h1 id="est-name">Consultar Pontos</h1>
+    </header>
+
     <form id="pointsForm">
       <input
         type="text"
@@ -112,32 +137,11 @@
       />
       <button type="submit">Ver Pontos</button>
     </form>
+
     <div id="result"></div>
   </div>
 
-  <script>
-    document
-      .getElementById('pointsForm')
-      .addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const phone = document.getElementById('phone').value.trim();
-        const params = new URLSearchParams(window.location.search);
-        const establishmentId = params.get('establishmentId');
-
-        const res = await fetch('/api/clients/check-points', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ phone, establishmentId })
-        });
-
-        const data = await res.json();
-        const resultEl = document.getElementById('result');
-        if (res.ok) {
-          resultEl.innerText = `Você tem ${data.points} ponto(s).`;
-        } else {
-          resultEl.innerText = data.message || 'Erro ao buscar pontos.';
-        }
-      });
-  </script>
+  <!-- Carrega o script externo -->
+  <script src="points.js"></script>
 </body>
 </html>
