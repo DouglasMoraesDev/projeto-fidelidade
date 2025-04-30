@@ -1,395 +1,221 @@
 /* ==========================================================================  
    Variáveis de Cores - Personalização Global  
-   )  
    ========================================================================== */
-:root {
-  --primary-color: #ffffff;      /* Botões, cabeçalhos, etc. */
-  --secondary-color: #615e6b;      /* Hover e destaques alternativos */
-  --background-color: #000000;     /* Fundo geral da página */
-  --container-bg: #301442;         /* Fundo dos containers (login, formulários, etc.) */
-  --text-color: #000000;           /* Cor padrão do texto */
-  --header-bg: #500537;            /* Fundo do cabeçalho do dashboard */
-  --footer-bg: #00000000;          /* Fundo do rodapé */
-  --footer-text: #ecf0f1;          /* Cor do texto do rodapé */
-  --input-border: #cccccc;         /* Cor das bordas de inputs e selects */
-  --button-bg: black;              /* Fundo padrão dos botões */
-  --button-text: #ffffff;          /* Cor do texto dos botões */
-  --section-margin: 20px;          /* Espaçamento entre seções */
+   :root {
+    --primary-color:   #ffffff;
+    --secondary-color: #615e6b;
+    --background-color:#000000;
+    --container-bg:    #301442;
+    --text-color:      #000000;
+    --header-bg:       #500537;
+    --footer-bg:       #00000000;
+    --footer-text:     #ecf0f1;
+    --input-border:    #cccccc;
+    --button-bg:       black;
+    --button-text:     #ffffff;
+    --section-margin:  20px;
   
-  /* Novas variáveis para efeitos modernos */
-  --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  --transition-speed: 0.3s;
-  --table-row-hover: rgba(255, 255, 255, 0.1);
-}
-
-/* ==========================================================================  
-   Reset & Global Styles  
-   ========================================================================== */
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  display: flex;
-  flex-direction: column;
-  font-family: 'Montserrat', sans-serif;
-  background-color: var(--background-color);
-  color: var(--text-color);
-  line-height: 1.6;
-}
-
-/* ==========================================================================  
-   Botões  
-   ========================================================================== */
-.payment-btn {
-  background-color: #28a745;
-  color: #fff;
-  padding: 12px 20px;
-  font-size: 16px;
-  font-family: 'Oxanium', sans-serif;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color var(--transition-speed), transform 0.2s ease;
-  margin: 10px 0;
-}
-
-button {
-  font-family: 'Oxanium', sans-serif;
-  padding: 10px 20px;
-  margin: 10px;
-  background-color: var(--button-bg);
-  color: var(--button-text);
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color var(--transition-speed), transform var(--transition-speed);
-}
-
-button:hover {
-  background-color: var(--secondary-color);
-  transform: translateY(-2px);
-}
-
-/* ==========================================================================  
-   Container Geral  
-   ========================================================================== */
-.container {
-  height: 100%;
-  width: 90%;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-/* ==========================================================================  
-   Cabeçalho (Header Fixo)  
-   ========================================================================== */
-.header-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: var(--header-bg);
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: var(--section-margin);
-}
-
-.header-container h1 {
-  font-family: 'Oxanium', sans-serif;
-  font-size: 2.75rem;
-  margin: 0;
-  text-align: center;
-  color: var(--text-color);
-}
-
-/* ==========================================================================  
-   Layout: Main Container com Sidebar e Conteúdo  
-   ========================================================================== */
-.main-container {
-  display: grid;
-  grid-template-columns: 250px 1fr;
-  gap: 20px;
-  padding: 20px;
-}
-
-/* Sidebar (Menu de Navegação) */
-.sidebar {
-  background-color: var(--container-bg);
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: var(--box-shadow);
-}
-
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-}
-
-.sidebar ul li a {
-  display: block;
-  padding: 10px;
-  color: var(--text-color);
-  text-decoration: none;
-  border-radius: 4px;
-  transition: background-color var(--transition-speed);
-}
-
-.sidebar ul li a:hover {
-  background-color: var(--secondary-color);
-  color: var(--button-text);
-}
-
-/* Área de Conteúdo */
-.content {
-  background-color: var(--primary-color);
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: var(--box-shadow);
-}
-
-
-
-/* ==========================================================================  
-   Tela de Login  
-   ========================================================================== */
-#loginDiv {
-  font-family: "Oxanium", sans-serif;
-  font-size: 1.25rem;
-  color: black;
-  background-color: #34495e;
-  padding: 20px;
-  border-radius: 8px;
-  text-align: center;
-  width: 50%;
-  margin: 0 auto;
-  box-shadow: var(--box-shadow);
-}
-
-#loginDiv h2 {
-  font-size: 2rem;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-#loginDiv input {
-  width: 90%;
-  padding: 10px;
-  margin: 10px;
-  border: 1px solid var(--input-border);
-  border-radius: 4px;
-  transition: border-color var(--transition-speed);
-}
-
-#loginDiv input:focus {
-  border-color: var(--secondary-color);
-}
-
-/* ==========================================================================  
-   Dashboard - Containers individuais  
-   ========================================================================== */
-.dashboard-container {
-  font-family: 'Oxanium', sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: var(--container-bg);
-  border: 1px solid var(--input-border);
-  border-radius: 8px;
-  margin: 10px 0;
-  padding: 15px;
-  box-shadow: var(--box-shadow);
-  transition: transform var(--transition-speed);
-}
-
-.dashboard-container:hover {
-  transform: translateY(-3px);
-}
-
-#pointsLink{
-  color: var(--text-color);
-}
-
-/* ==========================================================================  
-   Formulários: Labels, Inputs e Selects  
-   ========================================================================== */
-label {
-  font-family: 'Oxanium', sans-serif;
-  font-weight: 600;
-  color: var(--text-color);
-  display: block;
-  margin: 10px 0 5px;
-}
-
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="number"],
-select {
-  font-family: 'Montserrat', sans-serif;
-  width: 100%;
-  padding: 8px;
-  margin: 10px;
-  border: 1px solid var(--input-border);
-  border-radius: 4px;
-  background-color: var(--primary-color);
-  color: var(--text-color);
-  transition: border-color var(--transition-speed);
-}
-
-input[type="text"]:focus,
-input[type="email"]:focus,
-input[type="password"]:focus,
-input[type="number"]:focus,
-select:focus {
-  border-color: var(--secondary-color);
-}
-
-/* ==========================================================================  
-   Tabela de Clientes - Visual Moderno  
-   ========================================================================== */
-#clientTableContainer {
-  font-family: 'Oxanium';
-  font-size: 15px;
-  padding: 0;
-  max-height: 400px;
-  overflow-y: auto;
-  margin-top: 20px;
-  border-radius: 10px;
-}
-
-#clientTable {
-  background-color: var(--container-bg);
-  width: 100%;
-  border-collapse: collapse;
-}
-
-#clientTable caption {
-  font-family: 'Oxanium', sans-serif;
-  font-size: 20px;
-  color: var(--text-color);
-  padding: 10px;
-  text-align: center;
-  background-color: var(--container-bg);
-}
-
-#clientTable th {
-  font-size: 18px;
-  border: 1px solid var(--input-border);
-  background-color: var(--container-bg);
-  color: var(--text-color);
-  padding: 10px;
-}
-
-#clientTable td {
-  padding: 10px 20px;
-  font-size: 15px;
-  border: 1px solid var(--input-border);
-  text-align: center;
-}
-
-#clientTable tbody tr:nth-child(even) {
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
-#clientTable tbody tr:hover {
-  background-color: var(--table-row-hover);
-}
-
-#clientTable td#acoes {
-  font-size: 18px;
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 5px;
-}
-
-#clientTable td#acoes button {
-  margin: 10px;
-  padding: 10px 20px;
-  flex: 1;
-  white-space: nowrap;
-  min-width: 0;
-}
-
-/* ==========================================================================  
-   Lista de Clientes  
-   ========================================================================== */
-ul#clients {
-  list-style-type: none;
-  padding: 0;
-}
-
-ul#clients li {
-  margin: 1.5rem 0;
-  padding: 2px;
-  background-color: var(--container-bg);
-  border-radius: 4px;
-}
-
-/* ==========================================================================  
-   Footer e Links  
-   ========================================================================== */
-footer, a {
-  font-family: 'Oxanium', sans-serif;
-  color: var(--footer-text);
-  text-align: center;
-}
-
-footer {
-  background-color: var(--footer-bg);
-  padding: 10px;
-}
-
-/* ==========================================================================  
-   Responsividade  
-   ========================================================================== */
-@media screen and (max-width: 600px) {
-  .main-container {
-    grid-template-columns: 1fr;
+    /* Efeitos modernos */
+    --box-shadow:       0 4px 6px rgba(0,0,0,0.1);
+    --transition-speed: 0.3s;
+    --table-row-hover:  rgba(255,255,255,0.1);
   }
   
-  .sidebar {
-    margin-bottom: 20px;
+  /* ==========================================================================  
+     Reset & Global Styles  
+     ========================================================================== */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  html, body {
+    height: 100%;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    font-family: 'Montserrat', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
   }
   
-  #clientTable td#acoes {
-    gap: 1px;
+  /* ==========================================================================  
+     Container Principal  
+     ========================================================================== */
+  .container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-  
-  #clientTable td#acoes button {
-    flex: 45%;
-    font-size: 0.6em;
-  }
-  
   #loginDiv {
-    width: 90%;
+    background-color: #34495e;
+    padding: 2rem;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: var(--box-shadow);
+  }
+  #loginDiv h2 { margin-bottom: 1rem; color: #fff; }
+  #loginDiv input {
+    width: 100%;
+    margin: 0.5rem 0;
+    padding: 0.75rem;
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+    font-family: 'Montserrat', sans-serif;
+  }
+  #loginDiv button {
+    margin-top: 1rem;
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform var(--transition-speed);
+  }
+  #loginDiv button:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* ==========================================================================  
+     Header do Dashboard  
+     ========================================================================== */
+  .header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--header-bg);
+    padding: 1rem 2rem;
+    color: var(--text-color);
+  }
+  .header-container h1 { font-family: 'Oxanium', sans-serif; }
+  #welcome-msg { font-size: 1rem; margin-top: 0.25rem; }
+  
+  /* ==========================================================================  
+     Menu de Abas  
+     ========================================================================== */
+  .tab-menu {
+    display: flex;
+    gap: 1rem;
+    background: var(--container-bg);
+    padding: 0.5rem 1rem;
+    border-bottom: 2px solid var(--secondary-color);
+  }
+  .tab-menu button {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 0.5rem;
     font-size: 1rem;
-    padding: 15px;
+    color: var(--text-color);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: border-color var(--transition-speed);
+  }
+  .tab-menu button.active {
+    border-color: var(--primary-color);
   }
   
+  /* ==========================================================================  
+     Conteúdo das Abas  
+     ========================================================================== */
+  .tab-content {
+    padding: 1rem 2rem;
+  }
   .dashboard-container {
-    margin: 10px;
-    padding: 15px;
+    background-color: var(--container-bg);
+    padding: 1rem;
+    border-radius: 8px;
+    margin: var(--section-margin) 0;
+    box-shadow: var(--box-shadow);
+    transition: transform var(--transition-speed);
+  }
+  .dashboard-container:hover {
+    transform: translateY(-2px);
+  }
+  .logout-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform var(--transition-speed);
+  }
+  .logout-btn:hover {
+    transform: translateY(-2px);
   }
   
-  h1 {
-    font-size: 2rem;
+  /* ==========================================================================  
+     Formulários & Tabelas  
+     ========================================================================== */
+  label {
+    display: block;
+    margin: 0.5rem 0 0.25rem;
+    font-weight: 600;
   }
-  
-  h2, h3 {
-    font-size: 1.25rem;
+  input, select, button {
+    font-family: 'Montserrat', sans-serif;
   }
-  
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="number"],
-  select,
+  input, select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+    background: var(--primary-color);
+    color: var(--text-color);
+    margin-bottom: 0.75rem;
+  }
   button {
-    font-size: 0.9em;
+    padding: 0.75rem;
+    background: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform var(--transition-speed);
   }
-}
+  button:hover {
+    transform: translateY(-2px);
+  }
+  
+  #clientTableContainer {
+    overflow-x: auto;
+    margin-top: 1rem;
+  }
+  #clientTable {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  #clientTable th,
+  #clientTable td {
+    padding: 0.75rem;
+    border: 1px solid var(--input-border);
+    text-align: center;
+  }
+  #clientTable tbody tr:nth-child(even) {
+    background-color: var(--table-row-hover);
+  }
+  
+  /* ==========================================================================  
+     Responsividade  
+     ========================================================================== */
+  @media screen and (max-width: 600px) {
+    .tab-menu {
+      flex-direction: column;
+    }
+    .header-container,
+    .tab-content {
+      padding: 1rem;
+    }
+  }
+  

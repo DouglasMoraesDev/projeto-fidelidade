@@ -1,136 +1,151 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="theme-color" content="#ffffff" id="theme-color-meta" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cartão Fidelidade</title>
 
-  <!-- Cor da barra de status (Android Chrome) -->
-  <meta name="theme-color" content="#ffffff" id="theme-color-meta" />
-  <!-- Manifest para permitir “Adicionar à Tela Inicial” -->
-  <link rel="manifest" href="/manifest.json">
+  <!-- Manifest e PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon"           href="logo/icon.png" sizes="192x192" />
+  <link rel="icon"           href="logo/icon.png" sizes="512x512" />
+  <link rel="apple-touch-icon" href="logo/icon.png" sizes="180x180" />
+  <link rel="shortcut icon"    href="logo/icon.png" />
 
-  <!-- Ícones para “Adicionar à Tela Inicial” -->
-  <!-- Android/Chrome -->
-  <link rel="icon" type="image/png" sizes="192x192" href="logo/icon.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="logo/icon.png">
-  <!-- iOS Safari -->
-  <link rel="apple-touch-icon" sizes="180x180" href="logo/icon.png">
+  <!-- CSS global de variáveis e reset -->
+  <link rel="stylesheet" href="style.css" />
 
-  <!-- Fallback de favicon -->
-  <link rel="shortcut icon" href="logo/icon.png" type="image/x-icon">
-  <link rel="icon" type="image/png" sizes="32x32" href="logo/icon.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="logo/icon.png">
-
-  <!-- Estilos e fontes -->
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oxanium:wght@200..800&display=swap" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500&family=Oxanium:wght@200..800&display=swap"
+    rel="stylesheet"
+  />
 </head>
 <body>
-  <!-- Container Principal -->
+  <!-- LOGIN -->
   <div class="container">
-    <!-- Tela de Login -->
     <div id="loginDiv">
       <h2>Login</h2>
       <label for="username">Usuário:</label>
-      <input type="text" id="username" placeholder="Digite seu nome de usuário">
+      <input type="text" id="username" placeholder="Digite seu nome de usuário" />
       <label for="password">Senha:</label>
-      <input type="password" id="password" placeholder="Digite sua senha">
+      <input type="password" id="password" placeholder="Digite sua senha" />
       <button id="loginBtn">Entrar</button>
     </div>
   </div>
 
-  <!-- Dashboard (inicialmente oculto) -->
+  <!-- DASHBOARD -->
   <div id="dashboard" style="display:none;">
-
-    <!-- Seção de QR Code -->
-    <div class="dashboard-container" id="qrSection">
-      <h3>QR Code para consulta de pontos</h3>
-      <img id="qrCodeImg" alt="QR Code do estabelecimento" style="max-width:200px;"/>
-      <p>
-        Ou abra diretamente:
-        <a id="pointsLink" href="#" target="_blank">Consultar meus pontos</a>
-      </p>
-    </div>
-
-    <button id="logoutBtn" style="position: fixed; top: 20px; right: 20px;">Sair</button><br>
-
-    <!-- Cabeçalho: Título e Logo -->
+    <!-- HEADER e boas-vindas -->
     <div class="dashboard-container header-container" id="headerSection">
-      <h1>Cartão Fidelidade</h1>
-      <img id="logo" src="Logo.jpeg" alt="Logo">
+      <div>
+        <h1>Cartão Fidelidade</h1>
+        <p id="welcome-msg">Olá, Usuário!</p>
+      </div>
+      <img id="logo" src="Logo.jpeg" alt="Logo" />
     </div>
 
-    <!-- Seção: Formulário para Adicionar Novo Cliente -->
-    <div class="dashboard-container" id="clientFormSection">
-      <h3>Adicionar Novo Cliente</h3>
-      <label for="clientFullName">Nome Completo:</label>
-      <input type="text" id="clientFullName" placeholder="Nome Completo do Cliente">
-      <label for="clientPhone">Número de Telefone:</label>
-      <input type="text" id="clientPhone" placeholder="Número de Telefone">
-      <label for="clientEmail">Email:</label>
-      <input type="email" id="clientEmail" placeholder="Email do Cliente">
-      <label for="clientPoints">Pontos:</label>
-      <input type="number" id="clientPoints" min="0" value="0">
-      <button id="saveClientBtn">Salvar Cliente</button>
-    </div>
+    <!-- MENU DE ABAS -->
+    <nav class="tab-menu">
+      <button class="active" data-section="tab-clients">Clientes</button>
+      <button data-section="tab-notify">Notificações</button>
+      <button data-section="tab-qr">Consultar</button>
+    </nav>
 
-    <!-- Seção: Buscar Cliente e Adicionar Pontos -->
-    <div class="dashboard-container" id="searchPointsSection">
-      <h3>Buscar Cliente</h3>
-      <label for="searchClient">Digite o nome do cliente:</label>
-      <input type="text" id="searchClient" placeholder="Buscar Cliente">
-      <button id="searchBtn">Buscar</button>
+    <!-- ABA 1: CLIENTES -->
+    <section id="tab-clients" class="tab-content">
+      <div class="dashboard-container" id="clientFormSection">
+        <h3>Adicionar Novo Cliente</h3>
+        <label for="clientFullName">Nome Completo:</label>
+        <input type="text" id="clientFullName" placeholder="Nome Completo do Cliente" />
+        <label for="clientPhone">Número de Telefone:</label>
+        <input type="text" id="clientPhone" placeholder="Número de Telefone" />
+        <label for="clientEmail">Email:</label>
+        <input type="email" id="clientEmail" placeholder="Email do Cliente" />
+        <label for="clientPoints">Pontos:</label>
+        <input type="number" id="clientPoints" min="0" value="0" />
+        <button id="saveClientBtn">Salvar Cliente</button>
+      </div>
 
-      <h3>Adicionar Pontos ao Cliente</h3>
-      <label for="clientSelect">Selecione o Cliente:</label>
-      <select id="clientSelect">
-        <option value="">Selecione o cliente</option>
-      </select>
-      <label for="points">Pontos:</label>
-      <input type="number" id="points" min="1" max="10">
-      <button id="addPointsBtn">Adicionar Pontos</button>
-    </div>
+      <div class="dashboard-container" id="searchPointsSection">
+        <h3>Buscar Cliente</h3>
+        <label for="searchClient">Digite o nome do cliente:</label>
+        <input type="text" id="searchClient" placeholder="Buscar Cliente" />
+        <button id="searchBtn">Buscar</button>
 
-    <!-- Seção: Tabela de Clientes -->
-    <div id="clientTableContainer">
-      <table id="clientTable">
-        <caption>Tabela de Clientes</caption>
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Email</th>
-            <th>Telefone</th>
-            <th>Pontos</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="clientTableBody">
-          <!-- Clientes serão inseridos aqui via JavaScript -->
-        </tbody>
-      </table>
-    </div>
+        <h3>Adicionar Pontos ao Cliente</h3>
+        <label for="clientSelect">Selecione o Cliente:</label>
+        <select id="clientSelect">
+          <option value="">Selecione o cliente</option>
+        </select>
+        <label for="points">Pontos:</label>
+        <input type="number" id="points" min="1" max="10" />
+        <button id="addPointsBtn">Adicionar Pontos</button>
+      </div>
 
-    <!-- Seção: Clientes com 10 Pontos -->
-    <div class="dashboard-container" id="vipClientsSection">
-      <h3>Clientes com 10 Pontos</h3>
-      <ul id="clients">
-        <!-- Lista de clientes com 10 pontos será preenchida aqui -->
-      </ul>
-    </div>
+      <div id="clientTableContainer">
+        <table id="clientTable">
+          <caption>Tabela de Clientes</caption>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Email</th>
+              <th>Telefone</th>
+              <th>Pontos</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="clientTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ABA 2: NOTIFICAÇÕES -->
+    <section id="tab-notify" class="tab-content" style="display:none;">
+      <div class="dashboard-container" id="vipClientsSection">
+        <h3>Clientes com 10 Pontos</h3>
+        <ul id="clients"></ul>
+      </div>
+    </section>
+
+    <!-- ABA 3: CONSULTAR (QR CODE) -->
+    <section id="tab-qr" class="tab-content" style="display:none;">
+      <div class="dashboard-container" id="qrSection">
+        <h3>QR Code para consulta de pontos</h3>
+        <img id="qrCodeImg" alt="QR Code do estabelecimento" style="max-width:200px;" />
+        <p>
+          Ou abra diretamente:
+          <a id="pointsLink" href="#" target="_blank">Consultar meus pontos</a>
+        </p>
+      </div>
+    </section>
+
+    <button id="logoutBtn" class="logout-btn">Sair</button>
   </div>
 
-  <!-- Footer -->
   <footer>
     <p>
-      &copy; Douglas Moraes Dev<br>
+      &copy; Douglas Moraes Dev<br />
       <a href="https://wa.me/qr/F2Z744R5KWEPB1" target="_blank">Contato</a>
     </p>
   </footer>
 
   <!-- Scripts -->
   <script src="app.js"></script>
+  <script>
+    // Controle de abas
+    document.addEventListener('DOMContentLoaded', () => {
+      const tabs = document.querySelectorAll('.tab-menu button');
+      tabs.forEach(btn => {
+        btn.addEventListener('click', () => {
+          tabs.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          document.querySelectorAll('.tab-content').forEach(sec => sec.style.display = 'none');
+          document.getElementById(btn.dataset.section).style.display = 'block';
+        });
+      });
+    });
+  </script>
 </body>
 </html>
