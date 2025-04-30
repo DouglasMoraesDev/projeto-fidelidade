@@ -7,16 +7,15 @@ const BASE_URL = 'https://projeto-fidelidade-production.up.railway.app';
 const API_URL  = `${BASE_URL}/api`;
 
 // =========================
-// Wrapper de fetch para tratar 401 (token expirado) e 402 (assinatura expirada)
+// Wrapper fetch p/ 401 e 402
 // =========================
 async function apiFetch(url, options = {}) {
   const res = await fetch(url, options);
-
   if (res.status === 401) {
     alert('Sessão expirada. Faça login novamente.');
     localStorage.removeItem('authToken');
     localStorage.removeItem('currentEstablishmentId');
-    return window.location.href = '/'; 
+    return window.location.href = '/';
   }
   if (res.status === 402) {
     const err = await res.json();
@@ -25,7 +24,6 @@ async function apiFetch(url, options = {}) {
     localStorage.removeItem('currentEstablishmentId');
     return window.location.href = '/payment.html';
   }
-
   return res;
 }
 
@@ -37,14 +35,37 @@ let isEditing = false;
 let editingClientId = null;
 
 // =========================
-// Utilitários de tema e QR
+// Boas-vindas
 // =========================
-function applyTheme(theme) {
-  Object.entries(theme).forEach(([key, value]) => {
-    document.documentElement.style.setProperty(`--${key}`, value);
+function showWelcome() {
+  const nome = localStorage.getItem('userName');
+  if (nome) {
+    document.getElementById('user-name').textContent = nome;
+  }
+}
+
+// =========================
+// Tabs do dashboard
+// =========================
+function initTabs() {
+  document.querySelectorAll('.tab-menu button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-menu button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(sec => sec.style.display = 'none');
+      document.getElementById(btn.dataset.section).style.display = 'block';
+    });
   });
 }
 
+// =========================
+// Aplica tema e QR
+// =========================
+function applyTheme(theme) {
+  Object.entries(theme).forEach(([key, value]) =>
+    document.documentElement.style.setProperty(`--${key}`, value)
+  );
+}
 function renderQRCode() {
   const qrImg = document.getElementById('qrCodeImg');
   const link  = document.getElementById('pointsLink');
@@ -53,47 +74,43 @@ function renderQRCode() {
 }
 
 // =========================
-// Fluxo de inicialização
+// Inicialização
 // =========================
-window.onload = async function() {
+window.onload = async () => {
   const token = localStorage.getItem('authToken');
   const estId = localStorage.getItem('currentEstablishmentId');
-
   if (!token || !estId) {
     document.getElementById('loginDiv').style.display  = 'block';
     document.getElementById('dashboard').style.display = 'none';
     return;
   }
-
   try {
-    // 1) Busca dados do estabelecimento (rota pública)
+    // 1) pega dados do estabelecimento
     const res = await apiFetch(
       `${API_URL}/establishments/${estId}`,
-      { headers: { 'Authorization': `Bearer ${token}` } }
+      { headers:{ 'Authorization': `Bearer ${token}` } }
     );
     const establishment = await res.json();
     currentEstablishmentId = estId;
 
-    // 2) Checa 28 dias de assinatura
-    const lastPay = establishment.lastPaymentDate && new Date(establishment.lastPaymentDate).getTime();
-    const now     = Date.now();
-    const TWENTY_EIGHT_DAYS = 28 * 24 * 60 * 60 * 1000;
-    if (!lastPay || now - lastPay > TWENTY_EIGHT_DAYS) {
-      alert(
-        lastPay
-          ? `Sua assinatura expirou em ${new Date(lastPay).toLocaleDateString()}.`
-          : 'Nenhuma data de pagamento registrada. Entre em contato.'
+    // 2) checa assinatura
+    const lastPay = establishment.lastPaymentDate
+      ? new Date(establishment.lastPaymentDate).getTime()
+      : null;
+    if (!lastPay || Date.now() - lastPay > 28*24*60*60*1000) {
+      alert(lastPay
+        ? `Sua assinatura expirou em ${new Date(lastPay).toLocaleDateString()}.`
+        : 'Nenhuma data de pagamento registrada. Entre em contato.'
       );
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('currentEstablishmentId');
+      localStorage.clear();
       return window.location.href = '/payment.html';
     }
 
-    // 3) Aplica tema e logo
+    // 3) tema e logo
     applyTheme({
       "primary-color":   establishment.primaryColor,
       "secondary-color": establishment.secondaryColor,
-      "background-color": establishment.backgroundColor,
+      "background-color":establishment.backgroundColor,
       "container-bg":    establishment.containerBg,
       "text-color":      establishment.textColor,
       "header-bg":       establishment.headerBg,
@@ -106,97 +123,27 @@ window.onload = async function() {
     });
     const logoEl = document.getElementById('logo');
     if (logoEl) logoEl.src = establishment.logoURL;
-
-    // 3a) Atualiza <meta name="theme-color"> para Android/Chrome
     const metaTheme = document.getElementById('theme-color-meta');
-    if (metaTheme && establishment.backgroundColor) {
-      metaTheme.setAttribute('content', establishment.backgroundColor);
-    }
+    if (metaTheme) metaTheme.setAttribute('content', establishment.backgroundColor);
 
-    // 4) Exibe dashboard e carrega clientes
+    // 4) mostra dashboard
     document.getElementById('loginDiv').style.display  = 'none';
     document.getElementById('dashboard').style.display = 'block';
+    showWelcome();
+    initTabs();
     loadClients();
     renderQRCode();
 
-  } catch (error) {
-    console.error('Erro na inicialização:', error);
-    // apiFetch já redireciona em 401/402. Outros erros podem ser tratados aqui.
+  } catch (err) {
+    console.error('Erro na inicialização:', err);
   }
 };
-
-// =========================
-// Login
-// =========================
-document.getElementById('loginBtn').addEventListener('click', async () => {
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value.trim();
-  if (!username || !password) {
-    return alert('Preencha todos os campos!');
-  }
-
-  try {
-    const res = await fetch(`${API_URL}/login`, {
-      method: 'POST',
-      headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify({ username, password })
-    });
-    const data = await res.json();
-
-    if (!res.ok) {
-      if (res.status === 402) {
-        if (confirm(`${data.message}\nDeseja renovar agora?`)) {
-          return window.location.href = '/payment.html';
-        }
-      } else {
-        alert(data.message || 'Usuário ou senha inválidos');
-      }
-      return;
-    }
-
-    // Salva token e estabelecimento
-    localStorage.setItem('authToken', data.token);
-    currentEstablishmentId = data.user.establishmentId;
-    localStorage.setItem('currentEstablishmentId', currentEstablishmentId);
-
-    // Aplica tema e logo
-    applyTheme({
-      "primary-color":   data.user['primary-color'],
-      "secondary-color": data.user['secondary-color'],
-      "background-color":data.user['background-color'],
-      "container-bg":    data.user['container-bg'],
-      "text-color":      data.user['text-color'],
-      "header-bg":       data.user['header-bg'],
-      "footer-bg":       data.user['footer-bg'],
-      "footer-text":     data.user['footer-text'],
-      "input-border":    data.user['input-border'],
-      "button-bg":       data.user['button-bg'],
-      "button-text":     data.user['button-text'],
-      "section-margin":  data.user['section-margin']
-    });
-    const logo = document.getElementById('logo');
-    if (logo) logo.src = data.user.logoURL;
-
-    // Exibe dashboard
-    document.getElementById('loginDiv').style.display  = 'block';
-    document.getElementById('loginDiv').style.display  = 'none';
-    document.getElementById('dashboard').style.display = 'block';
-    loadClients();
-    renderQRCode();
-
-    alert('Login bem‑sucedido!');
-  } catch (err) {
-    console.error('Erro no login:', err);
-    alert('Erro no login. Tente novamente.');
-  }
-});
 
 // =========================
 // Logout
 // =========================
 document.getElementById('logoutBtn').addEventListener('click', () => {
-  localStorage.removeItem('authToken');
-  localStorage.removeItem('currentEstablishmentId');
+  localStorage.clear();
   document.getElementById('loginDiv').style.display  = 'block';
   document.getElementById('dashboard').style.display = 'none';
   alert('Logout realizado com sucesso!');

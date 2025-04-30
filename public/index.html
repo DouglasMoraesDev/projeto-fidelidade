@@ -6,15 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cartão Fidelidade</title>
 
+  <!-- Manifest e ícones (coloque os arquivos em public/logo/) -->
   <link rel="manifest" href="/manifest.json" />
-  <link rel="icon" href="logo/icon.png" sizes="192x192" />
-  <link rel="icon" href="logo/icon.png" sizes="512x512" />
-  <link rel="apple-touch-icon" href="logo/icon.png" sizes="180x180" />
-  <link rel="shortcut icon" href="logo/icon.png" />
+  <link rel="icon"           href="/logo/icon.png" sizes="192x192" />
+  <link rel="icon"           href="/logo/icon.png" sizes="512x512" />
+  <link rel="apple-touch-icon" href="/logo/icon.png" sizes="180x180" />
+  <link rel="shortcut icon"    href="/logo/icon.png" />
 
+  <!-- CSS global -->
   <link rel="stylesheet" href="/style.css" />
+  <!-- Fontes -->
   <link
-    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500&family=Oxanium:wght@200..800&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500&amp;family=Oxanium:wght@200..800&amp;display=swap"
     rel="stylesheet"
   />
 </head>
@@ -39,7 +42,7 @@
         <h1>Cartão Fidelidade</h1>
         <p id="welcome-msg">Olá, <span id="user-name"></span>!</p>
       </div>
-      <img id="logo" src="Logo.jpeg" alt="Logo" />
+      <img id="logo" src="/logo/LogoGuerra.png" alt="Logo do estabelecimento" />
     </div>
 
     <!-- MENU DE ABAS -->
@@ -52,7 +55,6 @@
 
     <!-- ABA 1: CADASTRAR CLIENTE -->
     <section id="tab-clients" class="tab-content">
-      <!-- Mesmo formulário de antes -->
       <div class="dashboard-container" id="clientFormSection">
         <h3>Adicionar Novo Cliente</h3>
         <label for="clientFullName">Nome Completo:</label>
@@ -112,7 +114,7 @@
       </div>
     </section>
 
-    <!-- ABA 4: CONSULTAR (QR CODE, centralizada) -->
+    <!-- ABA 4: CONSULTAR (centralizada) -->
     <section id="tab-qr" class="tab-content" style="display:none;">
       <div class="center-content">
         <div class="dashboard-container" id="qrSection">
@@ -133,24 +135,21 @@
     <p>&copy; Douglas Moraes Dev<br /><a href="https://wa.me/qr/F2Z744R5KWEPB1" target="_blank">Contato</a></p>
   </footer>
 
-  <!-- Scripts -->
   <script src="app.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Saudação com nome do usuário (presume que app.js salve em localStorage 'userName')
-      const nome = localStorage.getItem('userName') || '';
-      if (nome) document.getElementById('user-name').textContent = nome;
+      // Saudação
+      const nome = localStorage.getItem('userName') || 'Usuário';
+      document.getElementById('user-name').textContent = nome;
 
-      // Controle de abas
+      // Abas
       const tabs = document.querySelectorAll('.tab-menu button');
-      tabs.forEach(btn => {
-        btn.addEventListener('click', () => {
-          tabs.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          document.querySelectorAll('.tab-content').forEach(sec => sec.style.display = 'none');
-          document.getElementById(btn.dataset.section).style.display = 'block';
-        });
-      });
+      tabs.forEach(btn => btn.addEventListener('click', () => {
+        tabs.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(sec => sec.style.display = 'none');
+        document.getElementById(btn.dataset.section).style.display = 'block';
+      }));
     });
   </script>
 </body>
