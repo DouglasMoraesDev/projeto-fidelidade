@@ -2,7 +2,12 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Consultar Pontos</title>
+
+  <!-- Barra de status para Android/Chrome -->
+  <meta name="theme-color" content="#ffffff" id="theme-color-meta" />
+
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -11,11 +16,11 @@
     rel="stylesheet"
   />
 
-  <!-- seu CSS global que define todas as variáveis :root -->
-  <link rel="stylesheet" href="app.css" />
+  <!-- CSS global de variáveis -->
+  <link rel="stylesheet" href="style.css" />
 
   <style>
-    /* estilo específico da tela de pontos, aproveitando suas variáveis */
+    /* Estilo específico da tela de pontos */
     body {
       display: flex;
       align-items: center;
@@ -24,29 +29,26 @@
       background-color: var(--background-color);
       color: var(--text-color);
       font-family: 'Montserrat', sans-serif;
+      margin: 0;
     }
-
     .points-container {
       background-color: var(--container-bg);
       padding: 2rem;
       border-radius: 8px;
       box-shadow: var(--box-shadow);
-      width: 100%;
+      width: 90%;
       max-width: 360px;
       text-align: center;
     }
-
     .points-container header img {
       max-width: 120px;
       margin-bottom: 1rem;
       display: none;
     }
-
     .points-container header h1 {
       color: var(--primary-color);
       margin-bottom: 1rem;
     }
-
     #pointsForm input {
       width: 100%;
       padding: 0.75rem;
@@ -56,7 +58,6 @@
       background: var(--primary-color);
       color: var(--text-color);
     }
-
     #pointsForm button {
       width: 100%;
       padding: 0.75rem;
@@ -70,15 +71,14 @@
     #pointsForm button:hover {
       transform: translateY(-2px);
     }
-
     #result {
       margin-top: 1.5rem;
       font-size: 1.2rem;
       font-weight: bold;
+      min-height: 1.2em;
     }
   </style>
 </head>
-
 <body>
   <div class="points-container">
     <header>

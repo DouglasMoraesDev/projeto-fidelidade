@@ -7,7 +7,7 @@
       return;
     }
   
-    // 2. Busca os dados de tema + logo
+    // 2. Busca dados de tema + logo
     let est;
     try {
       const res = await fetch(`/api/establishments/${estId}`);
@@ -19,37 +19,39 @@
       return;
     }
   
-    // 3. Mapeie as propriedades da resposta aos nomes das suas variáveis CSS
-    const varsMap = {
-      '--primary-color':          est.primaryColor,
-      '--secondary-color':        est.secondaryColor,
-      '--background-color':       est.backgroundColor,
-      '--container-bg':           est.containerBg,
-      '--text-color':             est.textColor,
-      '--header-bg':              est.headerBg,
-      '--footer-bg':              est.footerBg,
-      '--footer-text':            est.footerText,
-      '--input-border':           est.inputBorder,
-      '--button-bg':              est.buttonBg,
-      '--button-text':            est.buttonText,
-      '--box-shadow':             est.boxShadow || '0 4px 6px rgba(0,0,0,0.1)',
-      '--transition-speed':       est.transitionSpeed || '0.3s',
-      '--table-row-hover':        est.tableRowHover
-    };
+    // 3. Atualiza meta theme-color (barra de status Android/Chrome)
+    const meta = document.getElementById('theme-color-meta');
+    if (meta && est.backgroundColor) {
+      meta.setAttribute('content', est.backgroundColor);
+    }
   
-    // 4. Aplique cada variável no :root
+    // 4. Mapeia e aplica variáveis CSS
+    const varsMap = {
+      '--primary-color':     est.primaryColor,
+      '--secondary-color':   est.secondaryColor,
+      '--background-color':  est.backgroundColor,
+      '--container-bg':      est.containerBg,
+      '--text-color':        est.textColor,
+      '--header-bg':         est.headerBg,
+      '--footer-bg':         est.footerBg,
+      '--footer-text':       est.footerText,
+      '--input-border':      est.inputBorder,
+      '--button-bg':         est.buttonBg,
+      '--button-text':       est.buttonText,
+      '--box-shadow':        est.boxShadow || '0 4px 6px rgba(0,0,0,0.1)',
+      '--transition-speed':  est.transitionSpeed || '0.3s'
+    };
     const root = document.documentElement;
-    Object.entries(varsMap).forEach(([varName, value]) => {
-      if (value) root.style.setProperty(varName, value);
+    Object.entries(varsMap).forEach(([k, v]) => {
+      if (v) root.style.setProperty(k, v);
     });
   
-    // 5. Insira logo e nome
+    // 5. Insere logo e nome
     const logoEl = document.getElementById('est-logo');
-    if (est.logoUrl) {
-      // ajuste o campo de logo baseado no JSON real da sua API
-      logoEl.src = est.logoUrl.startsWith('http')
-        ? est.logoUrl
-        : `https://projeto-fidelidade-production.up.railway.app${est.logoUrl}`;
+    if (est.logoURL) {
+      // normaliza caminho removendo "./"
+      const path = est.logoURL.replace(/^\.\//, '');
+      logoEl.src = `${window.location.origin}/${path}`;
       logoEl.style.display = 'block';
     }
     document.getElementById('est-name').textContent = est.name;

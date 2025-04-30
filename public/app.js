@@ -107,6 +107,12 @@ window.onload = async function() {
     const logoEl = document.getElementById('logo');
     if (logoEl) logoEl.src = establishment.logoURL;
 
+    // 3a) Atualiza <meta name="theme-color"> para Android/Chrome
+    const metaTheme = document.getElementById('theme-color-meta');
+    if (metaTheme && establishment.backgroundColor) {
+      metaTheme.setAttribute('content', establishment.backgroundColor);
+    }
+
     // 4) Exibe dashboard e carrega clientes
     document.getElementById('loginDiv').style.display  = 'none';
     document.getElementById('dashboard').style.display = 'block';
