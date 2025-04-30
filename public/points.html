@@ -17,65 +17,104 @@
   />
 
   <!-- CSS global de variáveis -->
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="/app.css" />
 
   <style>
-    /* Estilo específico da tela de pontos */
+    /* RESET & LAYOUT BASE */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
     body {
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
       background-color: var(--background-color);
       color: var(--text-color);
       font-family: 'Montserrat', sans-serif;
-      margin: 0;
+      padding: 1rem;
     }
+
+    /* CONTAINER PRINCIPAL */
     .points-container {
       background-color: var(--container-bg);
       padding: 2rem;
       border-radius: 8px;
       box-shadow: var(--box-shadow);
-      width: 90%;
+      width: 100%;
       max-width: 360px;
       text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* HEADER (logo + título) */
+    .points-container header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
     }
     .points-container header img {
       max-width: 120px;
-      margin-bottom: 1rem;
-      display: none;
+      display: none; /* será exibido via JS quando houver logo */
     }
     .points-container header h1 {
       color: var(--primary-color);
-      margin-bottom: 1rem;
+      font-size: 1.5rem;
+    }
+
+    /* FORMULÁRIO */
+    #pointsForm {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
     }
     #pointsForm input {
       width: 100%;
       padding: 0.75rem;
-      margin-bottom: 1rem;
       border: 1px solid var(--input-border);
       border-radius: 4px;
       background: var(--primary-color);
       color: var(--text-color);
+      font-size: 1rem;
     }
     #pointsForm button {
-      width: 100%;
       padding: 0.75rem;
       background: var(--button-bg);
       color: var(--button-text);
       border: none;
       border-radius: 4px;
       cursor: pointer;
+      font-size: 1rem;
       transition: transform var(--transition-speed);
     }
     #pointsForm button:hover {
       transform: translateY(-2px);
     }
+
+    /* RESULTADO */
     #result {
-      margin-top: 1.5rem;
       font-size: 1.2rem;
       font-weight: bold;
       min-height: 1.2em;
+    }
+
+    /* RESPONSIVIDADE */
+    @media (max-width: 480px) {
+      .points-container {
+        padding: 1.5rem;
+      }
+      .points-container header h1 {
+        font-size: 1.3rem;
+      }
+      #pointsForm input,
+      #pointsForm button {
+        font-size: 0.9rem;
+        padding: 0.65rem;
+      }
+      #result {
+        font-size: 1.1rem;
+      }
     }
   </style>
 </head>
