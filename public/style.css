@@ -1,287 +1,139 @@
-/* ==========================================================================  
-   Variáveis de Cores - Personalização Global  
-   ========================================================================== */
-   :root {
-    --primary-color:   #ffffff;
-    --secondary-color: #615e6b;
-    --background-color:#000000;
-    --container-bg:    #301442;
-    --text-color:      #000000;
-    --header-bg:       #500537;
-    --footer-bg:       #00000000;
-    --footer-text:     #ecf0f1;
-    --input-border:    #cccccc;
-    --button-bg:       black;
-    --button-text:     #ffffff;
-    --section-margin:  20px;
-  
-    /* Efeitos modernos */
-    --box-shadow:       0 4px 6px rgba(0,0,0,0.1);
-    --transition-speed: 0.3s;
-    --table-row-hover:  rgba(255,255,255,0.1);
-  }
-  
-  /* ==========================================================================  
-     Reset & Global Styles  
-     ========================================================================== */
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-  html, body {
-    height: 100%;
-  }
-  body {
-    display: flex;
-    flex-direction: column;
-    font-family: 'Montserrat', sans-serif;
-    background-color: var(--background-color);
-    color: var(--text-color);
-    line-height: 1.6;
-  }
-  
-  /* ==========================================================================  
-     Container Principal e Login  
-     ========================================================================== */
-  .container {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  #loginDiv {
-    background-color: #34495e;
-    padding: 2rem;
-    border-radius: 8px;
-    text-align: center;
-    box-shadow: var(--box-shadow);
-  }
-  #loginDiv h2 { margin-bottom: 1rem; color: #fff; }
-  #loginDiv input {
-    width: 100%;
-    margin: 0.5rem 0;
-    padding: 0.75rem;
-    border: 1px solid var(--input-border);
-    border-radius: 4px;
-  }
-  #loginDiv button {
-    margin-top: 1rem;
-    width: 100%;
-    padding: 0.75rem;
-    background: var(--button-bg);
-    color: var(--button-text);
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: transform var(--transition-speed);
-  }
-  #loginDiv button:hover {
-    transform: translateY(-2px);
-  }
-  
-  /* ==========================================================================  
-     Header do Dashboard  
-     ========================================================================== */
-  .header-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: var(--header-bg);
-    padding: 1rem 2rem;
-    color: var(--text-color);
-  }
-  .header-container h1 {
-    font-family: 'Oxanium', sans-serif;
-  }
-  #welcome-msg {
-    font-size: 1rem;
-    margin-top: 0.25rem;
-    color: var(--text-color);
-  }
-  
-  /* ==========================================================================  
-     Menu de Abas  
-     ========================================================================== */
-  .tab-menu {
-    display: flex;
-    gap: 1rem;
-    background: var(--container-bg);
-    padding: 0.5rem 1rem;
-    border-bottom: 2px solid var(--secondary-color);
-  }
-  .tab-menu button {
-    flex: 1;
-    background: none;
-    border: none;
-    padding: 0.5rem;
-    font-size: 1rem;
-    color: var(--text-color);
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    transition: border-color var(--transition-speed);
-  }
-  .tab-menu button.active {
-    border-color: var(--primary-color);
-  }
-  
-  /* ==========================================================================  
-     Conteúdo das Abas  
-     ========================================================================== */
-  .tab-content {
-    padding: 1rem 2rem;
-  }
-  .dashboard-container {
-    background-color: var(--container-bg);
-    padding: 1rem;
-    border-radius: 8px;
-    margin: var(--section-margin) 0;
-    box-shadow: var(--box-shadow);
-    transition: transform var(--transition-speed);
-  }
-  .dashboard-container:hover {
-    transform: translateY(-2px);
-  }
-  
-  /* ==========================================================================  
-     Botão Logout  
-     ========================================================================== */
-  .logout-btn {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: var(--button-bg);
-    color: var(--button-text);
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: transform var(--transition-speed);
-  }
-  .logout-btn:hover {
-    transform: translateY(-2px);
-  }
-  
-  /* ==========================================================================  
-     Formulários  
-     ========================================================================== */
-  label {
-    display: block;
-    margin: 0.5rem 0 0.25rem;
-    font-weight: 600;
-  }
-  input, select, button {
-    font-family: 'Montserrat', sans-serif;
-  }
-  input, select {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--input-border);
-    border-radius: 4px;
-    background: var(--primary-color);
-    color: var(--text-color);
-    margin-bottom: 0.75rem;
-  }
-  button {
-    padding: 0.75rem;
-    background: var(--button-bg);
-    color: var(--button-text);
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: transform var(--transition-speed);
-  }
-  button:hover {
-    transform: translateY(-2px);
-  }
-  
-  /* ==========================================================================  
-     Tabela de Clientes (padrão restaurado)  
-     ========================================================================== */
-  #clientTableContainer {
-    font-family: 'Oxanium', sans-serif;
-    font-size: 15px;
-    padding: 0;
-    max-height: 400px;
-    overflow-y: auto;
-    margin-top: 20px;
-    border-radius: 10px;
-  }
-  #clientTable {
-    background-color: var(--container-bg);
-    width: 100%;
-    border-collapse: collapse;
-  }
-  #clientTable caption {
-    font-family: 'Oxanium', sans-serif;
-    font-size: 20px;
-    color: var(--text-color);
-    padding: 10px;
-    text-align: center;
-    background-color: var(--container-bg);
-  }
-  #clientTable th {
-    font-size: 18px;
-    border: 1px solid var(--input-border);
-    background-color: var(--container-bg);
-    color: var(--text-color);
-    padding: 10px;
-  }
-  #clientTable td {
-    padding: 10px 20px;
-    font-size: 15px;
-    border: 1px solid var(--input-border);
-    text-align: center;
-  }
-  #clientTable tbody tr:nth-child(even) {
-    background-color: rgba(0, 0, 0, 0.05);
-  }
-  #clientTable tbody tr:hover {
-    background-color: var(--table-row-hover);
-  }
-  
-  /* ==========================================================================  
-     Lista de Clientes VIP  
-     ========================================================================== */
-  ul#clients {
-    list-style-type: none;
-    padding: 0;
-  }
-  ul#clients li {
-    margin: 1.5rem 0;
-    padding: 2px;
-    background-color: var(--container-bg);
-    border-radius: 4px;
-  }
-  
-  /* ==========================================================================  
-     Footer centralizado  
-     ========================================================================== */
-  footer {
-    text-align: center;
-    padding: 1rem 0;
-    background-color: var(--footer-bg);
-    color: var(--footer-text);
-    width: 100%;
-  }
-  
-  /* ==========================================================================  
-     Responsividade  
-     ========================================================================== */
-  @media screen and (max-width: 600px) {
-    .tab-menu {
-      flex-direction: column;
-    }
-    .header-container,
-    .tab-content {
-      padding: 1rem;
-    }
-    /* Centraliza botões em telas pequenas */
-    button {
-      display: block;
-      margin: 0.5rem auto;
-    }
-  }
-  
+:root {
+  --primary-color:   #ffffff;
+  --secondary-color: #615e6b;
+  --background-color:#000000;
+  --container-bg:    #301442;
+  --text-color:      #000000;
+  --header-bg:       #500537;
+  --footer-bg:       #00000000;
+  --footer-text:     #ecf0f1;
+  --input-border:    #cccccc;
+  --button-bg:       black;
+  --button-text:     #ffffff;
+  --section-margin:  20px;
+  --box-shadow:       0 4px 6px rgba(0,0,0,0.1);
+  --transition-speed: 0.3s;
+  --table-row-hover:  rgba(255,255,255,0.1);
+}
+
+/* Reset */
+* { box-sizing: border-box; margin:0; padding:0; }
+html, body { height:100%; }
+body {
+  display:flex;
+  flex-direction:column;
+  font-family:'Montserrat',sans-serif;
+  background:var(--background-color);
+  color:var(--text-color);
+  line-height:1.6;
+}
+
+/* Login */
+.container {
+  flex:1; display:flex; align-items:center; justify-content:center;
+}
+#loginDiv {
+  background:#34495e; padding:2rem; border-radius:8px;
+  text-align:center; box-shadow:var(--box-shadow);
+}
+#loginDiv input {
+  width:100%; margin:0.5rem 0; padding:0.75rem;
+  border:1px solid var(--input-border); border-radius:4px;
+}
+#loginDiv button {
+  width:100%; padding:0.75rem; margin-top:1rem;
+  background:var(--button-bg); color:var(--button-text);
+  border:none; border-radius:4px; cursor:pointer;
+  transition:transform var(--transition-speed);
+}
+#loginDiv button:hover { transform:translateY(-2px); }
+
+/* Header Dashboard */
+.header-container {
+  display:flex; align-items:center; justify-content:space-between;
+  background:var(--header-bg); padding:1rem 2rem;
+}
+#welcome-msg { margin-top:0.25rem; color:var(--text-color); }
+
+/* Menu abas */
+.tab-menu {
+  display:flex; gap:1rem;
+  background:var(--container-bg); padding:0.5rem 1rem;
+  border-bottom:2px solid var(--secondary-color);
+}
+.tab-menu button {
+  flex:1; background:none; border:none; padding:0.5rem;
+  color:var(--text-color); cursor:pointer;
+  border-bottom:3px solid transparent;
+  transition:border-color var(--transition-speed);
+}
+.tab-menu button.active { border-color:var(--primary-color); }
+
+/* Conteúdo abas */
+.tab-content { padding:1rem 2rem; }
+.dashboard-container {
+  background:var(--container-bg); padding:1rem; border-radius:8px;
+  margin:var(--section-margin) 0; box-shadow:var(--box-shadow);
+}
+.dashboard-container:hover { transform:translateY(-2px); }
+
+/* Tabela Clientes (padrão) */
+#clientTableContainer {
+  font-size:15px; max-height:400px; overflow-y:auto; margin-top:20px;
+  border-radius:10px;
+}
+#clientTable {
+  width:100%; border-collapse:collapse; background:var(--container-bg);
+}
+#clientTable th, #clientTable td {
+  padding:10px 20px; border:1px solid var(--input-border);
+  text-align:center;
+}
+#clientTable tbody tr:nth-child(even) {
+  background:rgba(0,0,0,0.05);
+}
+#clientTable tbody tr:hover {
+  background:var(--table-row-hover);
+}
+
+/* Centralização para Notificações e QR */
+.center-content {
+  display:flex; flex-direction:column; align-items:center;
+  gap:1rem;
+}
+
+/* Botões & Formulários */
+label { display:block; margin:0.5rem 0 0.25rem; font-weight:600; }
+input, select {
+  width:100%; padding:0.75rem; margin-bottom:0.75rem;
+  border:1px solid var(--input-border); border-radius:4px;
+  background:var(--primary-color); color:var(--text-color);
+}
+button {
+  padding:0.75rem; background:var(--button-bg); color:var(--button-text);
+  border:none; border-radius:4px; cursor:pointer;
+  transition:transform var(--transition-speed);
+}
+button:hover { transform:translateY(-2px); }
+
+/* Logout fixo */
+.logout-btn {
+  position:fixed; top:20px; right:20px;
+  background:var(--button-bg); color:var(--button-text);
+  border:none; padding:0.5rem 1rem; border-radius:4px;
+  cursor:pointer; transition:transform var(--transition-speed);
+}
+.logout-btn:hover { transform:translateY(-2px); }
+
+/* Footer */
+footer {
+  text-align:center; padding:1rem 0;
+  background:var(--footer-bg); color:var(--footer-text);
+}
+
+/* Responsividade */
+@media (max-width:600px) {
+  .tab-menu { flex-direction:column; }
+  .header-container, .tab-content { padding:1rem; }
+  button { display:block; margin:0.5rem auto; }
+}

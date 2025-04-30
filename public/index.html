@@ -13,7 +13,10 @@
   <link rel="shortcut icon" href="logo/icon.png" />
 
   <link rel="stylesheet" href="/style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500&family=Oxanium:wght@200..800&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500&family=Oxanium:wght@200..800&display=swap"
+    rel="stylesheet"
+  />
 </head>
 <body>
   <!-- LOGIN -->
@@ -41,13 +44,15 @@
 
     <!-- MENU DE ABAS -->
     <nav class="tab-menu">
-      <button class="active" data-section="tab-clients">Clientes</button>
+      <button class="active" data-section="tab-clients">Cadastrar Cliente</button>
+      <button data-section="tab-table">Tabela Clientes</button>
       <button data-section="tab-notify">Notificações</button>
       <button data-section="tab-qr">Consultar</button>
     </nav>
 
-    <!-- ABA 1: CLIENTES -->
+    <!-- ABA 1: CADASTRAR CLIENTE -->
     <section id="tab-clients" class="tab-content">
+      <!-- Mesmo formulário de antes -->
       <div class="dashboard-container" id="clientFormSection">
         <h3>Adicionar Novo Cliente</h3>
         <label for="clientFullName">Nome Completo:</label>
@@ -76,8 +81,10 @@
         <input type="number" id="points" min="1" max="10" />
         <button id="addPointsBtn">Adicionar Pontos</button>
       </div>
+    </section>
 
-      <!-- Tabela de Clientes restaurada ao padrão anterior -->
+    <!-- ABA 2: TABELA CLIENTES -->
+    <section id="tab-table" class="tab-content" style="display:none;">
       <div id="clientTableContainer">
         <table id="clientTable">
           <caption>Tabela de Clientes</caption>
@@ -95,23 +102,27 @@
       </div>
     </section>
 
-    <!-- ABA 2: NOTIFICAÇÕES -->
+    <!-- ABA 3: NOTIFICAÇÕES (centralizada) -->
     <section id="tab-notify" class="tab-content" style="display:none;">
-      <div class="dashboard-container" id="vipClientsSection">
-        <h3>Clientes com 10 Pontos</h3>
-        <ul id="clients"></ul>
+      <div class="center-content">
+        <div class="dashboard-container" id="vipClientsSection">
+          <h3>Clientes com 10 Pontos</h3>
+          <ul id="clients"></ul>
+        </div>
       </div>
     </section>
 
-    <!-- ABA 3: CONSULTAR (QR CODE) -->
+    <!-- ABA 4: CONSULTAR (QR CODE, centralizada) -->
     <section id="tab-qr" class="tab-content" style="display:none;">
-      <div class="dashboard-container" id="qrSection">
-        <h3>QR Code para consulta de pontos</h3>
-        <img id="qrCodeImg" alt="QR Code do estabelecimento" style="max-width:200px;" />
-        <p>
-          Ou abra diretamente:
-          <a id="pointsLink" href="#" target="_blank">Consultar meus pontos</a>
-        </p>
+      <div class="center-content">
+        <div class="dashboard-container" id="qrSection">
+          <h3>QR Code para consulta de pontos</h3>
+          <img id="qrCodeImg" alt="QR Code do estabelecimento" style="max-width:200px;" />
+          <p>
+            Ou abra diretamente:
+            <a id="pointsLink" href="#" target="_blank">Consultar meus pontos</a>
+          </p>
+        </div>
       </div>
     </section>
 
@@ -125,13 +136,12 @@
   <!-- Scripts -->
   <script src="app.js"></script>
   <script>
-    // Controle de abas e saudação
     document.addEventListener('DOMContentLoaded', () => {
-      // saudação com nome real (presume-se que app.js salve em localStorage 'userName')
-      const storedName = localStorage.getItem('userName') || '';
-      if (storedName) document.getElementById('user-name').textContent = storedName;
+      // Saudação com nome do usuário (presume que app.js salve em localStorage 'userName')
+      const nome = localStorage.getItem('userName') || '';
+      if (nome) document.getElementById('user-name').textContent = nome;
 
-      // abas
+      // Controle de abas
       const tabs = document.querySelectorAll('.tab-menu button');
       tabs.forEach(btn => {
         btn.addEventListener('click', () => {
