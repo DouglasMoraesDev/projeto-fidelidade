@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="theme-color" content="#ffffff" id="theme-color-meta" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cartão Fidelidade</title>
+
+  <!-- Cor da barra de status (Android Chrome) -->
+  <meta name="theme-color" content="#ffffff" id="theme-color-meta" />
+  <!-- Manifest para permitir “Adicionar à Tela Inicial” -->
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- Ícones para “Adicionar à Tela Inicial” -->
+  <!-- Android/Chrome -->
+  <link rel="icon" type="image/png" sizes="192x192" href="logo/icon.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="logo/icon.png">
+  <!-- iOS Safari -->
+  <link rel="apple-touch-icon" sizes="180x180" href="logo/icon.png">
+
+  <!-- Fallback de favicon -->
+  <link rel="shortcut icon" href="logo/icon.png" type="image/x-icon">
+  <link rel="icon" type="image/png" sizes="32x32" href="logo/icon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="logo/icon.png">
+
+  <!-- Estilos e fontes -->
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oxanium:wght@200..800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Container Principal -->
+  <div class="container">
+    <!-- Tela de Login -->
+    <div id="loginDiv">
+      <h2>Login</h2>
+      <label for="username">Usuário:</label>
+      <input type="text" id="username" placeholder="Digite seu nome de usuário">
+      <label for="password">Senha:</label>
+      <input type="password" id="password" placeholder="Digite sua senha">
+      <button id="loginBtn">Entrar</button>
+    </div>
+  </div>
+
+  <!-- Dashboard (inicialmente oculto) -->
+  <div id="dashboard" style="display:none;">
+
+    <!-- Seção de QR Code -->
+    <div class="dashboard-container" id="qrSection">
+      <h3>QR Code para consulta de pontos</h3>
+      <img id="qrCodeImg" alt="QR Code do estabelecimento" style="max-width:200px;"/>
+      <p>
+        Ou abra diretamente:
+        <a id="pointsLink" href="#" target="_blank">Consultar meus pontos</a>
+      </p>
+    </div>
+
+    <button id="logoutBtn" style="position: fixed; top: 20px; right: 20px;">Sair</button><br>
+
+    <!-- Cabeçalho: Título e Logo -->
+    <div class="dashboard-container header-container" id="headerSection">
+      <h1>Cartão Fidelidade</h1>
+      <img id="logo" src="Logo.jpeg" alt="Logo">
+    </div>
+
+    <!-- Seção: Formulário para Adicionar Novo Cliente -->
+    <div class="dashboard-container" id="clientFormSection">
+      <h3>Adicionar Novo Cliente</h3>
+      <label for="clientFullName">Nome Completo:</label>
+      <input type="text" id="clientFullName" placeholder="Nome Completo do Cliente">
+      <label for="clientPhone">Número de Telefone:</label>
+      <input type="text" id="clientPhone" placeholder="Número de Telefone">
+      <label for="clientEmail">Email:</label>
+      <input type="email" id="clientEmail" placeholder="Email do Cliente">
+      <label for="clientPoints">Pontos:</label>
+      <input type="number" id="clientPoints" min="0" value="0">
+      <button id="saveClientBtn">Salvar Cliente</button>
+    </div>
+
+    <!-- Seção: Buscar Cliente e Adicionar Pontos -->
+    <div class="dashboard-container" id="searchPointsSection">
+      <h3>Buscar Cliente</h3>
+      <label for="searchClient">Digite o nome do cliente:</label>
+      <input type="text" id="searchClient" placeholder="Buscar Cliente">
+      <button id="searchBtn">Buscar</button>
+
+      <h3>Adicionar Pontos ao Cliente</h3>
+      <label for="clientSelect">Selecione o Cliente:</label>
+      <select id="clientSelect">
+        <option value="">Selecione o cliente</option>
+      </select>
+      <label for="points">Pontos:</label>
+      <input type="number" id="points" min="1" max="10">
+      <button id="addPointsBtn">Adicionar Pontos</button>
+    </div>
+
+    <!-- Seção: Tabela de Clientes -->
+    <div id="clientTableContainer">
+      <table id="clientTable">
+        <caption>Tabela de Clientes</caption>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Telefone</th>
+            <th>Pontos</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="clientTableBody">
+          <!-- Clientes serão inseridos aqui via JavaScript -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Seção: Clientes com 10 Pontos -->
+    <div class="dashboard-container" id="vipClientsSection">
+      <h3>Clientes com 10 Pontos</h3>
+      <ul id="clients">
+        <!-- Lista de clientes com 10 pontos será preenchida aqui -->
+      </ul>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>
+      &copy; Douglas Moraes Dev<br>
+      <a href="https://wa.me/qr/F2Z744R5KWEPB1" target="_blank">Contato</a>
+    </p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>    
+
+
+
+
+
+
+
+
+
+             /* ==========================================================================  
+   Variáveis de Cores - Personalização Global  
+   ========================================================================== */
+:root {
+  --primary-color:   #ffffff;
+  --secondary-color: #615e6b;
+  --background-color:#000000;
+  --container-bg:    #301442;
+  --text-color:      #000000;
+  --header-bg:       #500537;
+  --footer-bg:       #00000000;
+  --footer-text:     #ecf0f1;
+  --input-border:    #cccccc;
+  --button-bg:       black;
+  --button-text:     #ffffff;
+  --section-margin:  20px;
+
+  /* Efeitos modernos */
+  --box-shadow:       0 4px 6px rgba(0,0,0,0.1);
+  --transition-speed: 0.3s;
+  --table-row-hover:  rgba(255,255,255,0.1);
+}
+
+/* ==========================================================================  
+   Reset & Global Styles  
+   ========================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html, body {
+  height: 100%;
+}
+body {
+  display: flex;
+  flex-direction: column;
+  font-family: 'Montserrat', sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+/* ==========================================================================  
+   Container Principal  
+   ========================================================================== */
+.container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#loginDiv {
+  background-color: #34495e;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: var(--box-shadow);
+}
+#loginDiv h2 { margin-bottom: 1rem; color: #fff; }
+#loginDiv input {
+  width: 100%;
+  margin: 0.5rem 0;
+  padding: 0.75rem;
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  font-family: 'Montserrat', sans-serif;
+}
+#loginDiv button {
+  margin-top: 1rem;
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--button-bg);
+  color: var(--button-text);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform var(--transition-speed);
+}
+#loginDiv button:hover {
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================  
+   Header do Dashboard  
+   ========================================================================== */
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--header-bg);
+  padding: 1rem 2rem;
+  color: var(--text-color);
+}
+.header-container h1 { font-family: 'Oxanium', sans-serif; }
+#welcome-msg { font-size: 1rem; margin-top: 0.25rem; }
+
+/* ==========================================================================  
+   Menu de Abas  
+   ========================================================================== */
+.tab-menu {
+  display: flex;
+  gap: 1rem;
+  background: var(--container-bg);
+  padding: 0.5rem 1rem;
+  border-bottom: 2px solid var(--secondary-color);
+}
+.tab-menu button {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  font-size: 1rem;
+  color: var(--text-color);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: border-color var(--transition-speed);
+}
+.tab-menu button.active {
+  border-color: var(--primary-color);
+}
+
+/* ==========================================================================  
+   Conteúdo das Abas  
+   ========================================================================== */
+.tab-content {
+  padding: 1rem 2rem;
+}
+.dashboard-container {
+  background-color: var(--container-bg);
+  padding: 1rem;
+  border-radius: 8px;
+  margin: var(--section-margin) 0;
+  box-shadow: var(--box-shadow);
+  transition: transform var(--transition-speed);
+}
+.dashboard-container:hover {
+  transform: translateY(-2px);
+}
+.logout-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: var(--button-bg);
+  color: var(--button-text);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform var(--transition-speed);
+}
+.logout-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================  
+   Formulários & Tabelas  
+   ========================================================================== */
+label {
+  display: block;
+  margin: 0.5rem 0 0.25rem;
+  font-weight: 600;
+}
+input, select, button {
+  font-family: 'Montserrat', sans-serif;
+}
+input, select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  background: var(--primary-color);
+  color: var(--text-color);
+  margin-bottom: 0.75rem;
+}
+button {
+  padding: 0.75rem;
+  background: var(--button-bg);
+  color: var(--button-text);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform var(--transition-speed);
+}
+button:hover {
+  transform: translateY(-2px);
+}
+
+#clientTableContainer {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+#clientTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+#clientTable th,
+#clientTable td {
+  padding: 0.75rem;
+  border: 1px solid var(--input-border);
+  text-align: center;
+}
+#clientTable tbody tr:nth-child(even) {
+  background-color: var(--table-row-hover);
+}
+
+/* ==========================================================================  
+   Responsividade  
+   ========================================================================== */
+@media screen and (max-width: 600px) {
+  .tab-menu {
+    flex-direction: column;
+  }
+  .header-container,
+  .tab-content {
+    padding: 1rem;
+  }
+}         
