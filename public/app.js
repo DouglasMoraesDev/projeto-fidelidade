@@ -53,6 +53,17 @@ function renderQRCode() {
 }
 
 // =========================
+// Saudação
+// =========================
+function showWelcome() {
+  const nome = localStorage.getItem('userName');
+  if (nome) {
+    // No teu HTML o <span> tem id="username"
+    document.getElementById('username').textContent = nome;
+  }
+}
+
+// =========================
 // Fluxo de inicialização
 // =========================
 window.onload = async function() {
@@ -116,6 +127,7 @@ window.onload = async function() {
     // 4) Exibe dashboard e carrega clientes
     document.getElementById('loginDiv').style.display  = 'none';
     document.getElementById('dashboard').style.display = 'block';
+    showWelcome();
     loadClients();
     renderQRCode();
 
@@ -154,10 +166,11 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
       return;
     }
 
-    // Salva token e estabelecimento
+    // Salva token e estabelecimento e nome do user
     localStorage.setItem('authToken', data.token);
     currentEstablishmentId = data.user.establishmentId;
     localStorage.setItem('currentEstablishmentId', currentEstablishmentId);
+    localStorage.setItem('userName', data.user.fullName || data.user.username);
 
     // Aplica tema e logo
     applyTheme({
@@ -181,6 +194,7 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
     document.getElementById('loginDiv').style.display  = 'block';
     document.getElementById('loginDiv').style.display  = 'none';
     document.getElementById('dashboard').style.display = 'block';
+    showWelcome();
     loadClients();
     renderQRCode();
 
