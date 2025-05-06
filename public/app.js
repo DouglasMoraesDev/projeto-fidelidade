@@ -75,7 +75,7 @@ window.onload = async function() {
   }
 
   try {
-    // Buscando estabelecimento e checando assinatura
+    // 1) Buscar estabelecimento e checar assinatura
     const resEst = await apiFetch(
       `${API_URL}/establishments/${estId}`,
       { headers:{ 'Authorization': `Bearer ${token}` } }
@@ -83,7 +83,7 @@ window.onload = async function() {
     const establishment = await resEst.json();
     currentEstablishmentId = estId;
 
-    // Verifica 28 dias de assinatura
+    // 2) Verifica 28 dias de assinatura
     const lastPay = establishment.lastPaymentDate
       ? new Date(establishment.lastPaymentDate).getTime()
       : 0;
@@ -99,26 +99,26 @@ window.onload = async function() {
       return window.location.href = '/payment.html';
     }
 
-    // Aplica tema e logo
+    // 3) Aplica tema, logo e meta theme-color
     applyTheme({
-      "primary-color":   establishment.primaryColor,
-      "secondary-color": establishment.secondaryColor,
+      "primary-color":    establishment.primaryColor,
+      "secondary-color":  establishment.secondaryColor,
       "background-color": establishment.backgroundColor,
-      "container-bg":    establishment.containerBg,
-      "text-color":      establishment.textColor,
-      "header-bg":       establishment.headerBg,
-      "footer-bg":       establishment.footerBg,
-      "footer-text":     establishment.footerText,
-      "input-border":    establishment.inputBorder,
-      "button-bg":       establishment.buttonBg,
-      "button-text":     establishment.buttonText,
-      "section-margin":  establishment.sectionMargin
+      "container-bg":     establishment.containerBg,
+      "text-color":       establishment.textColor,
+      "header-bg":        establishment.headerBg,
+      "footer-bg":        establishment.footerBg,
+      "footer-text":      establishment.footerText,
+      "input-border":     establishment.inputBorder,
+      "button-bg":        establishment.buttonBg,
+      "button-text":      establishment.buttonText,
+      "section-margin":   establishment.sectionMargin
     });
     document.getElementById('logo').src = establishment.logoURL;
     document.getElementById('theme-color-meta')
       .setAttribute('content', establishment.backgroundColor);
 
-    // Exibe dashboard e carrega dados
+    // 4) Mostrar dashboard
     document.getElementById('loginDiv').style.display  = 'none';
     document.getElementById('dashboard').style.display = 'block';
     showWelcome();
@@ -154,27 +154,30 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
       return alert(data.message || 'Usuário ou senha inválidos');
     }
 
+    // Salvar dados
     localStorage.setItem('authToken', data.token);
     currentEstablishmentId = data.user.establishmentId;
     localStorage.setItem('currentEstablishmentId', currentEstablishmentId);
     localStorage.setItem('userName', data.user.fullName || data.user.username);
 
+    // Aplica tema e logo do usuário
     applyTheme({
-      "primary-color":   data.user['primary-color'],
-      "secondary-color": data.user['secondary-color'],
-      "background-color":data.user['background-color'],
-      "container-bg":    data.user['container-bg'],
-      "text-color":      data.user['text-color'],
-      "header-bg":       data.user['header-bg'],
-      "footer-bg":       data.user['footer-bg'],
-      "footer-text":     data.user['footer-text'],
-      "input-border":    data.user['input-border'],
-      "button-bg":       data.user['button-bg'],
-      "button-text":     data.user['button-text'],
-      "section-margin":  data.user['section-margin']
+      "primary-color":    data.user['primary-color'],
+      "secondary-color":  data.user['secondary-color'],
+      "background-color": data.user['background-color'],
+      "container-bg":     data.user['container-bg'],
+      "text-color":       data.user['text-color'],
+      "header-bg":        data.user['header-bg'],
+      "footer-bg":        data.user['footer-bg'],
+      "footer-text":      data.user['footer-text'],
+      "input-border":     data.user['input-border'],
+      "button-bg":        data.user['button-bg'],
+      "button-text":      data.user['button-text'],
+      "section-margin":   data.user['section-margin']
     });
     document.getElementById('logo').src = data.user.logoURL;
 
+    // Mostrar dashboard
     document.getElementById('loginDiv').style.display  = 'none';
     document.getElementById('dashboard').style.display = 'block';
     showWelcome();
@@ -200,7 +203,7 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
 });
 
 // =========================
-// Configura abas
+// Configura abas e conteúdos
 // =========================
 function setupTabListeners() {
   const tabs = document.querySelectorAll('.tab-menu button');
@@ -212,9 +215,20 @@ function setupTabListeners() {
         .forEach(sec => sec.style.display = 'none');
       document.getElementById(btn.dataset.section).style.display = 'block';
 
-      // Ao entrar na tabela, renderiza lista
+      // Se entrar na tabela de clientes
       if (btn.dataset.section === 'tab-table') {
         renderClientsList();
+      }
+
+      // Se entrar em notificações
+      if (btn.dataset.section === 'tab-notify') {
+        // Filtra quem tem exatamente 10 pontos (ou >=10 se preferir)
+        displayClients(clientsData.filter(c => c.points === 10));
+      }
+
+      // Se entrar na aba QR
+      if (btn.dataset.section === 'tab-qr') {
+        renderQRCode();
       }
     });
   });
@@ -224,7 +238,7 @@ function setupTabListeners() {
 // CRUD de Clientes + Lista Filtrável
 // =========================
 
-// 1) Buscar clientes
+// 1) Buscar todos os clientes
 async function loadClients() {
   try {
     const token = localStorage.getItem('authToken');
@@ -239,7 +253,7 @@ async function loadClients() {
   }
 }
 
-// 2) Renderizar lista filtrável
+// 2) Renderizar lista filtrável na aba “Tabela de Clientes”
 function renderClientsList(filter = '') {
   const ul = document.getElementById('clientsList');
   ul.innerHTML = '';
@@ -262,13 +276,13 @@ function renderClientsList(filter = '') {
     });
 }
 
-// 3) Busca em tempo real
+// 3) Pesquisa em tempo real
 document.getElementById('searchClientsInput').addEventListener('input', e => {
   const term = e.target.value.trim().toLowerCase();
   renderClientsList(term);
 });
 
-// 4) Ações na lista
+// 4) Delegação de clique na lista
 document.getElementById('clientsList').addEventListener('click', async e => {
   const li = e.target.closest('li');
   if (!li) return;
@@ -284,11 +298,11 @@ document.getElementById('clientsList').addEventListener('click', async e => {
     }
   }
 
-  // Caso contrário, abre o card de detalhes
+  // Se clicou fora dos botões, abre o card de detalhes
   showClientDetail(id);
 });
 
-// 5) Mostrar card com detalhes
+// 5) Exibir card de detalhes
 function showClientDetail(id) {
   const c = clientsData.find(x => x.id == id);
   if (!c) return;
@@ -301,13 +315,15 @@ function showClientDetail(id) {
   document.getElementById('detailBackdrop').style.display  = 'block';
 }
 
-// 6) Fechar card
-document.getElementById('closeDetailCard').addEventListener('click', () => {
+// 6) Fechar card via botão ✖ ou clique no backdrop
+function closeClientDetail() {
   document.getElementById('clientDetailCard').style.display = 'none';
   document.getElementById('detailBackdrop').style.display  = 'none';
-});
+}
+document.getElementById('closeDetailCard').addEventListener('click', closeClientDetail);
+document.getElementById('detailBackdrop').addEventListener('click', closeClientDetail);
 
-// 7) Salvar/Atualizar cliente
+// 7) Salvar ou atualizar cliente
 async function saveClient() {
   const fullName = document.getElementById('clientFullName').value.trim();
   const phone    = document.getElementById('clientPhone').value.trim();
@@ -346,7 +362,7 @@ async function saveClient() {
 }
 document.getElementById('saveClientBtn').addEventListener('click', saveClient);
 
-// 8) Editar cliente (preenche formulário)
+// 8) Preparar edição de cliente
 async function editClient(id) {
   try {
     const token = localStorage.getItem('authToken');
@@ -372,7 +388,7 @@ async function editClient(id) {
   }
 }
 
-// 9) Deletar cliente
+// 9) Excluir cliente
 async function deleteClient(id) {
   const token = localStorage.getItem('authToken');
   try {
@@ -388,7 +404,7 @@ async function deleteClient(id) {
   }
 }
 
-// 10) Buscar e adicionar pontos (aba 1)
+// 10) Buscar e adicionar pontos (aba "Cadastrar Cliente")
 document.getElementById('searchBtn').addEventListener('click', async () => {
   const term = document.getElementById('searchClient').value.trim().toLowerCase();
   const token = localStorage.getItem('authToken');
@@ -474,4 +490,19 @@ async function resetClientPoints(clienteId) {
     console.error('Erro no resetClientPoints:', err);
     alert(err.message);
   }
+}
+
+// Função para preencher Notificações
+function displayClients(vipList) {
+  const ul = document.getElementById('clients');
+  ul.innerHTML = '';
+  vipList.forEach(c => {
+    const li  = document.createElement('li');
+    li.textContent = `${c.fullName} — Pontos: ${c.points}`;
+    const btn = document.createElement('button');
+    btn.textContent = 'Enviar Voucher';
+    btn.addEventListener('click', () => sendVoucher(c.id));
+    li.appendChild(btn);
+    ul.appendChild(li);
+  });
 }
