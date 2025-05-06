@@ -127,7 +127,10 @@
     transform: translateY(-2px);
   }
   
-  /* Lista de clientes (substitui a tabela) */
+  /* Aba “Cadastrar Cliente” – formulário padrão */
+  /* (já coberto pelos estilos gerais de .dashboard-container, label, input, button) */
+  
+  /* Aba “Tabela de Clientes” – substituindo a tabela */
   #searchClientsInput {
     width: 100%;
     padding: 0.75rem;
@@ -201,22 +204,46 @@
     z-index: 900;
   }
   
-  /* Formulários e botões gerais */
-  label {
-    display: block;
-    margin: 0.5rem 0 0.25rem;
-    font-weight: 600;
-  }
-  input, select {
+  /* Aba “Adicionar Pontos” */
+  #searchPointsInput {
     width: 100%;
     padding: 0.75rem;
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
     border: 1px solid var(--input-border);
     border-radius: 4px;
     background: var(--primary-color);
     color: var(--text-color);
   }
-  button {
+  #addPointsCardContainer .point-card {
+    background: var(--primary-color);
+    color: var(--text-color);
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: var(--box-shadow);
+    margin-top: 1rem;
+  }
+  #addPointsCardContainer .point-card h4 {
+    margin-bottom: 0.5rem;
+  }
+  #addPointsCardContainer .point-card p {
+    margin: 0.25rem 0;
+  }
+  #addPointsCardContainer .point-card label {
+    display: block;
+    margin-top: 0.75rem;
+    font-weight: 600;
+  }
+  #addPointsCardContainer .point-card input {
+    width: 100%;
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+    background: var(--primary-color);
+    color: var(--text-color);
+  }
+  #addPointsCardContainer .point-card button {
+    width: 100%;
     padding: 0.75rem;
     background: var(--button-bg);
     color: var(--button-text);
@@ -225,9 +252,19 @@
     cursor: pointer;
     transition: transform var(--transition-speed);
   }
-  button:hover {
+  #addPointsCardContainer .point-card button:hover {
     transform: translateY(-2px);
   }
+  
+  /* Centralização para abas Notificações e QR */
+  .center-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  /* Formulários e botões gerais já estilizados acima */
   
   /* Logout */
   .logout-btn {

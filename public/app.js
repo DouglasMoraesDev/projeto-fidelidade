@@ -282,6 +282,7 @@ document.getElementById('searchClientsInput').addEventListener('input', e => {
   renderClientsList(term);
 });
 
+
 // 4) Delegação de clique na lista
 document.getElementById('clientsList').addEventListener('click', async e => {
   const li = e.target.closest('li');
