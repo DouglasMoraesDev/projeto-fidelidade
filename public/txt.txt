@@ -1,365 +1,435 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
-  <meta name="theme-color" content="#ffffff" id="theme-color-meta" />
+// public/app.js
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cartão Fidelidade</title>
+// =========================
+// Configuração de URLs
+// =========================
+const BASE_URL = 'https://projeto-fidelidade-production.up.railway.app';
+const API_URL  = `${BASE_URL}/api`;
 
-  <!-- Cor da barra de status (Android Chrome) -->
-  <meta name="theme-color" content="#ffffff" id="theme-color-meta" />
-  <!-- Manifest para permitir “Adicionar à Tela Inicial” -->
-  <link rel="manifest" href="/manifest.json">
+// =========================
+// Wrapper de fetch para tratar 401 (token expirado) e 402 (assinatura expirada)
+// =========================
+async function apiFetch(url, options = {}) {
+  const res = await fetch(url, options);
 
-  <!-- Ícones para “Adicionar à Tela Inicial” -->
-  <!-- Android/Chrome -->
-  <link rel="icon" type="image/png" sizes="192x192" href="logo/icon.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="logo/icon.png">
-  <!-- iOS Safari -->
-  <link rel="apple-touch-icon" sizes="180x180" href="logo/icon.png">
-
-  <!-- Fallback de favicon -->
-  <link rel="shortcut icon" href="logo/icon.png" type="image/x-icon">
-  <link rel="icon" type="image/png" sizes="32x32" href="logo/icon.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="logo/icon.png">
-
-  <!-- Estilos e fontes -->
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oxanium:wght@200..800&display=swap" rel="stylesheet">
-</head>
-<body>
-  <!-- Container Principal -->
-  <div class="container">
-    <!-- Tela de Login -->
-    <div id="loginDiv">
-      <h2>Login</h2>
-      <label for="username">Usuário:</label>
-      <input type="text" id="username" placeholder="Digite seu nome de usuário">
-      <label for="password">Senha:</label>
-      <input type="password" id="password" placeholder="Digite sua senha">
-      <button id="loginBtn">Entrar</button>
-    </div>
-  </div>
-
-  <!-- Dashboard (inicialmente oculto) -->
-  <div id="dashboard" style="display:none;">
-
-    <!-- Seção de QR Code -->
-    <div class="dashboard-container" id="qrSection">
-      <h3>QR Code para consulta de pontos</h3>
-      <img id="qrCodeImg" alt="QR Code do estabelecimento" style="max-width:200px;"/>
-      <p>
-        Ou abra diretamente:
-        <a id="pointsLink" href="#" target="_blank">Consultar meus pontos</a>
-      </p>
-    </div>
-
-    <button id="logoutBtn" style="position: fixed; top: 20px; right: 20px;">Sair</button><br>
-
-    <!-- Cabeçalho: Título e Logo -->
-    <div class="dashboard-container header-container" id="headerSection">
-      <h1>Cartão Fidelidade</h1>
-      <img id="logo" src="Logo.jpeg" alt="Logo">
-    </div>
-
-    <!-- Seção: Formulário para Adicionar Novo Cliente -->
-    <div class="dashboard-container" id="clientFormSection">
-      <h3>Adicionar Novo Cliente</h3>
-      <label for="clientFullName">Nome Completo:</label>
-      <input type="text" id="clientFullName" placeholder="Nome Completo do Cliente">
-      <label for="clientPhone">Número de Telefone:</label>
-      <input type="text" id="clientPhone" placeholder="Número de Telefone">
-      <label for="clientEmail">Email:</label>
-      <input type="email" id="clientEmail" placeholder="Email do Cliente">
-      <label for="clientPoints">Pontos:</label>
-      <input type="number" id="clientPoints" min="0" value="0">
-      <button id="saveClientBtn">Salvar Cliente</button>
-    </div>
-
-    <!-- Seção: Buscar Cliente e Adicionar Pontos -->
-    <div class="dashboard-container" id="searchPointsSection">
-      <h3>Buscar Cliente</h3>
-      <label for="searchClient">Digite o nome do cliente:</label>
-      <input type="text" id="searchClient" placeholder="Buscar Cliente">
-      <button id="searchBtn">Buscar</button>
-
-      <h3>Adicionar Pontos ao Cliente</h3>
-      <label for="clientSelect">Selecione o Cliente:</label>
-      <select id="clientSelect">
-        <option value="">Selecione o cliente</option>
-      </select>
-      <label for="points">Pontos:</label>
-      <input type="number" id="points" min="1" max="10">
-      <button id="addPointsBtn">Adicionar Pontos</button>
-    </div>
-
-    <!-- Seção: Tabela de Clientes -->
-    <div id="clientTableContainer">
-      <table id="clientTable">
-        <caption>Tabela de Clientes</caption>
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Email</th>
-            <th>Telefone</th>
-            <th>Pontos</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="clientTableBody">
-          <!-- Clientes serão inseridos aqui via JavaScript -->
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Seção: Clientes com 10 Pontos -->
-    <div class="dashboard-container" id="vipClientsSection">
-      <h3>Clientes com 10 Pontos</h3>
-      <ul id="clients">
-        <!-- Lista de clientes com 10 pontos será preenchida aqui -->
-      </ul>
-    </div>
-  </div>
-
-  <!-- Footer -->
-  <footer>
-    <p>
-      &copy; Douglas Moraes Dev<br>
-      <a href="https://wa.me/qr/F2Z744R5KWEPB1" target="_blank">Contato</a>
-    </p>
-  </footer>
-
-  <!-- Scripts -->
-  <script src="app.js"></script>
-</body>
-</html>    
-
-
-
-
-
-
-
-
-
-             /* ==========================================================================  
-   Variáveis de Cores - Personalização Global  
-   ========================================================================== */
-:root {
-  --primary-color:   #ffffff;
-  --secondary-color: #615e6b;
-  --background-color:#000000;
-  --container-bg:    #301442;
-  --text-color:      #000000;
-  --header-bg:       #500537;
-  --footer-bg:       #00000000;
-  --footer-text:     #ecf0f1;
-  --input-border:    #cccccc;
-  --button-bg:       black;
-  --button-text:     #ffffff;
-  --section-margin:  20px;
-
-  /* Efeitos modernos */
-  --box-shadow:       0 4px 6px rgba(0,0,0,0.1);
-  --transition-speed: 0.3s;
-  --table-row-hover:  rgba(255,255,255,0.1);
-}
-
-/* ==========================================================================  
-   Reset & Global Styles  
-   ========================================================================== */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-html, body {
-  height: 100%;
-}
-body {
-  display: flex;
-  flex-direction: column;
-  font-family: 'Montserrat', sans-serif;
-  background-color: var(--background-color);
-  color: var(--text-color);
-  line-height: 1.6;
-}
-
-/* ==========================================================================  
-   Container Principal  
-   ========================================================================== */
-.container {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-#loginDiv {
-  background-color: #34495e;
-  padding: 2rem;
-  border-radius: 8px;
-  text-align: center;
-  box-shadow: var(--box-shadow);
-}
-#loginDiv h2 { margin-bottom: 1rem; color: #fff; }
-#loginDiv input {
-  width: 100%;
-  margin: 0.5rem 0;
-  padding: 0.75rem;
-  border: 1px solid var(--input-border);
-  border-radius: 4px;
-  font-family: 'Montserrat', sans-serif;
-}
-#loginDiv button {
-  margin-top: 1rem;
-  width: 100%;
-  padding: 0.75rem;
-  background: var(--button-bg);
-  color: var(--button-text);
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: transform var(--transition-speed);
-}
-#loginDiv button:hover {
-  transform: translateY(-2px);
-}
-
-/* ==========================================================================  
-   Header do Dashboard  
-   ========================================================================== */
-.header-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: var(--header-bg);
-  padding: 1rem 2rem;
-  color: var(--text-color);
-}
-.header-container h1 { font-family: 'Oxanium', sans-serif; }
-#welcome-msg { font-size: 1rem; margin-top: 0.25rem; }
-
-/* ==========================================================================  
-   Menu de Abas  
-   ========================================================================== */
-.tab-menu {
-  display: flex;
-  gap: 1rem;
-  background: var(--container-bg);
-  padding: 0.5rem 1rem;
-  border-bottom: 2px solid var(--secondary-color);
-}
-.tab-menu button {
-  flex: 1;
-  background: none;
-  border: none;
-  padding: 0.5rem;
-  font-size: 1rem;
-  color: var(--text-color);
-  cursor: pointer;
-  border-bottom: 3px solid transparent;
-  transition: border-color var(--transition-speed);
-}
-.tab-menu button.active {
-  border-color: var(--primary-color);
-}
-
-/* ==========================================================================  
-   Conteúdo das Abas  
-   ========================================================================== */
-.tab-content {
-  padding: 1rem 2rem;
-}
-.dashboard-container {
-  background-color: var(--container-bg);
-  padding: 1rem;
-  border-radius: 8px;
-  margin: var(--section-margin) 0;
-  box-shadow: var(--box-shadow);
-  transition: transform var(--transition-speed);
-}
-.dashboard-container:hover {
-  transform: translateY(-2px);
-}
-.logout-btn {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background: var(--button-bg);
-  color: var(--button-text);
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: transform var(--transition-speed);
-}
-.logout-btn:hover {
-  transform: translateY(-2px);
-}
-
-/* ==========================================================================  
-   Formulários & Tabelas  
-   ========================================================================== */
-label {
-  display: block;
-  margin: 0.5rem 0 0.25rem;
-  font-weight: 600;
-}
-input, select, button {
-  font-family: 'Montserrat', sans-serif;
-}
-input, select {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid var(--input-border);
-  border-radius: 4px;
-  background: var(--primary-color);
-  color: var(--text-color);
-  margin-bottom: 0.75rem;
-}
-button {
-  padding: 0.75rem;
-  background: var(--button-bg);
-  color: var(--button-text);
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: transform var(--transition-speed);
-}
-button:hover {
-  transform: translateY(-2px);
-}
-
-#clientTableContainer {
-  overflow-x: auto;
-  margin-top: 1rem;
-}
-#clientTable {
-  width: 100%;
-  border-collapse: collapse;
-}
-#clientTable th,
-#clientTable td {
-  padding: 0.75rem;
-  border: 1px solid var(--input-border);
-  text-align: center;
-}
-#clientTable tbody tr:nth-child(even) {
-  background-color: var(--table-row-hover);
-}
-
-/* ==========================================================================  
-   Responsividade  
-   ========================================================================== */
-@media screen and (max-width: 600px) {
-  .tab-menu {
-    flex-direction: column;
+  if (res.status === 401) {
+    alert('Sessão expirada. Faça login novamente.');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentEstablishmentId');
+    return window.location.href = '/'; 
   }
-  .header-container,
-  .tab-content {
-    padding: 1rem;
+  if (res.status === 402) {
+    const err = await res.json();
+    alert(err.message || 'Assinatura expirada');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentEstablishmentId');
+    return window.location.href = '/payment.html';
   }
-}         
+
+  return res;
+}
+
+// =========================
+// Estado global
+// =========================
+let currentEstablishmentId = null;
+let isEditing = false;
+let editingClientId = null;
+
+// =========================
+// Utilitários de tema e QR
+// =========================
+function applyTheme(theme) {
+  Object.entries(theme).forEach(([key, value]) => {
+    document.documentElement.style.setProperty(`--${key}`, value);
+  });
+}
+
+function renderQRCode() {
+  const qrImg = document.getElementById('qrCodeImg');
+  const link  = document.getElementById('pointsLink');
+  qrImg.src  = `${API_URL}/establishments/${currentEstablishmentId}/qrcode`;
+  link.href = `${BASE_URL}/points.html?establishmentId=${currentEstablishmentId}`;
+}
+
+// =========================
+// Saudação
+// =========================
+function showWelcome() {
+  const nome = localStorage.getItem('userName');
+  if (nome) {
+    // No teu HTML o <span> tem id="username"
+    document.getElementById('username').textContent = nome;
+  }
+}
+
+// =========================
+// Fluxo de inicialização
+// =========================
+window.onload = async function() {
+  const token = localStorage.getItem('authToken');
+  const estId = localStorage.getItem('currentEstablishmentId');
+
+  if (!token || !estId) {
+    document.getElementById('loginDiv').style.display  = 'block';
+    document.getElementById('dashboard').style.display = 'none';
+    return;
+  }
+
+  try {
+    // 1) Busca dados do estabelecimento (rota pública)
+    const res = await apiFetch(
+      `${API_URL}/establishments/${estId}`,
+      { headers: { 'Authorization': `Bearer ${token}` } }
+    );
+    const establishment = await res.json();
+    currentEstablishmentId = estId;
+
+    // 2) Checa 28 dias de assinatura
+    const lastPay = establishment.lastPaymentDate && new Date(establishment.lastPaymentDate).getTime();
+    const now     = Date.now();
+    const TWENTY_EIGHT_DAYS = 28 * 24 * 60 * 60 * 1000;
+    if (!lastPay || now - lastPay > TWENTY_EIGHT_DAYS) {
+      alert(
+        lastPay
+          ? `Sua assinatura expirou em ${new Date(lastPay).toLocaleDateString()}.`
+          : 'Nenhuma data de pagamento registrada. Entre em contato.'
+      );
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('currentEstablishmentId');
+      return window.location.href = '/payment.html';
+    }
+
+    // 3) Aplica tema e logo
+    applyTheme({
+      "primary-color":   establishment.primaryColor,
+      "secondary-color": establishment.secondaryColor,
+      "background-color": establishment.backgroundColor,
+      "container-bg":    establishment.containerBg,
+      "text-color":      establishment.textColor,
+      "header-bg":       establishment.headerBg,
+      "footer-bg":       establishment.footerBg,
+      "footer-text":     establishment.footerText,
+      "input-border":    establishment.inputBorder,
+      "button-bg":       establishment.buttonBg,
+      "button-text":     establishment.buttonText,
+      "section-margin":  establishment.sectionMargin
+    });
+    const logoEl = document.getElementById('logo');
+    if (logoEl) logoEl.src = establishment.logoURL;
+
+    // 3a) Atualiza <meta name="theme-color"> para Android/Chrome
+    const metaTheme = document.getElementById('theme-color-meta');
+    if (metaTheme && establishment.backgroundColor) {
+      metaTheme.setAttribute('content', establishment.backgroundColor);
+    }
+
+    // 4) Exibe dashboard e carrega clientes
+    document.getElementById('loginDiv').style.display  = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    showWelcome();
+    loadClients();
+    renderQRCode();
+
+  } catch (error) {
+    console.error('Erro na inicialização:', error);
+    // apiFetch já redireciona em 401/402. Outros erros podem ser tratados aqui.
+  }
+};
+
+// =========================
+// Login
+// =========================
+document.getElementById('loginBtn').addEventListener('click', async () => {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+  if (!username || !password) {
+    return alert('Preencha todos os campos!');
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/login`, {
+      method: 'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      if (res.status === 402) {
+        if (confirm(`${data.message}\nDeseja renovar agora?`)) {
+          return window.location.href = '/payment.html';
+        }
+      } else {
+        alert(data.message || 'Usuário ou senha inválidos');
+      }
+      return;
+    }
+
+    // Salva token e estabelecimento e nome do user
+    localStorage.setItem('authToken', data.token);
+    currentEstablishmentId = data.user.establishmentId;
+    localStorage.setItem('currentEstablishmentId', currentEstablishmentId);
+    localStorage.setItem('userName', data.user.fullName || data.user.username);
+
+    // Aplica tema e logo
+    applyTheme({
+      "primary-color":   data.user['primary-color'],
+      "secondary-color": data.user['secondary-color'],
+      "background-color":data.user['background-color'],
+      "container-bg":    data.user['container-bg'],
+      "text-color":      data.user['text-color'],
+      "header-bg":       data.user['header-bg'],
+      "footer-bg":       data.user['footer-bg'],
+      "footer-text":     data.user['footer-text'],
+      "input-border":    data.user['input-border'],
+      "button-bg":       data.user['button-bg'],
+      "button-text":     data.user['button-text'],
+      "section-margin":  data.user['section-margin']
+    });
+    const logo = document.getElementById('logo');
+    if (logo) logo.src = data.user.logoURL;
+
+    // Exibe dashboard
+    document.getElementById('loginDiv').style.display  = 'block';
+    document.getElementById('loginDiv').style.display  = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    showWelcome();
+    loadClients();
+    renderQRCode();
+
+    alert('Login bem‑sucedido!');
+  } catch (err) {
+    console.error('Erro no login:', err);
+    alert('Erro no login. Tente novamente.');
+  }
+});
+
+// =========================
+// Logout
+// =========================
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('currentEstablishmentId');
+  document.getElementById('loginDiv').style.display  = 'block';
+  document.getElementById('dashboard').style.display = 'none';
+  alert('Logout realizado com sucesso!');
+});
+
+// =========================
+// CRUD de Clientes
+// =========================
+async function loadClients() {
+  try {
+    const token = localStorage.getItem('authToken');
+    const res = await apiFetch(
+      `${API_URL}/clients?establishmentId=${currentEstablishmentId}`,
+      { headers:{ 'Authorization':`Bearer ${token}` } }
+    );
+    const clients = await res.json();
+    renderClientsTable(clients);
+    displayClients(clients);
+  } catch (err) {
+    console.error('Erro ao carregar clientes:', err);
+  }
+}
+
+function renderClientsTable(clients) {
+  const tbody = document.getElementById('clientTableBody');
+  tbody.innerHTML = clients.map(c => `
+    <tr>
+      <td>${c.fullName}</td>
+      <td>${c.email || ''}</td>
+      <td>${c.phone}</td>
+      <td>${c.points}</td>
+      <td>
+        <button onclick="editClient('${c.id}')">Editar</button>
+        <button onclick="deleteClient('${c.id}')">Excluir</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function displayClients(clients) {
+  const list = document.getElementById('clients');
+  list.innerHTML = '';
+  clients.filter(c => c.points >= 10).forEach(c => {
+    const li  = document.createElement('li');
+    li.textContent = `${c.fullName} - Pontos: ${c.points}`;
+    const btn = document.createElement('button');
+    btn.textContent = 'Enviar Voucher';
+    btn.addEventListener('click', () => sendVoucher(c.id));
+    li.appendChild(btn);
+    list.appendChild(li);
+  });
+}
+
+async function saveClient() {
+  const fullName = document.getElementById('clientFullName').value.trim();
+  const phone    = document.getElementById('clientPhone').value.trim();
+  const email    = document.getElementById('clientEmail').value.trim();
+  const points   = parseInt(document.getElementById('clientPoints').value) || 0;
+  if (!fullName || !phone) return alert('Nome e telefone são obrigatórios!');
+
+  const method = isEditing ? 'PUT' : 'POST';
+  const url    = isEditing
+    ? `${API_URL}/clients/${editingClientId}`
+    : `${API_URL}/clients`;
+  const body   = { fullName, phone, email, points, establishmentId: currentEstablishmentId };
+  const token  = localStorage.getItem('authToken');
+
+  try {
+    const res = await apiFetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(body)
+    });
+    await res.json();
+    alert(isEditing ? 'Cliente atualizado!' : 'Cliente criado!');
+    isEditing = false;
+    editingClientId = null;
+    document.getElementById('saveClientBtn').textContent = 'Salvar Cliente';
+    ['clientFullName','clientPhone','clientEmail','clientPoints']
+      .forEach(id => document.getElementById(id).value = '');
+    loadClients();
+  } catch (err) {
+    console.error('Erro no saveClient:', err);
+    alert(err.message);
+  }
+}
+document.getElementById('saveClientBtn').addEventListener('click', saveClient);
+
+async function editClient(id) {
+  try {
+    const token = localStorage.getItem('authToken');
+    // 1) Buscar o cliente pelo ID (filtrando no backend ou, aqui, por enquanto, na lista)
+    const res = await apiFetch(
+      `${API_URL}/clients?establishmentId=${currentEstablishmentId}`,
+      { headers: { 'Authorization': `Bearer ${token}` } }
+    );
+    if (!res.ok) throw new Error('Erro ao buscar clientes');
+    const clients = await res.json();
+    const client = clients.find(c => c.id === Number(id));
+    if (!client) throw new Error('Cliente não encontrado');
+
+    // 2) Preencher cada input explicitamente com a propriedade correta
+    document.getElementById('clientFullName').value = client.fullName || '';
+    document.getElementById('clientPhone').value    = client.phone    || '';
+    document.getElementById('clientEmail').value    = client.email    || '';
+    document.getElementById('clientPoints').value   = client.points   || 0;
+
+    // 3) Ajustar flags e texto do botão
+    isEditing       = true;
+    editingClientId = id;
+    document.getElementById('saveClientBtn').textContent = 'Atualizar Cliente';
+  } catch (err) {
+    console.error('Erro no editClient:', err);
+    alert(err.message);
+  }
+}
+
+
+async function deleteClient(id) {
+  if (!confirm('Deseja realmente excluir este cliente?')) return;
+  const token = localStorage.getItem('authToken');
+  try {
+    await apiFetch(
+      `${API_URL}/clients/${id}?establishmentId=${currentEstablishmentId}`,
+      { method:'DELETE', headers:{ 'Authorization':`Bearer ${token}` } }
+    );
+    alert('Cliente excluído!');
+    loadClients();
+  } catch (err) {
+    console.error('Erro no deleteClient:', err);
+    alert(err.message);
+  }
+}
+
+document.getElementById('searchBtn').addEventListener('click', async () => {
+  const term = document.getElementById('searchClient').value.trim().toLowerCase();
+  const token = localStorage.getItem('authToken');
+  try {
+    const res = await apiFetch(
+      `${API_URL}/clients?establishmentId=${currentEstablishmentId}`,
+      { headers:{ 'Authorization':`Bearer ${token}` } }
+    );
+    const clients = await res.json();
+    const select = document.getElementById('clientSelect');
+    select.innerHTML = '<option value=\"\">Selecione o cliente</option>';
+    clients
+      .filter(c => c.fullName.toLowerCase().includes(term))
+      .forEach(c => select.append(new Option(c.fullName, c.id)));
+  } catch (err) {
+    console.error('Erro no searchClient:', err);
+  }
+});
+
+document.getElementById('addPointsBtn').addEventListener('click', async () => {
+  const clientId = document.getElementById('clientSelect').value;
+  const pts      = parseInt(document.getElementById('points').value);
+  if (!clientId || !pts) return alert('Selecione cliente e pontos válidos');
+  const token = localStorage.getItem('authToken');
+
+  try {
+    await apiFetch(`${API_URL}/clients/${clientId}/points`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ pointsToAdd: pts, establishmentId: currentEstablishmentId })
+    });
+    alert('Pontos adicionados com sucesso!');
+    loadClients();
+  } catch (err) {
+    console.error('Erro no addPoints:', err);
+    alert(err.message);
+  }
+});
+
+async function sendVoucher(clienteId) {
+  const token = localStorage.getItem('authToken');
+  try {
+    const res  = await apiFetch(
+      `${API_URL}/voucher/${clienteId}`,
+      { headers:{ 'Authorization':`Bearer ${token}` } }
+    );
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    window.open(
+      `https://wa.me/${data.numero}?text=${encodeURIComponent(data.mensagem)}`,
+      '_blank'
+    );
+    await resetClientPoints(clienteId);
+  } catch (err) {
+    console.error('Erro no sendVoucher:', err);
+    alert(err.message);
+  }
+}
+
+async function resetClientPoints(clienteId) {
+  const token = localStorage.getItem('authToken');
+  try {
+    const res = await apiFetch(
+      `${API_URL}/clients/${clienteId}/reset`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ establishmentId: currentEstablishmentId })
+      }
+    );
+    const data = await res.json();
+    alert(data.message || 'Pontos resetados com sucesso!');
+    loadClients();
+  } catch (err) {
+    console.error('Erro no resetClientPoints:', err);
+    alert(err.message);
+  }
+}

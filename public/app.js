@@ -7,7 +7,7 @@ const BASE_URL = 'https://projeto-fidelidade-production.up.railway.app';
 const API_URL  = `${BASE_URL}/api`;
 
 // =========================
-// Wrapper de fetch para tratar 401 (token expirado) e 402 (assinatura expirada)
+// Wrapper de fetch para tratar 401 e 402
 // =========================
 async function apiFetch(url, options = {}) {
   const res = await fetch(url, options);
@@ -16,7 +16,7 @@ async function apiFetch(url, options = {}) {
     alert('Sessão expirada. Faça login novamente.');
     localStorage.removeItem('authToken');
     localStorage.removeItem('currentEstablishmentId');
-    return window.location.href = '/'; 
+    return window.location.href = '/';
   }
   if (res.status === 402) {
     const err = await res.json();
@@ -35,9 +35,10 @@ async function apiFetch(url, options = {}) {
 let currentEstablishmentId = null;
 let isEditing = false;
 let editingClientId = null;
+let clientsData = [];
 
 // =========================
-// Utilitários de tema e QR
+// Tema e QR
 // =========================
 function applyTheme(theme) {
   Object.entries(theme).forEach(([key, value]) => {
@@ -56,15 +57,12 @@ function renderQRCode() {
 // Saudação
 // =========================
 function showWelcome() {
-  const nome = localStorage.getItem('userName');
-  if (nome) {
-    // No teu HTML o <span> tem id="username"
-    document.getElementById('username').textContent = nome;
-  }
+  const nome = localStorage.getItem('userName') || 'Usuário';
+  document.getElementById('user-name').textContent = nome;
 }
 
 // =========================
-// Fluxo de inicialização
+// Inicialização
 // =========================
 window.onload = async function() {
   const token = localStorage.getItem('authToken');
@@ -77,19 +75,20 @@ window.onload = async function() {
   }
 
   try {
-    // 1) Busca dados do estabelecimento (rota pública)
-    const res = await apiFetch(
+    // Buscando estabelecimento e checando assinatura
+    const resEst = await apiFetch(
       `${API_URL}/establishments/${estId}`,
-      { headers: { 'Authorization': `Bearer ${token}` } }
+      { headers:{ 'Authorization': `Bearer ${token}` } }
     );
-    const establishment = await res.json();
+    const establishment = await resEst.json();
     currentEstablishmentId = estId;
 
-    // 2) Checa 28 dias de assinatura
-    const lastPay = establishment.lastPaymentDate && new Date(establishment.lastPaymentDate).getTime();
-    const now     = Date.now();
-    const TWENTY_EIGHT_DAYS = 28 * 24 * 60 * 60 * 1000;
-    if (!lastPay || now - lastPay > TWENTY_EIGHT_DAYS) {
+    // Verifica 28 dias de assinatura
+    const lastPay = establishment.lastPaymentDate
+      ? new Date(establishment.lastPaymentDate).getTime()
+      : 0;
+    const now = Date.now();
+    if (!lastPay || now - lastPay > 28 * 24 * 60 * 60 * 1000) {
       alert(
         lastPay
           ? `Sua assinatura expirou em ${new Date(lastPay).toLocaleDateString()}.`
@@ -100,7 +99,7 @@ window.onload = async function() {
       return window.location.href = '/payment.html';
     }
 
-    // 3) Aplica tema e logo
+    // Aplica tema e logo
     applyTheme({
       "primary-color":   establishment.primaryColor,
       "secondary-color": establishment.secondaryColor,
@@ -115,25 +114,20 @@ window.onload = async function() {
       "button-text":     establishment.buttonText,
       "section-margin":  establishment.sectionMargin
     });
-    const logoEl = document.getElementById('logo');
-    if (logoEl) logoEl.src = establishment.logoURL;
+    document.getElementById('logo').src = establishment.logoURL;
+    document.getElementById('theme-color-meta')
+      .setAttribute('content', establishment.backgroundColor);
 
-    // 3a) Atualiza <meta name="theme-color"> para Android/Chrome
-    const metaTheme = document.getElementById('theme-color-meta');
-    if (metaTheme && establishment.backgroundColor) {
-      metaTheme.setAttribute('content', establishment.backgroundColor);
-    }
-
-    // 4) Exibe dashboard e carrega clientes
+    // Exibe dashboard e carrega dados
     document.getElementById('loginDiv').style.display  = 'none';
     document.getElementById('dashboard').style.display = 'block';
     showWelcome();
-    loadClients();
     renderQRCode();
+    setupTabListeners();
+    await loadClients();
 
   } catch (error) {
     console.error('Erro na inicialização:', error);
-    // apiFetch já redireciona em 401/402. Outros erros podem ser tratados aqui.
   }
 };
 
@@ -143,9 +137,7 @@ window.onload = async function() {
 document.getElementById('loginBtn').addEventListener('click', async () => {
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value.trim();
-  if (!username || !password) {
-    return alert('Preencha todos os campos!');
-  }
+  if (!username || !password) return alert('Preencha todos os campos!');
 
   try {
     const res = await fetch(`${API_URL}/login`, {
@@ -156,23 +148,17 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
     const data = await res.json();
 
     if (!res.ok) {
-      if (res.status === 402) {
-        if (confirm(`${data.message}\nDeseja renovar agora?`)) {
-          return window.location.href = '/payment.html';
-        }
-      } else {
-        alert(data.message || 'Usuário ou senha inválidos');
+      if (res.status === 402 && confirm(`${data.message}\nDeseja renovar?`)) {
+        return window.location.href = '/payment.html';
       }
-      return;
+      return alert(data.message || 'Usuário ou senha inválidos');
     }
 
-    // Salva token e estabelecimento e nome do user
     localStorage.setItem('authToken', data.token);
     currentEstablishmentId = data.user.establishmentId;
     localStorage.setItem('currentEstablishmentId', currentEstablishmentId);
     localStorage.setItem('userName', data.user.fullName || data.user.username);
 
-    // Aplica tema e logo
     applyTheme({
       "primary-color":   data.user['primary-color'],
       "secondary-color": data.user['secondary-color'],
@@ -187,18 +173,16 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
       "button-text":     data.user['button-text'],
       "section-margin":  data.user['section-margin']
     });
-    const logo = document.getElementById('logo');
-    if (logo) logo.src = data.user.logoURL;
+    document.getElementById('logo').src = data.user.logoURL;
 
-    // Exibe dashboard
-    document.getElementById('loginDiv').style.display  = 'block';
     document.getElementById('loginDiv').style.display  = 'none';
     document.getElementById('dashboard').style.display = 'block';
     showWelcome();
-    loadClients();
+    setupTabListeners();
+    await loadClients();
     renderQRCode();
 
-    alert('Login bem‑sucedido!');
+    alert('Login bem-sucedido!');
   } catch (err) {
     console.error('Erro no login:', err);
     alert('Erro no login. Tente novamente.');
@@ -209,61 +193,121 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
 // Logout
 // =========================
 document.getElementById('logoutBtn').addEventListener('click', () => {
-  localStorage.removeItem('authToken');
-  localStorage.removeItem('currentEstablishmentId');
+  localStorage.clear();
   document.getElementById('loginDiv').style.display  = 'block';
   document.getElementById('dashboard').style.display = 'none';
   alert('Logout realizado com sucesso!');
 });
 
 // =========================
-// CRUD de Clientes
+// Configura abas
 // =========================
+function setupTabListeners() {
+  const tabs = document.querySelectorAll('.tab-menu button');
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabs.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.tab-content')
+        .forEach(sec => sec.style.display = 'none');
+      document.getElementById(btn.dataset.section).style.display = 'block';
+
+      // Ao entrar na tabela, renderiza lista
+      if (btn.dataset.section === 'tab-table') {
+        renderClientsList();
+      }
+    });
+  });
+}
+
+// =========================
+// CRUD de Clientes + Lista Filtrável
+// =========================
+
+// 1) Buscar clientes
 async function loadClients() {
   try {
     const token = localStorage.getItem('authToken');
     const res = await apiFetch(
       `${API_URL}/clients?establishmentId=${currentEstablishmentId}`,
-      { headers:{ 'Authorization':`Bearer ${token}` } }
+      { headers: { 'Authorization': `Bearer ${token}` } }
     );
-    const clients = await res.json();
-    renderClientsTable(clients);
-    displayClients(clients);
+    clientsData = await res.json();
+    renderClientsList();
   } catch (err) {
     console.error('Erro ao carregar clientes:', err);
   }
 }
 
-function renderClientsTable(clients) {
-  const tbody = document.getElementById('clientTableBody');
-  tbody.innerHTML = clients.map(c => `
-    <tr>
-      <td>${c.fullName}</td>
-      <td>${c.email || ''}</td>
-      <td>${c.phone}</td>
-      <td>${c.points}</td>
-      <td>
-        <button onclick="editClient('${c.id}')">Editar</button>
-        <button onclick="deleteClient('${c.id}')">Excluir</button>
-      </td>
-    </tr>
-  `).join('');
+// 2) Renderizar lista filtrável
+function renderClientsList(filter = '') {
+  const ul = document.getElementById('clientsList');
+  ul.innerHTML = '';
+
+  clientsData
+    .filter(c =>
+      c.fullName.toLowerCase().includes(filter) ||
+      (c.phone && c.phone.includes(filter))
+    )
+    .forEach(c => {
+      const li = document.createElement('li');
+      li.dataset.id = c.id;
+      li.innerHTML = `
+        <span>${c.fullName} — ${c.points} pts</span>
+        <div class="actions">
+          <button class="btn-edit">Editar</button>
+          <button class="btn-delete">Excluir</button>
+        </div>`;
+      ul.appendChild(li);
+    });
 }
 
-function displayClients(clients) {
-  const list = document.getElementById('clients');
-  list.innerHTML = '';
-  clients.filter(c => c.points >= 10).forEach(c => {
-    const li  = document.createElement('li');
-    li.textContent = `${c.fullName} - Pontos: ${c.points}`;
-    const btn = document.createElement('button');
-    btn.textContent = 'Enviar Voucher';
-    btn.addEventListener('click', () => sendVoucher(c.id));
-    li.appendChild(btn);
-    list.appendChild(li);
-  });
+// 3) Busca em tempo real
+document.getElementById('searchClientsInput').addEventListener('input', e => {
+  const term = e.target.value.trim().toLowerCase();
+  renderClientsList(term);
+});
+
+// 4) Ações na lista
+document.getElementById('clientsList').addEventListener('click', async e => {
+  const li = e.target.closest('li');
+  if (!li) return;
+  const id = li.dataset.id;
+
+  if (e.target.classList.contains('btn-edit')) {
+    return editClient(id);
+  }
+  if (e.target.classList.contains('btn-delete')) {
+    if (confirm('Deseja realmente excluir este cliente?')) {
+      await deleteClient(id);
+      return loadClients();
+    }
+  }
+
+  // Caso contrário, abre o card de detalhes
+  showClientDetail(id);
+});
+
+// 5) Mostrar card com detalhes
+function showClientDetail(id) {
+  const c = clientsData.find(x => x.id == id);
+  if (!c) return;
+  document.getElementById('detailName').textContent   = c.fullName;
+  document.getElementById('detailEmail').textContent  = c.email || '—';
+  document.getElementById('detailPhone').textContent  = c.phone || '—';
+  document.getElementById('detailPoints').textContent = c.points;
+
+  document.getElementById('clientDetailCard').style.display = 'block';
+  document.getElementById('detailBackdrop').style.display  = 'block';
 }
 
+// 6) Fechar card
+document.getElementById('closeDetailCard').addEventListener('click', () => {
+  document.getElementById('clientDetailCard').style.display = 'none';
+  document.getElementById('detailBackdrop').style.display  = 'none';
+});
+
+// 7) Salvar/Atualizar cliente
 async function saveClient() {
   const fullName = document.getElementById('clientFullName').value.trim();
   const phone    = document.getElementById('clientPhone').value.trim();
@@ -294,7 +338,7 @@ async function saveClient() {
     document.getElementById('saveClientBtn').textContent = 'Salvar Cliente';
     ['clientFullName','clientPhone','clientEmail','clientPoints']
       .forEach(id => document.getElementById(id).value = '');
-    loadClients();
+    await loadClients();
   } catch (err) {
     console.error('Erro no saveClient:', err);
     alert(err.message);
@@ -302,27 +346,24 @@ async function saveClient() {
 }
 document.getElementById('saveClientBtn').addEventListener('click', saveClient);
 
+// 8) Editar cliente (preenche formulário)
 async function editClient(id) {
   try {
     const token = localStorage.getItem('authToken');
-    // 1) Buscar o cliente pelo ID (filtrando no backend ou, aqui, por enquanto, na lista)
     const res = await apiFetch(
       `${API_URL}/clients?establishmentId=${currentEstablishmentId}`,
       { headers: { 'Authorization': `Bearer ${token}` } }
     );
-    if (!res.ok) throw new Error('Erro ao buscar clientes');
     const clients = await res.json();
-    const client = clients.find(c => c.id === Number(id));
+    const client = clients.find(c => c.id == id);
     if (!client) throw new Error('Cliente não encontrado');
 
-    // 2) Preencher cada input explicitamente com a propriedade correta
-    document.getElementById('clientFullName').value = client.fullName || '';
-    document.getElementById('clientPhone').value    = client.phone    || '';
-    document.getElementById('clientEmail').value    = client.email    || '';
-    document.getElementById('clientPoints').value   = client.points   || 0;
+    document.getElementById('clientFullName').value = client.fullName;
+    document.getElementById('clientPhone').value    = client.phone;
+    document.getElementById('clientEmail').value    = client.email || '';
+    document.getElementById('clientPoints').value   = client.points;
 
-    // 3) Ajustar flags e texto do botão
-    isEditing       = true;
+    isEditing = true;
     editingClientId = id;
     document.getElementById('saveClientBtn').textContent = 'Atualizar Cliente';
   } catch (err) {
@@ -331,9 +372,8 @@ async function editClient(id) {
   }
 }
 
-
+// 9) Deletar cliente
 async function deleteClient(id) {
-  if (!confirm('Deseja realmente excluir este cliente?')) return;
   const token = localStorage.getItem('authToken');
   try {
     await apiFetch(
@@ -341,13 +381,14 @@ async function deleteClient(id) {
       { method:'DELETE', headers:{ 'Authorization':`Bearer ${token}` } }
     );
     alert('Cliente excluído!');
-    loadClients();
+    await loadClients();
   } catch (err) {
     console.error('Erro no deleteClient:', err);
     alert(err.message);
   }
 }
 
+// 10) Buscar e adicionar pontos (aba 1)
 document.getElementById('searchBtn').addEventListener('click', async () => {
   const term = document.getElementById('searchClient').value.trim().toLowerCase();
   const token = localStorage.getItem('authToken');
@@ -383,13 +424,14 @@ document.getElementById('addPointsBtn').addEventListener('click', async () => {
       body: JSON.stringify({ pointsToAdd: pts, establishmentId: currentEstablishmentId })
     });
     alert('Pontos adicionados com sucesso!');
-    loadClients();
+    await loadClients();
   } catch (err) {
     console.error('Erro no addPoints:', err);
     alert(err.message);
   }
 });
 
+// 11) Enviar voucher e resetar pontos
 async function sendVoucher(clienteId) {
   const token = localStorage.getItem('authToken');
   try {
@@ -427,7 +469,7 @@ async function resetClientPoints(clienteId) {
     );
     const data = await res.json();
     alert(data.message || 'Pontos resetados com sucesso!');
-    loadClients();
+    await loadClients();
   } catch (err) {
     console.error('Erro no resetClientPoints:', err);
     alert(err.message);
