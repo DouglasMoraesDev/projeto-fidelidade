@@ -6,12 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cartão Fidelidade</title>
 
-  <!-- Manifest e ícones (coloque os arquivos em public/logo/) -->
+  <!-- Manifest e ícones -->
   <link rel="manifest" href="/manifest.json" />
-  <link rel="icon"           href="/logo/icon.png" sizes="192x192" />
-  <link rel="icon"           href="/logo/icon.png" sizes="512x512" />
+  <link rel="icon" href="/logo/icon.png" sizes="192x192" />
+  <link rel="icon" href="/logo/icon.png" sizes="512x512" />
   <link rel="apple-touch-icon" href="/logo/icon.png" sizes="180x180" />
-  <link rel="shortcut icon"    href="/logo/icon.png" />
+  <link rel="shortcut icon" href="/logo/icon.png" />
 
   <!-- CSS global -->
   <link rel="stylesheet" href="/style.css" />
@@ -20,6 +20,9 @@
     href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500&amp;family=Oxanium:wght@200..800&amp;display=swap"
     rel="stylesheet"
   />
+
+  <!-- JavaScript principal (com defer para aguardar o carregamento do DOM) -->
+  <script src="app.js" defer></script>
 </head>
 <body>
   <!-- LOGIN -->
@@ -37,10 +40,10 @@
   <!-- DASHBOARD -->
   <div id="dashboard" style="display:none;">
     <!-- HEADER e boas-vindas -->
-    <div class="dashboard-container header-container" id="headerSection">
+    <div class="dashboard-container header-container">
       <div>
         <h1>Cartão Fidelidade</h1>
-        <p id="welcome-msg">Olá Seja bem vindo de volta, <span id="user-name"></span>!</p>
+        <p id="welcome-msg">Olá, seja bem-vindo de volta, <span id="user-name"></span>!</p>
       </div>
       <img id="logo" src="/logo/LogoGuerra.png" alt="Logo do estabelecimento" />
     </div>
@@ -52,12 +55,11 @@
       <button data-section="tab-notify">Notificações</button>
       <button data-section="tab-qr">Consultar pontos</button>
       <button data-section="tab-add-points">Adicionar Pontos</button>
-
     </nav>
 
     <!-- ABA 1: CADASTRAR CLIENTE -->
     <section id="tab-clients" class="tab-content">
-      <div class="dashboard-container" id="clientFormSection">
+      <div class="dashboard-container">
         <h3>Adicionar Novo Cliente</h3>
         <label for="clientFullName">Nome Completo:</label>
         <input type="text" id="clientFullName" placeholder="Nome Completo do Cliente" />
@@ -69,97 +71,64 @@
         <input type="number" id="clientPoints" min="0" value="0" />
         <button id="saveClientBtn">Salvar Cliente</button>
       </div>
-
-      
     </section>
-    <!-- ABA 5: ADICIONAR PONTOS -->
-      <section id="tab-add-points" class="tab-content" style="display:none;">
-        <div class="dashboard-container">
-          <h3>Adicionar Pontos</h3>
-          <input
-            type="text"
-            id="searchPointsInput"
-            placeholder="Pesquisar cliente..."
-            style="width:100%; padding:0.75rem; margin-bottom:1rem;"
-          />
-          <div id="addPointsCardContainer">
-            <!-- JS irá injetar aqui o card do cliente -->
-          </div>
-        </div>
-      </section>
 
-  
     <!-- ABA 2: TABELA CLIENTES -->
     <section id="tab-table" class="tab-content" style="display:none;">
       <div class="dashboard-container">
-        <!-- Campo de busca -->
         <input
           type="text"
           id="searchClientsInput"
           placeholder="🔎 Pesquisar cliente..."
-          style="width:100%; padding:0.75rem; margin-bottom:1rem; border-radius:4px; border:1px solid var(--input-border);"
         />
-    
-        <!-- Lista de clientes -->
-        <ul id="clientsList" style="list-style:none; padding:0; margin:0;">
-          <!-- JS injeta cada <li> -->
-        </ul>
+        <ul id="clientsList"></ul>
       </div>
-    
+
       <!-- Card de detalhes -->
-      <div
-        id="clientDetailCard"
-        style="display:none;
-               position:fixed; top:50%; left:50%;
-               transform:translate(-50%,-50%);
-               background:var(--primary-color);
-               padding:1.5rem; border-radius:8px;
-               box-shadow:0 4px 12px rgba(0,0,0,0.2);
-               z-index:1000;
-              "
-      >
-        <button
-          id="closeDetailCard"
-          style="float:right; background:none; border:none; font-size:1.25rem; cursor:pointer;"
-        >✖</button>
+      <div id="clientDetailCard">
+        <button id="closeDetailCard">✖</button>
         <h3 id="detailName"></h3>
         <p><strong>Email:</strong> <span id="detailEmail"></span></p>
         <p><strong>Telefone:</strong> <span id="detailPhone"></span></p>
         <p><strong>Pontos:</strong> <span id="detailPoints"></span></p>
       </div>
-    
-      <!-- Backdrop -->
-      <div
-        id="detailBackdrop"
-        style="display:none;
-               position:fixed; top:0; left:0;
-               width:100%; height:100%;
-               background:rgba(0,0,0,0.5);
-               z-index:900;"
-      ></div>
+      <div id="detailBackdrop"></div>
     </section>
 
-    <!-- ABA 3: NOTIFICAÇÕES (centralizada) -->
+    <!-- ABA 3: NOTIFICAÇÕES -->
     <section id="tab-notify" class="tab-content" style="display:none;">
       <div class="center-content">
-        <div class="dashboard-container" id="vipClientsSection">
+        <div class="dashboard-container">
           <h3>Clientes com 10 Pontos</h3>
           <ul id="clients"></ul>
         </div>
       </div>
     </section>
 
-    <!-- ABA 4: CONSULTAR (centralizada) -->
+    <!-- ABA 4: CONSULTAR PONTOS -->
     <section id="tab-qr" class="tab-content" style="display:none;">
       <div class="center-content">
-        <div class="dashboard-container" id="qrSection">
+        <div class="dashboard-container">
           <h3>QR Code para consulta de pontos</h3>
-          <img id="qrCodeImg" alt="QR Code do estabelecimento" style="max-width:200px;" />
+          <img id="qrCodeImg" alt="QR Code do estabelecimento" />
           <p>
             Ou abra diretamente:
             <a id="pointsLink" href="#" target="_blank">Consultar meus pontos</a>
           </p>
         </div>
+      </div>
+    </section>
+
+    <!-- ABA 5: ADICIONAR PONTOS -->
+    <section id="tab-add-points" class="tab-content" style="display:none;">
+      <div class="dashboard-container">
+        <h3>Adicionar Pontos</h3>
+        <input
+          type="text"
+          id="searchPointsInput"
+          placeholder="🔎 Pesquisar cliente..."
+        />
+        <div id="addPointsCardContainer"></div>
       </div>
     </section>
 
@@ -169,23 +138,5 @@
   <footer>
     <p>&copy; Douglas Moraes Dev<br /><a href="https://wa.me/qr/F2Z744R5KWEPB1" target="_blank">Contato</a></p>
   </footer>
-
-  <script src="app.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Saudação
-      const nome = localStorage.getItem('userName') || 'Usuário';
-      document.getElementById('user-name').textContent = nome;
-
-      // Abas
-      const tabs = document.querySelectorAll('.tab-menu button');
-      tabs.forEach(btn => btn.addEventListener('click', () => {
-        tabs.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        document.querySelectorAll('.tab-content').forEach(sec => sec.style.display = 'none');
-        document.getElementById(btn.dataset.section).style.display = 'block';
-      }));
-    });
-  </script>
 </body>
 </html>
