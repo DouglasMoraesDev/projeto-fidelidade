@@ -1,5 +1,5 @@
 /* ==========================================================================  
-   Variáveis de Cores - Personalização Global  
+   Reset e variáveis  
    ========================================================================== */
    :root {
     --primary-color:    #ffffff;
@@ -18,273 +18,126 @@
     --transition-speed: 0.3s;
     --table-row-hover:  rgba(255,255,255,0.1);
   }
-  
-  /* Reset básico */
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-  html, body {
-    height: 100%;
-  }
+  * { box-sizing: border-box; margin:0; padding:0 }
+  html, body { height:100% }
   body {
-    display: flex;
-    flex-direction: column;
-    font-family: 'Montserrat', sans-serif;
-    background: var(--background-color);
-    color: var(--text-color);
-    line-height: 1.6;
-  }
-  
-  /* Container login */
-  .container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  #loginDiv {
-    background: #34495e;
-    padding: 2rem;
-    border-radius: 8px;
-    text-align: center;
-    box-shadow: var(--box-shadow);
-  }
-  #loginDiv input {
-    width: 100%;
-    margin: 0.5rem 0;
-    padding: 0.75rem;
-    border: 1px solid var(--input-border);
-    border-radius: 4px;
-  }
-  #loginDiv button {
-    width: 100%;
-    padding: 0.75rem;
-    margin-top: 1rem;
-    background: var(--button-bg);
-    color: var(--button-text);
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: transform var(--transition-speed);
-  }
-  #loginDiv button:hover {
-    transform: translateY(-2px);
-  }
-  
-  /* Header dashboard */
-  .header-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: var(--header-bg);
-    padding: 1rem 2rem;
-  }
-  #logo {
-    max-height: 50px;
-  }
-  #welcome-msg {
-    margin-top: 0.25rem;
-    color: var(--text-color);
-  }
-  
-  /* Menu de abas */
-  .tab-menu {
-    display: flex;
-    gap: 1rem;
-    background: var(--container-bg);
-    padding: 0.5rem 1rem;
-    border-bottom: 2px solid var(--secondary-color);
-  }
-  .tab-menu button {
-    flex: 1;
-    background: none;
-    border: none;
-    padding: 0.5rem;
-    color: var(--text-color);
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    transition: border-color var(--transition-speed);
-  }
-  .tab-menu button.active {
-    border-color: var(--primary-color);
-  }
-  
-  /* Conteúdo de abas */
-  .tab-content {
-    padding: 1rem 2rem;
-  }
-  
-  /* Dashboard ocupa espaço entre header e footer */
-  #dashboard {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-  }
-  
-  .dashboard-container {
-    background: var(--container-bg);
-    padding: 1rem;
-    border-radius: 8px;
-    margin: var(--section-margin) 0;
-    box-shadow: var(--box-shadow);
-    transition: transform var(--transition-speed);
-  }
-  .dashboard-container:hover {
-    transform: translateY(-2px);
-  }
-  
-  /* Lista de clientes (substitui a tabela) */
-  #searchClientsInput {
-    width: 100%;
-    padding: 0.75rem;
-    margin-bottom: 1rem;
-    border: 1px solid var(--input-border);
-    border-radius: 4px;
-    background: var(--primary-color);
-    color: var(--text-color);
-  }
-  #clientsList {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  #clientsList li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem;
-    border-bottom: 1px solid #ddd;
-    cursor: pointer;
-    transition: background var(--transition-speed);
-  }
-  #clientsList li:hover {
-    background: var(--table-row-hover);
-  }
-  #clientsList .actions button {
-    margin-left: 0.5rem;
-    padding: 0.25rem 0.5rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    background: var(--button-bg);
-    color: var(--button-text);
-    transition: transform var(--transition-speed);
-  }
-  #clientsList .actions button:hover {
-    transform: translateY(-1px);
-  }
-  
-  /* Card de detalhes do cliente */
-  #clientDetailCard {
-    display: none;
-    position: fixed;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    background: var(--primary-color);
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    z-index: 1000;
-    width: 90%;
-    max-width: 320px;
-  }
-  #clientDetailCard h3 {
-    margin-bottom: 1rem;
-  }
-  #clientDetailCard button#closeDetailCard {
-    float: right;
-    background: none;
-    border: none;
-    font-size: 1.25rem;
-    cursor: pointer;
-  }
-  #detailBackdrop {
-    display: none;
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 900;
-  }
-  
-  /* Formulários e botões gerais */
-  label {
-    display: block;
-    margin: 0.5rem 0 0.25rem;
-    font-weight: 600;
-  }
-  input, select {
-    width: 100%;
-    padding: 0.75rem;
-    margin-bottom: 0.75rem;
-    border: 1px solid var(--input-border);
-    border-radius: 4px;
-    background: var(--primary-color);
-    color: var(--text-color);
-  }
-  button {
-    padding: 0.75rem;
-    background: var(--button-bg);
-    color: var(--button-text);
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: transform var(--transition-speed);
-  }
-  button:hover {
-    transform: translateY(-2px);
+    display:flex; flex-direction:column;
+    font-family:'Montserrat',sans-serif;
+    background:var(--background-color);
+    color:var(--text-color);
+    line-height:1.6;
   }
   
   /* ==========================================================================  
-     Ajuste de Logout dentro de um menu lateral  
+     Drawer e Navegação  
      ========================================================================== */
-  
-  /* Esconde o logout que ficava no header */
-  .header-container .logout-btn {
+  #menuOverlay {
     display: none;
+    position: fixed; top:0; left:0;
+    width:100%; height:100%;
+    background: rgba(0,0,0,0.4);
+    z-index: 90;
   }
-  /* Mostra e posiciona o logout dentro do menu lateral */
+  #sideMenu {
+    position: fixed; top:0; left:0;
+    width: 220px; height:100%;
+    background: var(--container-bg);
+    transform: translateX(-100%);
+    transition: transform .3s ease;
+    padding-top:4rem;
+    z-index:100;
+  }
+  #sideMenu.open { transform: translateX(0); }
+  #menuOverlay.open { display:block; }
+  
+  /* Abas dentro do drawer */
+  #sideMenu .tab-menu {
+    flex-direction: column;
+    gap:0;
+  }
+  #sideMenu .tab-menu button {
+    text-align:left;
+    padding:1rem 1.5rem;
+    border-bottom:1px solid var(--secondary-color);
+    background:none;
+    color:var(--text-color);
+  }
+  #sideMenu .tab-menu button.active {
+    background:var(--secondary-color);
+  }
+  
+  /* Botão menu (hambúrguer) */
+  .menu-btn {
+    background:none;
+    border:none;
+    font-size:1.5rem;
+    color:var(--primary-color);
+    cursor:pointer;
+    margin-right:1rem;
+  }
+  
+  /* Logout dentro do drawer */
   #sideMenu .logout-btn {
-    display: block;
-    position: absolute;
-    bottom: 1.5rem;
-    left: 1.5rem;
-    right: 1.5rem;
-    background: var(--button-bg);
-    color: var(--button-text);
-    padding: 0.75rem;
-    border-radius: 4px;
-    text-align: center;
-    cursor: pointer;
-    transition: transform var(--transition-speed);
-    z-index: 110;
+    display:block;
+    position:absolute;
+    bottom:1.5rem;
+    left:1.5rem;
+    right:1.5rem;
+    background:var(--button-bg);
+    color:var(--button-text);
+    padding:.75rem;
+    border-radius:4px;
+    text-align:center;
+    cursor:pointer;
+    transition:transform var(--transition-speed);
+    z-index:110;
   }
   #sideMenu .logout-btn:hover {
-    transform: translateY(-2px);
+    transform:translateY(-2px);
   }
   
-  /* Footer sempre fixo no final */
+  /* ==========================================================================  
+     Conteúdo Principal  
+     ========================================================================== */
+  .container {
+    flex:1;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #loginDiv { /* ... seu estilo de login ... */ }
+  
+  /* Header */
+  .header-container {
+    display:flex; align-items:center; justify-content:space-between;
+    background:var(--header-bg); padding:1rem 2rem;
+  }
+  #logo { max-height:50px; }
+  #welcome-msg { margin-top:.25rem; }
+  
+  /* Main content */
+  .main-content {
+    flex:1;
+    padding:1rem 2rem;
+    transition: margin-left .3s ease;
+  }
+  #sideMenu.open ~ #dashboard .main-content {
+    margin-left:220px;
+  }
+  
+  /* Abas (seções) */
+  .tab-content { padding:1rem 2rem; }
+  .dashboard-container { /* ... */ }
+  
+  /* Footer fixo */
   footer {
-    text-align: center;
-    padding: 1rem 0;
-    background: var(--footer-bg);
-    color: var(--footer-text);
-    z-index: 50;
+    position:fixed; bottom:0; left:0; width:100%;
+    text-align:center; padding:1rem 0;
+    background:var(--footer-bg);
+    color:var(--footer-text);
+    z-index:50;
   }
   
-  /* Responsividade */
-  @media (max-width: 600px) {
-    .tab-menu {
-      flex-direction: column;
-    }
-    .header-container,
-    .tab-content {
-      padding: 1rem;
-    }
-    button {
-      display: block;
-      margin: 0.5rem auto;
-    }
+  /* Responsividade mobile */
+  @media (max-width:600px) {
+    .main-content { margin-left:0 !important; }
   }
   

@@ -6,25 +6,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cartão Fidelidade</title>
 
-  <!-- Manifest e ícones -->
   <link rel="manifest" href="/manifest.json" />
   <link rel="icon" href="/logo/icon.png" sizes="192x192" />
   <link rel="icon" href="/logo/icon.png" sizes="512x512" />
   <link rel="apple-touch-icon" href="/logo/icon.png" sizes="180x180" />
   <link rel="shortcut icon" href="/logo/icon.png" />
 
-  <!-- CSS global -->
   <link rel="stylesheet" href="/style.css" />
-  <!-- Fontes -->
   <link
     href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500&amp;family=Oxanium:wght@200..800&amp;display=swap"
     rel="stylesheet"
   />
-
-  <!-- JavaScript principal (com defer para aguardar o carregamento do DOM) -->
   <script src="app.js" defer></script>
 </head>
 <body>
+  <!-- DRAWER OVERLAY -->
+  <div id="menuOverlay"></div>
+
+  <!-- DRAWER LATERAL -->
+  <aside id="sideMenu">
+    <nav class="tab-menu">
+      <button class="active" data-section="tab-clients">Cadastrar Cliente</button>
+      <button data-section="tab-add-points">Adicionar Pontos</button>
+      <button data-section="tab-table">Tabela Clientes</button>
+      <button data-section="tab-notify">Notificações</button>
+      <button data-section="tab-qr">Consultar pontos</button>
+    </nav>
+    <button id="logoutBtn" class="logout-btn">Sair</button>
+  </aside>
+
   <!-- LOGIN -->
   <div class="container">
     <div id="loginDiv">
@@ -41,95 +51,38 @@
   <div id="dashboard" style="display:none;">
     <!-- HEADER e boas-vindas -->
     <div class="dashboard-container header-container">
+      <button id="menuBtn" class="menu-btn">☰</button>
       <div>
         <h1>Cartão Fidelidade</h1>
         <p id="welcome-msg">Olá, seja bem-vindo de volta, <span id="user-name"></span>!</p>
       </div>
       <img id="logo" src="/logo/LogoGuerra.png" alt="Logo do estabelecimento" />
+      <!-- note: logout saiu daqui -->
     </div>
 
-    <!-- MENU DE ABAS -->
-    <nav class="tab-menu">
-      <button class="active" data-section="tab-clients">Cadastrar Cliente</button>
-      <button data-section="tab-add-points">Adicionar Pontos</button>
-      <button data-section="tab-table">Tabela Clientes</button>
-      <button data-section="tab-notify">Notificações</button>
-      <button data-section="tab-qr">Consultar pontos</button>
-      <button id="logoutBtn" class="logout-btn">Sair</button>
-    </nav>
-
-    <!-- ABA 1: CADASTRAR CLIENTE -->
-    <section id="tab-clients" class="tab-content">
-      <div class="dashboard-container">
-        <h3>Adicionar Novo Cliente</h3>
-        <label for="clientFullName">Nome Completo:</label>
-        <input type="text" id="clientFullName" placeholder="Nome Completo do Cliente" />
-        <label for="clientPhone">Número de Telefone:</label>
-        <input type="text" id="clientPhone" placeholder="Número de Telefone" />
-        <label for="clientEmail">Email:</label>
-        <input type="email" id="clientEmail" placeholder="Email do Cliente" />
-        <label for="clientPoints">Pontos:</label>
-        <input type="number" id="clientPoints" min="0" value="0" />
-        <button id="saveClientBtn">Salvar Cliente</button>
-      </div>
-    </section>
-
-    <!-- ABA 2: ADICIONAR PONTOS -->
-    <section id="tab-add-points" class="tab-content" style="display:none;">
-      <div class="dashboard-container">
-        <h3>Adicionar Pontos</h3>
-        <input type="text" id="searchPointsInput" placeholder="🔎 Pesquisar cliente..." />
-        <button id="searchPointsBtn">Buscar</button>
-        <div id="addPointsCardContainer"></div>
-      </div>
-    </section>
-
-    <!-- ABA 3: TABELA CLIENTES -->
-    <section id="tab-table" class="tab-content" style="display:none;">
-      <div class="dashboard-container">
-        <input
-          type="text"
-          id="searchClientsInput"
-          placeholder="🔎 Pesquisar cliente..."
-        />
-        <ul id="clientsList"></ul>
-      </div>
-
-      <!-- Card de detalhes -->
-      <div id="clientDetailCard">
-        <button id="closeDetailCard">✖</button>
-        <h3 id="detailName"></h3>
-        <p><strong>Email:</strong> <span id="detailEmail"></span></p>
-        <p><strong>Telefone:</strong> <span id="detailPhone"></span></p>
-        <p><strong>Pontos:</strong> <span id="detailPoints"></span></p>
-      </div>
-      <div id="detailBackdrop"></div>
-    </section>
-
-    <!-- ABA 4: NOTIFICAÇÕES -->
-    <section id="tab-notify" class="tab-content" style="display:none;">
-      <div class="center-content">
-        <div class="dashboard-container">
-          <h3>Clientes com 10 Pontos</h3>
-          <ul id="clients"></ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- ABA 5: CONSULTAR PONTOS -->
-    <section id="tab-qr" class="tab-content" style="display:none;">
-      <div class="center-content">
-        <div class="dashboard-container">
-          <h3>QR Code para consulta de pontos</h3>
-          <img id="qrCodeImg" alt="QR Code do estabelecimento" />
-          <p>
-            Ou abra diretamente:
-            <a id="pointsLink" href="#" target="_blank">Consultar meus pontos</a>
-          </p>
-        </div>
-      </div>
-    </section>
-
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="main-content">
+      <!-- ABA 1: CADASTRAR CLIENTE -->
+      <section id="tab-clients" class="tab-content">
+        <!-- ... seu formulário ... -->
+      </section>
+      <!-- ABA 2: ADICIONAR PONTOS -->
+      <section id="tab-add-points" class="tab-content" style="display:none;">
+        <!-- ... -->
+      </section>
+      <!-- ABA 3: TABELA CLIENTES -->
+      <section id="tab-table" class="tab-content" style="display:none;">
+        <!-- ... -->
+      </section>
+      <!-- ABA 4: NOTIFICAÇÕES -->
+      <section id="tab-notify" class="tab-content" style="display:none;">
+        <!-- ... -->
+      </section>
+      <!-- ABA 5: CONSULTAR PONTOS -->
+      <section id="tab-qr" class="tab-content" style="display:none;">
+        <!-- ... -->
+      </section>
+    </main>
   </div>
 
   <footer>

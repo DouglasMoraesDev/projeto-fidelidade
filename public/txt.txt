@@ -1,43 +1,496 @@
-// public/app.js
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="theme-color" content="#ffffff" id="theme-color-meta" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cartão Fidelidade</title>
+
+  <!-- Manifest e ícones -->
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/logo/icon.png" sizes="192x192" />
+  <link rel="icon" href="/logo/icon.png" sizes="512x512" />
+  <link rel="apple-touch-icon" href="/logo/icon.png" sizes="180x180" />
+  <link rel="shortcut icon" href="/logo/icon.png" />
+
+  <!-- CSS global -->
+  <link rel="stylesheet" href="/style.css" />
+  <!-- Fontes -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500&amp;family=Oxanium:wght@200..800&amp;display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- JavaScript principal (com defer para aguardar o carregamento do DOM) -->
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <!-- LOGIN -->
+  <div class="container">
+    <div id="loginDiv">
+      <h2>Login</h2>
+      <label for="username">Usuário:</label>
+      <input type="text" id="username" placeholder="Digite seu nome de usuário" />
+      <label for="password">Senha:</label>
+      <input type="password" id="password" placeholder="Digite sua senha" />
+      <button id="loginBtn">Entrar</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" style="display:none;">
+    <!-- HEADER e boas-vindas -->
+    <div class="dashboard-container header-container">
+      <div>
+        <h1>Cartão Fidelidade</h1>
+        <p id="welcome-msg">Olá, seja bem-vindo de volta, <span id="user-name"></span>!</p>
+      </div>
+      <img id="logo" src="/logo/LogoGuerra.png" alt="Logo do estabelecimento" />
+    </div>
+
+    <!-- MENU DE ABAS -->
+    <nav class="tab-menu">
+      <button class="active" data-section="tab-clients">Cadastrar Cliente</button>
+      <button data-section="tab-add-points">Adicionar Pontos</button>
+      <button data-section="tab-table">Tabela Clientes</button>
+      <button data-section="tab-notify">Notificações</button>
+      <button data-section="tab-qr">Consultar pontos</button>
+      <button id="logoutBtn" class="logout-btn">Sair</button>
+    </nav>
+
+    <!-- ABA 1: CADASTRAR CLIENTE -->
+    <section id="tab-clients" class="tab-content">
+      <div class="dashboard-container">
+        <h3>Adicionar Novo Cliente</h3>
+        <label for="clientFullName">Nome Completo:</label>
+        <input type="text" id="clientFullName" placeholder="Nome Completo do Cliente" />
+        <label for="clientPhone">Número de Telefone:</label>
+        <input type="text" id="clientPhone" placeholder="Número de Telefone" />
+        <label for="clientEmail">Email:</label>
+        <input type="email" id="clientEmail" placeholder="Email do Cliente" />
+        <label for="clientPoints">Pontos:</label>
+        <input type="number" id="clientPoints" min="0" value="0" />
+        <button id="saveClientBtn">Salvar Cliente</button>
+      </div>
+    </section>
+
+    <!-- ABA 2: ADICIONAR PONTOS -->
+    <section id="tab-add-points" class="tab-content" style="display:none;">
+      <div class="dashboard-container">
+        <h3>Adicionar Pontos</h3>
+        <input type="text" id="searchPointsInput" placeholder="🔎 Pesquisar cliente..." />
+        <button id="searchPointsBtn">Buscar</button>
+        <div id="addPointsCardContainer"></div>
+      </div>
+    </section>
+
+    <!-- ABA 3: TABELA CLIENTES -->
+    <section id="tab-table" class="tab-content" style="display:none;">
+      <div class="dashboard-container">
+        <input
+          type="text"
+          id="searchClientsInput"
+          placeholder="🔎 Pesquisar cliente..."
+        />
+        <ul id="clientsList"></ul>
+      </div>
+
+      <!-- Card de detalhes -->
+      <div id="clientDetailCard">
+        <button id="closeDetailCard">✖</button>
+        <h3 id="detailName"></h3>
+        <p><strong>Email:</strong> <span id="detailEmail"></span></p>
+        <p><strong>Telefone:</strong> <span id="detailPhone"></span></p>
+        <p><strong>Pontos:</strong> <span id="detailPoints"></span></p>
+      </div>
+      <div id="detailBackdrop"></div>
+    </section>
+
+    <!-- ABA 4: NOTIFICAÇÕES -->
+    <section id="tab-notify" class="tab-content" style="display:none;">
+      <div class="center-content">
+        <div class="dashboard-container">
+          <h3>Clientes com 10 Pontos</h3>
+          <ul id="clients"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 5: CONSULTAR PONTOS -->
+    <section id="tab-qr" class="tab-content" style="display:none;">
+      <div class="center-content">
+        <div class="dashboard-container">
+          <h3>QR Code para consulta de pontos</h3>
+          <img id="qrCodeImg" alt="QR Code do estabelecimento" />
+          <p>
+            Ou abra diretamente:
+            <a id="pointsLink" href="#" target="_blank">Consultar meus pontos</a>
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>
+    <p>&copy; Douglas Moraes Dev<br /><a href="https://wa.me/qr/F2Z744R5KWEPB1" target="_blank">Contato</a></p>
+  </footer>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ==========================================================================  
+   Variáveis de Cores - Personalização Global  
+   ========================================================================== */
+   :root {
+    --primary-color:    #ffffff;
+    --secondary-color:  #615e6b;
+    --background-color: #000000;
+    --container-bg:     #301442;
+    --text-color:       #000000;
+    --header-bg:        #500537;
+    --footer-bg:        #00000000;
+    --footer-text:      #ecf0f1;
+    --input-border:     #cccccc;
+    --button-bg:        black;
+    --button-text:      #ffffff;
+    --section-margin:   20px;
+    --box-shadow:       0 4px 6px rgba(0,0,0,0.1);
+    --transition-speed: 0.3s;
+    --table-row-hover:  rgba(255,255,255,0.1);
+  }
+  
+  /* Reset básico */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  html, body {
+    height: 100%;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    font-family: 'Montserrat', sans-serif;
+    background: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+  }
+  
+  /* Container login */
+  .container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #loginDiv {
+    background: #34495e;
+    padding: 2rem;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: var(--box-shadow);
+  }
+  #loginDiv input {
+    width: 100%;
+    margin: 0.5rem 0;
+    padding: 0.75rem;
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+  }
+  #loginDiv button {
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 1rem;
+    background: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform var(--transition-speed);
+  }
+  #loginDiv button:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Header dashboard */
+  .header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--header-bg);
+    padding: 1rem 2rem;
+  }
+  #logo {
+    max-height: 50px;
+  }
+  #welcome-msg {
+    margin-top: 0.25rem;
+    color: var(--text-color);
+  }
+  
+  /* Menu de abas */
+  .tab-menu {
+    display: flex;
+    gap: 1rem;
+    background: var(--container-bg);
+    padding: 0.5rem 1rem;
+    border-bottom: 2px solid var(--secondary-color);
+  }
+  .tab-menu button {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    color: var(--text-color);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: border-color var(--transition-speed);
+  }
+  .tab-menu button.active {
+    border-color: var(--primary-color);
+  }
+  
+  /* Conteúdo de abas */
+  .tab-content {
+    padding: 1rem 2rem;
+  }
+  
+  /* Dashboard ocupa espaço entre header e footer */
+  #dashboard {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  
+  .dashboard-container {
+    background: var(--container-bg);
+    padding: 1rem;
+    border-radius: 8px;
+    margin: var(--section-margin) 0;
+    box-shadow: var(--box-shadow);
+    transition: transform var(--transition-speed);
+  }
+  .dashboard-container:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Lista de clientes (substitui a tabela) */
+  #searchClientsInput {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+    background: var(--primary-color);
+    color: var(--text-color);
+  }
+  #clientsList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  #clientsList li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+    transition: background var(--transition-speed);
+  }
+  #clientsList li:hover {
+    background: var(--table-row-hover);
+  }
+  #clientsList .actions button {
+    margin-left: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background: var(--button-bg);
+    color: var(--button-text);
+    transition: transform var(--transition-speed);
+  }
+  #clientsList .actions button:hover {
+    transform: translateY(-1px);
+  }
+  
+  /* Card de detalhes do cliente */
+  #clientDetailCard {
+    display: none;
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--primary-color);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 1000;
+    width: 90%;
+    max-width: 320px;
+  }
+  #clientDetailCard h3 {
+    margin-bottom: 1rem;
+  }
+  #clientDetailCard button#closeDetailCard {
+    float: right;
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+  }
+  #detailBackdrop {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 900;
+  }
+  
+  /* Formulários e botões gerais */
+  label {
+    display: block;
+    margin: 0.5rem 0 0.25rem;
+    font-weight: 600;
+  }
+  input, select {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+    background: var(--primary-color);
+    color: var(--text-color);
+  }
+  button {
+    padding: 0.75rem;
+    background: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform var(--transition-speed);
+  }
+  button:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* ==========================================================================  
+     Ajuste de Logout dentro de um menu lateral  
+     ========================================================================== */
+  
+  /* Esconde o logout que ficava no header */
+  .header-container .logout-btn {
+    display: none;
+  }
+  /* Mostra e posiciona o logout dentro do menu lateral */
+  #sideMenu .logout-btn {
+    display: block;
+    position: absolute;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    right: 1.5rem;
+    background: var(--button-bg);
+    color: var(--button-text);
+    padding: 0.75rem;
+    border-radius: 4px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform var(--transition-speed);
+    z-index: 110;
+  }
+  #sideMenu .logout-btn:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Footer sempre fixo no final */
+  footer {
+    text-align: center;
+    padding: 1rem 0;
+    background: var(--footer-bg);
+    color: var(--footer-text);
+    z-index: 50;
+  }
+  
+  /* Responsividade */
+  @media (max-width: 600px) {
+    .tab-menu {
+      flex-direction: column;
+    }
+    .header-container,
+    .tab-content {
+      padding: 1rem;
+    }
+    button {
+      display: block;
+      margin: 0.5rem auto;
+    }
+  }
+  
+
+
+
+
+
+  // public/app.js
 
 // =========================
 // Configuração de URLs
 // =========================
-const BASE_URL = 'https://projeto-fidelidade-production.up.railway.app';
-const API_URL  = `${BASE_URL}/api`;
+const BASE_URL = 'https://projeto-fidelidade-production.up.railway.app'; // URL base do backend
+const API_URL  = `${BASE_URL}/api`; // Endpoint da API
 
 // =========================
-// Wrapper de fetch para tratar 401 (token expirado) e 402 (assinatura expirada)
+// Wrapper de fetch para tratar erros de autenticação e assinatura
 // =========================
 async function apiFetch(url, options = {}) {
   const res = await fetch(url, options);
 
+  // Se retornar 401, é porque a sessão expirou ou token inválido
   if (res.status === 401) {
     alert('Sessão expirada. Faça login novamente.');
     localStorage.removeItem('authToken');
     localStorage.removeItem('currentEstablishmentId');
-    return window.location.href = '/'; 
+    window.location.href = '/';
+    return;
   }
+
+  // Se retornar 402, é porque a assinatura expirou
   if (res.status === 402) {
     const err = await res.json();
     alert(err.message || 'Assinatura expirada');
     localStorage.removeItem('authToken');
     localStorage.removeItem('currentEstablishmentId');
-    return window.location.href = '/payment.html';
+    window.location.href = '/payment.html';
+    return;
   }
 
   return res;
 }
 
 // =========================
-// Estado global
+// Estado global da aplicação
 // =========================
-let currentEstablishmentId = null;
-let isEditing = false;
-let editingClientId = null;
+let currentEstablishmentId = null; // ID do estabelecimento logado
+let isEditing = false;             // Flag para saber se estamos editando cliente
+let editingClientId = null;        // ID do cliente que está sendo editado
+let clientsData = [];              // Cache dos clientes carregados
 
 // =========================
-// Utilitários de tema e QR
+// Funções de Tema e QR Code
 // =========================
 function applyTheme(theme) {
   Object.entries(theme).forEach(([key, value]) => {
@@ -53,23 +506,38 @@ function renderQRCode() {
 }
 
 // =========================
-// Saudação
+// Saudação ao usuário
 // =========================
 function showWelcome() {
-  const nome = localStorage.getItem('userName');
-  if (nome) {
-    // No teu HTML o <span> tem id="username"
-    document.getElementById('username').textContent = nome;
-  }
+  const nome = localStorage.getItem('userName') || 'Usuário';
+  document.getElementById('user-name').textContent = nome;
+}
+
+// --- Toggle do drawer ---
+// Protege contra elementos ausentes no DOM
+const menuBtn     = document.getElementById('menuBtn');
+const sideMenu    = document.getElementById('sideMenu');
+const menuOverlay = document.getElementById('menuOverlay');
+if (menuBtn && sideMenu && menuOverlay) {
+  menuBtn.addEventListener('click', () => {
+    sideMenu.classList.toggle('open');
+    menuOverlay.classList.toggle('open');
+  });
+  // Fecha ao clicar fora
+  menuOverlay.addEventListener('click', () => {
+    sideMenu.classList.remove('open');
+    menuOverlay.classList.remove('open');
+  });
 }
 
 // =========================
-// Fluxo de inicialização
+// Inicialização da aplicação
 // =========================
 window.onload = async function() {
   const token = localStorage.getItem('authToken');
   const estId = localStorage.getItem('currentEstablishmentId');
 
+  // Se não estiver logado, exibe tela de login
   if (!token || !estId) {
     document.getElementById('loginDiv').style.display  = 'block';
     document.getElementById('dashboard').style.display = 'none';
@@ -77,19 +545,20 @@ window.onload = async function() {
   }
 
   try {
-    // 1) Busca dados do estabelecimento (rota pública)
-    const res = await apiFetch(
+    // Busca dados do estabelecimento para tema e validação de assinatura
+    const resEst = await apiFetch(
       `${API_URL}/establishments/${estId}`,
-      { headers: { 'Authorization': `Bearer ${token}` } }
+      { headers:{ 'Authorization': `Bearer ${token}` } }
     );
-    const establishment = await res.json();
+    const establishment = await resEst.json();
     currentEstablishmentId = estId;
 
-    // 2) Checa 28 dias de assinatura
-    const lastPay = establishment.lastPaymentDate && new Date(establishment.lastPaymentDate).getTime();
-    const now     = Date.now();
-    const TWENTY_EIGHT_DAYS = 28 * 24 * 60 * 60 * 1000;
-    if (!lastPay || now - lastPay > TWENTY_EIGHT_DAYS) {
+    // Verifica data do último pagamento (28 dias de validade)
+    const lastPay = establishment.lastPaymentDate
+      ? new Date(establishment.lastPaymentDate).getTime()
+      : 0;
+    const now = Date.now();
+    if (!lastPay || now - lastPay > 28 * 24 * 60 * 60 * 1000) {
       alert(
         lastPay
           ? `Sua assinatura expirou em ${new Date(lastPay).toLocaleDateString()}.`
@@ -100,7 +569,7 @@ window.onload = async function() {
       return window.location.href = '/payment.html';
     }
 
-    // 3) Aplica tema e logo
+    // Aplica tema, logo e meta tag de cor
     applyTheme({
       "primary-color":   establishment.primaryColor,
       "secondary-color": establishment.secondaryColor,
@@ -115,25 +584,21 @@ window.onload = async function() {
       "button-text":     establishment.buttonText,
       "section-margin":  establishment.sectionMargin
     });
-    const logoEl = document.getElementById('logo');
-    if (logoEl) logoEl.src = establishment.logoURL;
+    document.getElementById('logo').src = establishment.logoURL;
+    document.getElementById('theme-color-meta')
+      .setAttribute('content', establishment.backgroundColor);
 
-    // 3a) Atualiza <meta name="theme-color"> para Android/Chrome
-    const metaTheme = document.getElementById('theme-color-meta');
-    if (metaTheme && establishment.backgroundColor) {
-      metaTheme.setAttribute('content', establishment.backgroundColor);
-    }
-
-    // 4) Exibe dashboard e carrega clientes
+    // Mostra dashboard, configura abas e listeners adicionais
     document.getElementById('loginDiv').style.display  = 'none';
     document.getElementById('dashboard').style.display = 'block';
     showWelcome();
-    loadClients();
     renderQRCode();
+    setupTabListeners();       // Configura troca de abas
+    setupAddPointsListeners(); // Configura botões da aba de pontos
+    await loadClients();       // Carrega lista inicial de clientes
 
   } catch (error) {
     console.error('Erro na inicialização:', error);
-    // apiFetch já redireciona em 401/402. Outros erros podem ser tratados aqui.
   }
 };
 
@@ -143,9 +608,7 @@ window.onload = async function() {
 document.getElementById('loginBtn').addEventListener('click', async () => {
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value.trim();
-  if (!username || !password) {
-    return alert('Preencha todos os campos!');
-  }
+  if (!username || !password) return alert('Preencha todos os campos!');
 
   try {
     const res = await fetch(`${API_URL}/login`, {
@@ -155,24 +618,21 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
     });
     const data = await res.json();
 
+    // Se login falhar, trata renovação de assinatura ou erro genérico
     if (!res.ok) {
-      if (res.status === 402) {
-        if (confirm(`${data.message}\nDeseja renovar agora?`)) {
-          return window.location.href = '/payment.html';
-        }
-      } else {
-        alert(data.message || 'Usuário ou senha inválidos');
+      if (res.status === 402 && confirm(`${data.message}\nDeseja renovar?`)) {
+        return window.location.href = '/payment.html';
       }
-      return;
+      return alert(data.message || 'Usuário ou senha inválidos');
     }
 
-    // Salva token e estabelecimento e nome do user
+    // Armazena token e dados do usuário no localStorage
     localStorage.setItem('authToken', data.token);
     currentEstablishmentId = data.user.establishmentId;
     localStorage.setItem('currentEstablishmentId', currentEstablishmentId);
     localStorage.setItem('userName', data.user.fullName || data.user.username);
 
-    // Aplica tema e logo
+    // Aplica tema e logo do usuário
     applyTheme({
       "primary-color":   data.user['primary-color'],
       "secondary-color": data.user['secondary-color'],
@@ -187,18 +647,18 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
       "button-text":     data.user['button-text'],
       "section-margin":  data.user['section-margin']
     });
-    const logo = document.getElementById('logo');
-    if (logo) logo.src = data.user.logoURL;
+    document.getElementById('logo').src = data.user.logoURL;
 
-    // Exibe dashboard
-    document.getElementById('loginDiv').style.display  = 'block';
+    // Exibe dashboard após login
     document.getElementById('loginDiv').style.display  = 'none';
     document.getElementById('dashboard').style.display = 'block';
     showWelcome();
-    loadClients();
+    setupTabListeners();
+    setupAddPointsListeners();
+    await loadClients();
     renderQRCode();
 
-    alert('Login bem‑sucedido!');
+    alert('Login bem-sucedido!');
   } catch (err) {
     console.error('Erro no login:', err);
     alert('Erro no login. Tente novamente.');
@@ -209,61 +669,118 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
 // Logout
 // =========================
 document.getElementById('logoutBtn').addEventListener('click', () => {
-  localStorage.removeItem('authToken');
-  localStorage.removeItem('currentEstablishmentId');
+  localStorage.clear();
   document.getElementById('loginDiv').style.display  = 'block';
   document.getElementById('dashboard').style.display = 'none';
   alert('Logout realizado com sucesso!');
 });
 
 // =========================
-// CRUD de Clientes
+// Configura troca de abas (tabs)
+// =========================
+function setupTabListeners() {
+  const tabs = document.querySelectorAll('.tab-menu button');
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabs.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.tab-content')
+        .forEach(sec => sec.style.display = 'none');
+      document.getElementById(btn.dataset.section).style.display = 'block';
+
+      if (btn.dataset.section === 'tab-table') {
+        renderClientsList();
+      }
+      if (btn.dataset.section === 'tab-notify') {
+        loadNotifications();
+      }
+    });
+  });
+}
+
+// =========================
+// CRUD de Clientes + Lista Filtrável
 // =========================
 async function loadClients() {
   try {
     const token = localStorage.getItem('authToken');
     const res = await apiFetch(
       `${API_URL}/clients?establishmentId=${currentEstablishmentId}`,
-      { headers:{ 'Authorization':`Bearer ${token}` } }
+      { headers: { 'Authorization': `Bearer ${token}` } }
     );
-    const clients = await res.json();
-    renderClientsTable(clients);
-    displayClients(clients);
+    clientsData = await res.json();
+    renderClientsList();
   } catch (err) {
     console.error('Erro ao carregar clientes:', err);
   }
 }
 
-function renderClientsTable(clients) {
-  const tbody = document.getElementById('clientTableBody');
-  tbody.innerHTML = clients.map(c => `
-    <tr>
-      <td>${c.fullName}</td>
-      <td>${c.email || ''}</td>
-      <td>${c.phone}</td>
-      <td>${c.points}</td>
-      <td>
-        <button onclick="editClient('${c.id}')">Editar</button>
-        <button onclick="deleteClient('${c.id}')">Excluir</button>
-      </td>
-    </tr>
-  `).join('');
+function renderClientsList(filter = '') {
+  const ul = document.getElementById('clientsList');
+  ul.innerHTML = '';
+  clientsData
+    .filter(c =>
+      c.fullName.toLowerCase().includes(filter) ||
+      (c.phone && c.phone.includes(filter))
+    )
+    .forEach(c => {
+      const li = document.createElement('li');
+      li.dataset.id = c.id;
+      li.innerHTML = `
+        <span>${c.fullName} — ${c.points} pts</span>
+        <div class="actions">
+          <button class="btn-edit">Editar</button>
+          <button class="btn-delete">Excluir</button>
+        </div>`;
+      ul.appendChild(li);
+    });
 }
 
-function displayClients(clients) {
-  const list = document.getElementById('clients');
-  list.innerHTML = '';
-  clients.filter(c => c.points >= 10).forEach(c => {
-    const li  = document.createElement('li');
-    li.textContent = `${c.fullName} - Pontos: ${c.points}`;
-    const btn = document.createElement('button');
-    btn.textContent = 'Enviar Voucher';
-    btn.addEventListener('click', () => sendVoucher(c.id));
-    li.appendChild(btn);
-    list.appendChild(li);
+document.getElementById('searchClientsInput')
+  .addEventListener('input', e => renderClientsList(e.target.value.trim().toLowerCase()));
+
+document.getElementById('clientsList')
+  .addEventListener('click', async e => {
+    const li = e.target.closest('li');
+    if (!li) return;
+    const id = li.dataset.id;
+    if (e.target.classList.contains('btn-edit')) return editClient(id);
+    if (e.target.classList.contains('btn-delete')) {
+      if (confirm('Deseja realmente excluir este cliente?')) {
+        await deleteClient(id);
+        return loadClients();
+      }
+    }
+    showClientDetail(id);
   });
+
+// =========================
+// Detalhes do Cliente (modal)
+// =========================
+function showClientDetail(id) {
+  const c = clientsData.find(x => x.id == id);
+  if (!c) return;
+  document.getElementById('detailName').textContent   = c.fullName;
+  document.getElementById('detailEmail').textContent  = c.email  || '—';
+  document.getElementById('detailPhone').textContent  = c.phone  || '—';
+  document.getElementById('detailPoints').textContent = c.points;
+
+  document.getElementById('clientDetailCard').style.display = 'block';
+  document.getElementById('detailBackdrop'   ).style.display = 'block';
 }
 
+document.getElementById('closeDetailCard').addEventListener('click', () => {
+  document.getElementById('clientDetailCard').style.display = 'none';
+  document.getElementById('detailBackdrop'   ).style.display = 'none';
+});
+document.getElementById('detailBackdrop').addEventListener('click', () => {
+  document.getElementById('clientDetailCard').style.display = 'none';
+  document.getElementById('detailBackdrop'   ).style.display = 'none';
+});
+
+// =========================
+// Salvar / Atualizar Cliente
+// =========================
 async function saveClient() {
   const fullName = document.getElementById('clientFullName').value.trim();
   const phone    = document.getElementById('clientPhone').value.trim();
@@ -289,12 +806,11 @@ async function saveClient() {
     });
     await res.json();
     alert(isEditing ? 'Cliente atualizado!' : 'Cliente criado!');
-    isEditing = false;
-    editingClientId = null;
+    isEditing = false; editingClientId = null;
     document.getElementById('saveClientBtn').textContent = 'Salvar Cliente';
     ['clientFullName','clientPhone','clientEmail','clientPoints']
       .forEach(id => document.getElementById(id).value = '');
-    loadClients();
+    await loadClients();
   } catch (err) {
     console.error('Erro no saveClient:', err);
     alert(err.message);
@@ -302,28 +818,26 @@ async function saveClient() {
 }
 document.getElementById('saveClientBtn').addEventListener('click', saveClient);
 
+// =========================
+// Editar Cliente
+// =========================
 async function editClient(id) {
   try {
     const token = localStorage.getItem('authToken');
-    // 1) Buscar o cliente pelo ID (filtrando no backend ou, aqui, por enquanto, na lista)
     const res = await apiFetch(
       `${API_URL}/clients?establishmentId=${currentEstablishmentId}`,
       { headers: { 'Authorization': `Bearer ${token}` } }
     );
-    if (!res.ok) throw new Error('Erro ao buscar clientes');
     const clients = await res.json();
-    const client = clients.find(c => c.id === Number(id));
+    const client = clients.find(c => c.id == id);
     if (!client) throw new Error('Cliente não encontrado');
 
-    // 2) Preencher cada input explicitamente com a propriedade correta
-    document.getElementById('clientFullName').value = client.fullName || '';
-    document.getElementById('clientPhone').value    = client.phone    || '';
-    document.getElementById('clientEmail').value    = client.email    || '';
-    document.getElementById('clientPoints').value   = client.points   || 0;
+    document.getElementById('clientFullName').value = client.fullName;
+    document.getElementById('clientPhone').value    = client.phone;
+    document.getElementById('clientEmail').value    = client.email || '';
+    document.getElementById('clientPoints').value   = client.points;
 
-    // 3) Ajustar flags e texto do botão
-    isEditing       = true;
-    editingClientId = id;
+    isEditing = true; editingClientId = id;
     document.getElementById('saveClientBtn').textContent = 'Atualizar Cliente';
   } catch (err) {
     console.error('Erro no editClient:', err);
@@ -331,9 +845,10 @@ async function editClient(id) {
   }
 }
 
-
+// =========================
+// Deletar Cliente
+// =========================
 async function deleteClient(id) {
-  if (!confirm('Deseja realmente excluir este cliente?')) return;
   const token = localStorage.getItem('authToken');
   try {
     await apiFetch(
@@ -341,55 +856,89 @@ async function deleteClient(id) {
       { method:'DELETE', headers:{ 'Authorization':`Bearer ${token}` } }
     );
     alert('Cliente excluído!');
-    loadClients();
+    await loadClients();
   } catch (err) {
     console.error('Erro no deleteClient:', err);
     alert(err.message);
   }
 }
 
-document.getElementById('searchBtn').addEventListener('click', async () => {
-  const term = document.getElementById('searchClient').value.trim().toLowerCase();
+// =========================
+// Aba Adicionar Pontos
+// =========================
+function setupAddPointsListeners() {
+  const btn = document.getElementById('searchPointsBtn');
+  if (btn) btn.addEventListener('click', onSearchPoints);
+}
+async function onSearchPoints() {
+  const term = document.getElementById('searchPointsInput').value.trim().toLowerCase();
+  if (!term) return;
   const token = localStorage.getItem('authToken');
-  try {
-    const res = await apiFetch(
-      `${API_URL}/clients?establishmentId=${currentEstablishmentId}`,
-      { headers:{ 'Authorization':`Bearer ${token}` } }
-    );
-    const clients = await res.json();
-    const select = document.getElementById('clientSelect');
-    select.innerHTML = '<option value=\"\">Selecione o cliente</option>';
-    clients
-      .filter(c => c.fullName.toLowerCase().includes(term))
-      .forEach(c => select.append(new Option(c.fullName, c.id)));
-  } catch (err) {
-    console.error('Erro no searchClient:', err);
+  const res   = await apiFetch(`${API_URL}/clients?establishmentId=${currentEstablishmentId}`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  const clients = await res.json();
+  const c = clients.find(c => c.fullName.toLowerCase().includes(term));
+  const container = document.getElementById('addPointsCardContainer');
+  container.innerHTML = '';
+  if (c) {
+    container.innerHTML = `
+      <div class="client-card">
+        <h4>${c.fullName}</h4>
+        <p>Pontos atuais: ${c.points}</p>
+        <input type="number" id="ptsToAdd" placeholder="Pontos a adicionar" min="1"/>
+        <button id="savePointsBtn">Salvar</button>
+      </div>
+    `;
+    document.getElementById('savePointsBtn')
+      .addEventListener('click', () => addPoints(c.id));
+  } else {
+    container.textContent = 'Cliente não encontrado.';
   }
-});
-
-document.getElementById('addPointsBtn').addEventListener('click', async () => {
-  const clientId = document.getElementById('clientSelect').value;
-  const pts      = parseInt(document.getElementById('points').value);
-  if (!clientId || !pts) return alert('Selecione cliente e pontos válidos');
+}
+async function addPoints(clientId) {
+  const pts = parseInt(document.getElementById('ptsToAdd').value);
+  if (!pts || pts < 1) return alert('Insira uma quantidade válida.');
   const token = localStorage.getItem('authToken');
+  await apiFetch(`${API_URL}/clients/${clientId}/points`, {
+    method: 'POST',
+    headers: {
+      'Content-Type':'application/json',
+      'Authorization':`Bearer ${token}`
+    },
+    body: JSON.stringify({ pointsToAdd: pts, establishmentId: currentEstablishmentId })
+  });
+  alert('Pontos adicionados com sucesso!');
+  await loadClients();
+  document.getElementById('addPointsCardContainer').innerHTML = '';
+}
 
-  try {
-    await apiFetch(`${API_URL}/clients/${clientId}/points`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ pointsToAdd: pts, establishmentId: currentEstablishmentId })
+// =========================
+// Aba Notificações
+// =========================
+async function loadNotifications() {
+  const token = localStorage.getItem('authToken');
+  const res   = await apiFetch(`${API_URL}/clients?establishmentId=${currentEstablishmentId}`, {
+    headers:{ 'Authorization':`Bearer ${token}` }
+  });
+  const clients = await res.json();
+  const ul = document.getElementById('clients');
+  ul.innerHTML = '';
+  clients
+    .filter(c => c.points >= 10)
+    .forEach(c => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <span>${c.fullName} — ${c.points} pts</span>
+        <button onclick="sendVoucher(${c.id})">Enviar Voucher</button>
+      `;
+      ul.appendChild(li);
     });
-    alert('Pontos adicionados com sucesso!');
-    loadClients();
-  } catch (err) {
-    console.error('Erro no addPoints:', err);
-    alert(err.message);
-  }
-});
+}
 
+// =========================
+// Enviar voucher e resetar pontos
+// =========================
 async function sendVoucher(clienteId) {
   const token = localStorage.getItem('authToken');
   try {
@@ -399,18 +948,17 @@ async function sendVoucher(clienteId) {
     );
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-
     window.open(
       `https://wa.me/${data.numero}?text=${encodeURIComponent(data.mensagem)}`,
       '_blank'
     );
     await resetClientPoints(clienteId);
+    await loadNotifications();
   } catch (err) {
     console.error('Erro no sendVoucher:', err);
     alert(err.message);
   }
 }
-
 async function resetClientPoints(clienteId) {
   const token = localStorage.getItem('authToken');
   try {
@@ -427,16 +975,8 @@ async function resetClientPoints(clienteId) {
     );
     const data = await res.json();
     alert(data.message || 'Pontos resetados com sucesso!');
-    loadClients();
   } catch (err) {
     console.error('Erro no resetClientPoints:', err);
     alert(err.message);
   }
-}
-footer {
-  text-align: center;
-  padding: 1rem 0;
-  background: var(--footer-bg);
-  color: var(--footer-text);
-  z-index: 50;
 }
