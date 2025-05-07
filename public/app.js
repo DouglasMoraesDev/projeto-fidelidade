@@ -75,7 +75,6 @@ window.onload = async function() {
   }
 
   try {
-    // Buscando estabelecimento e checando assinatura
     const resEst = await apiFetch(
       `${API_URL}/establishments/${estId}`,
       { headers:{ 'Authorization': `Bearer ${token}` } }
@@ -83,7 +82,6 @@ window.onload = async function() {
     const establishment = await resEst.json();
     currentEstablishmentId = estId;
 
-    // Verifica 28 dias de assinatura
     const lastPay = establishment.lastPaymentDate
       ? new Date(establishment.lastPaymentDate).getTime()
       : 0;
@@ -99,7 +97,6 @@ window.onload = async function() {
       return window.location.href = '/payment.html';
     }
 
-    // Aplica tema e logo
     applyTheme({
       "primary-color":   establishment.primaryColor,
       "secondary-color": establishment.secondaryColor,
@@ -118,12 +115,12 @@ window.onload = async function() {
     document.getElementById('theme-color-meta')
       .setAttribute('content', establishment.backgroundColor);
 
-    // Exibe dashboard e carrega dados
     document.getElementById('loginDiv').style.display  = 'none';
     document.getElementById('dashboard').style.display = 'block';
     showWelcome();
     renderQRCode();
     setupTabListeners();
+    setupAddPointsListeners();
     await loadClients();
 
   } catch (error) {
@@ -179,6 +176,7 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
     document.getElementById('dashboard').style.display = 'block';
     showWelcome();
     setupTabListeners();
+    setupAddPointsListeners();
     await loadClients();
     renderQRCode();
 
@@ -212,9 +210,11 @@ function setupTabListeners() {
         .forEach(sec => sec.style.display = 'none');
       document.getElementById(btn.dataset.section).style.display = 'block';
 
-      // Ao entrar na tabela, renderiza lista
       if (btn.dataset.section === 'tab-table') {
         renderClientsList();
+      }
+      if (btn.dataset.section === 'tab-notify') {
+        loadNotifications();
       }
     });
   });
@@ -223,8 +223,6 @@ function setupTabListeners() {
 // =========================
 // CRUD de Clientes + Lista Filtrável
 // =========================
-
-// 1) Buscar clientes
 async function loadClients() {
   try {
     const token = localStorage.getItem('authToken');
@@ -239,7 +237,6 @@ async function loadClients() {
   }
 }
 
-// 2) Renderizar lista filtrável
 function renderClientsList(filter = '') {
   const ul = document.getElementById('clientsList');
   ul.innerHTML = '';
@@ -262,13 +259,11 @@ function renderClientsList(filter = '') {
     });
 }
 
-// 3) Busca em tempo real
 document.getElementById('searchClientsInput').addEventListener('input', e => {
   const term = e.target.value.trim().toLowerCase();
   renderClientsList(term);
 });
 
-// 4) Ações na lista
 document.getElementById('clientsList').addEventListener('click', async e => {
   const li = e.target.closest('li');
   if (!li) return;
@@ -283,12 +278,9 @@ document.getElementById('clientsList').addEventListener('click', async e => {
       return loadClients();
     }
   }
-
-  // Caso contrário, abre o card de detalhes
   showClientDetail(id);
 });
 
-// 5) Mostrar card com detalhes
 function showClientDetail(id) {
   const c = clientsData.find(x => x.id == id);
   if (!c) return;
@@ -301,13 +293,11 @@ function showClientDetail(id) {
   document.getElementById('detailBackdrop').style.display  = 'block';
 }
 
-// 6) Fechar card
 document.getElementById('closeDetailCard').addEventListener('click', () => {
   document.getElementById('clientDetailCard').style.display = 'none';
   document.getElementById('detailBackdrop').style.display  = 'none';
 });
 
-// 7) Salvar/Atualizar cliente
 async function saveClient() {
   const fullName = document.getElementById('clientFullName').value.trim();
   const phone    = document.getElementById('clientPhone').value.trim();
@@ -346,7 +336,6 @@ async function saveClient() {
 }
 document.getElementById('saveClientBtn').addEventListener('click', saveClient);
 
-// 8) Editar cliente (preenche formulário)
 async function editClient(id) {
   try {
     const token = localStorage.getItem('authToken');
@@ -372,7 +361,6 @@ async function editClient(id) {
   }
 }
 
-// 9) Deletar cliente
 async function deleteClient(id) {
   const token = localStorage.getItem('authToken');
   try {
@@ -388,50 +376,88 @@ async function deleteClient(id) {
   }
 }
 
-// 10) Buscar e adicionar pontos (aba 1)
-document.getElementById('searchBtn').addEventListener('click', async () => {
-  const term = document.getElementById('searchClient').value.trim().toLowerCase();
+// =========================
+// Aba Adicionar Pontos
+// =========================
+function setupAddPointsListeners() {
+  const btn = document.getElementById('searchPointsBtn');
+  if (btn) btn.addEventListener('click', onSearchPoints);
+}
+
+async function onSearchPoints() {
+  const term = document.getElementById('searchPointsInput').value.trim().toLowerCase();
+  if (!term) return;
+
   const token = localStorage.getItem('authToken');
-  try {
-    const res = await apiFetch(
-      `${API_URL}/clients?establishmentId=${currentEstablishmentId}`,
-      { headers:{ 'Authorization':`Bearer ${token}` } }
-    );
-    const clients = await res.json();
-    const select = document.getElementById('clientSelect');
-    select.innerHTML = '<option value=\"\">Selecione o cliente</option>';
-    clients
-      .filter(c => c.fullName.toLowerCase().includes(term))
-      .forEach(c => select.append(new Option(c.fullName, c.id)));
-  } catch (err) {
-    console.error('Erro no searchClient:', err);
+  const res   = await apiFetch(`${API_URL}/clients?establishmentId=${currentEstablishmentId}`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  const clients = await res.json();
+  const c = clients.find(c => c.fullName.toLowerCase().includes(term));
+  const container = document.getElementById('addPointsCardContainer');
+  container.innerHTML = '';
+
+  if (c) {
+    container.innerHTML = `
+      <div class="client-card">
+        <h4>${c.fullName}</h4>
+        <p>Pontos atuais: ${c.points}</p>
+        <input type="number" id="ptsToAdd" placeholder="Pontos a adicionar" min="1"/>
+        <button id="savePointsBtn">Salvar</button>
+      </div>
+    `;
+    document.getElementById('savePointsBtn')
+      .addEventListener('click', () => addPoints(c.id));
+  } else {
+    container.textContent = 'Cliente não encontrado.';
   }
-});
+}
 
-document.getElementById('addPointsBtn').addEventListener('click', async () => {
-  const clientId = document.getElementById('clientSelect').value;
-  const pts      = parseInt(document.getElementById('points').value);
-  if (!clientId || !pts) return alert('Selecione cliente e pontos válidos');
+async function addPoints(clientId) {
+  const pts = parseInt(document.getElementById('ptsToAdd').value);
+  if (!pts || pts < 1) return alert('Insira uma quantidade válida.');
+
   const token = localStorage.getItem('authToken');
+  await apiFetch(`${API_URL}/clients/${clientId}/points`, {
+    method: 'POST',
+    headers: {
+      'Content-Type':'application/json',
+      'Authorization':`Bearer ${token}`
+    },
+    body: JSON.stringify({ pointsToAdd: pts, establishmentId: currentEstablishmentId })
+  });
+  alert('Pontos adicionados com sucesso!');
+  await loadClients();
+  document.getElementById('addPointsCardContainer').innerHTML = '';
+}
 
-  try {
-    await apiFetch(`${API_URL}/clients/${clientId}/points`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ pointsToAdd: pts, establishmentId: currentEstablishmentId })
+// =========================
+// Aba Notificações
+// =========================
+async function loadNotifications() {
+  const token = localStorage.getItem('authToken');
+  const res   = await apiFetch(`${API_URL}/clients?establishmentId=${currentEstablishmentId}`, {
+    headers:{ 'Authorization':`Bearer ${token}` }
+  });
+  const clients = await res.json();
+  const ul = document.getElementById('clients');
+  ul.innerHTML = '';
+
+  clients
+    .filter(c => c.points >= 10)
+    .forEach(c => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <span>${c.fullName} — ${c.points} pts</span>
+        <button onclick="sendVoucher(${c.id})">Enviar Voucher</button>
+      `;
+      ul.appendChild(li);
     });
-    alert('Pontos adicionados com sucesso!');
-    await loadClients();
-  } catch (err) {
-    console.error('Erro no addPoints:', err);
-    alert(err.message);
-  }
-});
+}
 
-// 11) Enviar voucher e resetar pontos
+// =========================
+// Enviar voucher e resetar pontos
+// =========================
 async function sendVoucher(clienteId) {
   const token = localStorage.getItem('authToken');
   try {
