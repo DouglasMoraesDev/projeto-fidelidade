@@ -128,16 +128,26 @@
   .dashboard-container { /* ... */ }
   
   /* Footer fixo */
-  footer {
-    position:fixed; bottom:0; left:0; width:100%;
-    text-align:center; padding:1rem 0;
-    background:var(--footer-bg);
-    color:var(--footer-text);
-    z-index:50;
+ /* Footer sempre fixo no final */
+ footer {
+  text-align: center;
+  padding: 1rem 0;
+  background: var(--footer-bg);
+  color: var(--footer-text);
+  z-index: 50;
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+  .tab-menu {
+    flex-direction: column;
   }
-  
-  /* Responsividade mobile */
-  @media (max-width:600px) {
-    .main-content { margin-left:0 !important; }
+  .header-container,
+  .tab-content {
+    padding: 1rem;
   }
-  
+  button {
+    display: block;
+    margin: 0.5rem auto;
+  }
+}
