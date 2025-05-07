@@ -433,3 +433,10 @@ async function resetClientPoints(clienteId) {
     alert(err.message);
   }
 }
+footer {
+  text-align: center;
+  padding: 1rem 0;
+  background: var(--footer-bg);
+  color: var(--footer-text);
+  z-index: 50;
+}

@@ -236,47 +236,42 @@
     transform: translateY(-2px);
   }
   
-  /* Logout */
-  .logout-btn {
-    position: fixed;
-    bottom: calc(1rem + 1px);
-    right: 1rem;
+  /* ==========================================================================  
+     Ajuste de Logout dentro de um menu lateral  
+     ========================================================================== */
+  
+  /* Esconde o logout que ficava no header */
+  .header-container .logout-btn {
+    display: none;
+  }
+  /* Mostra e posiciona o logout dentro do menu lateral */
+  #sideMenu .logout-btn {
+    display: block;
+    position: absolute;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    right: 1.5rem;
     background: var(--button-bg);
     color: var(--button-text);
-    padding: 0.5rem 1rem;
-    border: none;
+    padding: 0.75rem;
     border-radius: 4px;
+    text-align: center;
     cursor: pointer;
     transition: transform var(--transition-speed);
-    z-index: 60;
+    z-index: 110;
   }
-  .logout-btn:hover {
+  #sideMenu .logout-btn:hover {
     transform: translateY(-2px);
   }
   
- /* Logout */
- .logout-btn {
-  position: fixed;
-  top: 20px; right: 20px;
-  background: var(--button-bg);
-  color: var(--button-text);
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: transform var(--transition-speed);
-}
-.logout-btn:hover {
-  transform: translateY(-2px);
-}
-
-/* Footer */
-footer {
-  text-align: center;
-  padding: 1rem 0;
-  background: var(--footer-bg);
-  color: var(--footer-text);
-}
+  /* Footer sempre fixo no final */
+  footer {
+    text-align: center;
+    padding: 1rem 0;
+    background: var(--footer-bg);
+    color: var(--footer-text);
+    z-index: 50;
+  }
   
   /* Responsividade */
   @media (max-width: 600px) {
