@@ -3,14 +3,16 @@
 // =========================
 // Configuração de URLs
 // =========================
-const BASE_URL = 'https://projeto-fidelidade-production.up.railway.app';
-const API_URL  = `${BASE_URL}/api`;
+const BASE_URL = 'https://projeto-fidelidade-production.up.railway.app'; // URL base do backend
+const API_URL  = `${BASE_URL}/api`; // Endpoint da API
 
 // =========================
 // Wrapper de fetch para tratar erros de autenticação e assinatura
 // =========================
 async function apiFetch(url, options = {}) {
   const res = await fetch(url, options);
+
+  // Se retornar 401, é porque a sessão expirou ou token inválido
   if (res.status === 401) {
     alert('Sessão expirada. Faça login novamente.');
     localStorage.removeItem('authToken');
@@ -18,6 +20,8 @@ async function apiFetch(url, options = {}) {
     window.location.href = '/';
     return;
   }
+
+  // Se retornar 402, é porque a assinatura expirou
   if (res.status === 402) {
     const err = await res.json();
     alert(err.message || 'Assinatura expirada');
@@ -26,35 +30,44 @@ async function apiFetch(url, options = {}) {
     window.location.href = '/payment.html';
     return;
   }
+
   return res;
 }
 
 // =========================
-// Estado global
+// Estado global da aplicação
 // =========================
-let currentEstablishmentId = null;
-let isEditing = false;
-let editingClientId = null;
-let clientsData = [];
+let currentEstablishmentId = null; // ID do estabelecimento logado
+let isEditing = false;             // Flag para saber se estamos editando cliente
+let editingClientId = null;        // ID do cliente que está sendo editado
+let clientsData = [];              // Cache dos clientes carregados
 
 // =========================
-// Tema e QR
+// Funções de Tema e QR Code
 // =========================
 function applyTheme(theme) {
-  Object.entries(theme).forEach(([k,v]) =>
-    document.documentElement.style.setProperty(`--${k}`,v)
-  );
+  Object.entries(theme).forEach(([key, value]) => {
+    document.documentElement.style.setProperty(`--${key}`, value);
+  });
 }
+
 function renderQRCode() {
-  document.getElementById('qrCodeImg').src =
-    `${API_URL}/establishments/${currentEstablishmentId}/qrcode`;
-  document.getElementById('pointsLink').href =
-    `${BASE_URL}/points.html?establishmentId=${currentEstablishmentId}`;
+  const qrImg = document.getElementById('qrCodeImg');
+  const link  = document.getElementById('pointsLink');
+  qrImg.src  = `${API_URL}/establishments/${currentEstablishmentId}/qrcode`;
+  link.href = `${BASE_URL}/points.html?establishmentId=${currentEstablishmentId}`;
 }
 
 // =========================
-// Drawer toggle
+// Saudação ao usuário
 // =========================
+function showWelcome() {
+  const nome = localStorage.getItem('userName') || 'Usuário';
+  document.getElementById('user-name').textContent = nome;
+}
+
+// --- Toggle do drawer ---
+// Protege contra elementos ausentes no DOM
 const menuBtn     = document.getElementById('menuBtn');
 const sideMenu    = document.getElementById('sideMenu');
 const menuOverlay = document.getElementById('menuOverlay');
@@ -63,6 +76,7 @@ if (menuBtn && sideMenu && menuOverlay) {
     sideMenu.classList.toggle('open');
     menuOverlay.classList.toggle('open');
   });
+  // Fecha ao clicar fora
   menuOverlay.addEventListener('click', () => {
     sideMenu.classList.remove('open');
     menuOverlay.classList.remove('open');
@@ -70,66 +84,139 @@ if (menuBtn && sideMenu && menuOverlay) {
 }
 
 // =========================
-// Inicialização
+// Inicialização da aplicação
 // =========================
-window.onload = async () => {
+window.onload = async function() {
   const token = localStorage.getItem('authToken');
   const estId = localStorage.getItem('currentEstablishmentId');
+
+  // Se não estiver logado, exibe tela de login
   if (!token || !estId) {
-    document.getElementById('loginDiv').style.display = 'block';
+    document.getElementById('loginDiv').style.display  = 'block';
     document.getElementById('dashboard').style.display = 'none';
     return;
   }
 
   try {
+    // Busca dados do estabelecimento para tema e validação de assinatura
     const resEst = await apiFetch(
       `${API_URL}/establishments/${estId}`,
       { headers:{ 'Authorization': `Bearer ${token}` } }
     );
-    const est = await resEst.json();
+    const establishment = await resEst.json();
     currentEstablishmentId = estId;
 
-    // valida assinatura...
-    const lastPay = est.lastPaymentDate
-      ? new Date(est.lastPaymentDate).getTime() : 0;
-    if (!lastPay || (Date.now() - lastPay) > 28*24*60*60*1000) {
-      alert('Assinatura expirada.');
-      localStorage.clear();
+    // Verifica data do último pagamento (28 dias de validade)
+    const lastPay = establishment.lastPaymentDate
+      ? new Date(establishment.lastPaymentDate).getTime()
+      : 0;
+    const now = Date.now();
+    if (!lastPay || now - lastPay > 28 * 24 * 60 * 60 * 1000) {
+      alert(
+        lastPay
+          ? `Sua assinatura expirou em ${new Date(lastPay).toLocaleDateString()}.`
+          : 'Nenhuma data de pagamento registrada. Entre em contato.'
+      );
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('currentEstablishmentId');
       return window.location.href = '/payment.html';
     }
 
+    // Aplica tema, logo e meta tag de cor
     applyTheme({
-      "primary-color":   est.primaryColor,
-      "secondary-color": est.secondaryColor,
-      "background-color":est.backgroundColor,
-      "container-bg":    est.containerBg,
-      "text-color":      est.textColor,
-      "header-bg":       est.headerBg,
-      "footer-bg":       est.footerBg,
-      "footer-text":     est.footerText,
-      "input-border":    est.inputBorder,
-      "button-bg":       est.buttonBg,
-      "button-text":     est.buttonText,
-      "section-margin":  est.sectionMargin
+      "primary-color":   establishment.primaryColor,
+      "secondary-color": establishment.secondaryColor,
+      "background-color": establishment.backgroundColor,
+      "container-bg":    establishment.containerBg,
+      "text-color":      establishment.textColor,
+      "header-bg":       establishment.headerBg,
+      "footer-bg":       establishment.footerBg,
+      "footer-text":     establishment.footerText,
+      "input-border":    establishment.inputBorder,
+      "button-bg":       establishment.buttonBg,
+      "button-text":     establishment.buttonText,
+      "section-margin":  establishment.sectionMargin
     });
-    document.getElementById('logo').src = est.logoURL;
+    document.getElementById('logo').src = establishment.logoURL;
     document.getElementById('theme-color-meta')
-      .setAttribute('content', est.backgroundColor);
+      .setAttribute('content', establishment.backgroundColor);
 
-    document.getElementById('loginDiv').style.display = 'none';
+    // Mostra dashboard, configura abas e listeners adicionais
+    document.getElementById('loginDiv').style.display  = 'none';
     document.getElementById('dashboard').style.display = 'block';
     showWelcome();
     renderQRCode();
-    setupTabListeners();
-    setupAddPointsListeners();
-    await loadClients();
+    setupTabListeners();       // Configura troca de abas
+    setupAddPointsListeners(); // Configura botões da aba de pontos
+    await loadClients();       // Carrega lista inicial de clientes
 
-  } catch(e) {
-    console.error(e);
+  } catch (error) {
+    console.error('Erro na inicialização:', error);
   }
 };
 
+// =========================
+// Login
+// =========================
+document.getElementById('loginBtn').addEventListener('click', async () => {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+  if (!username || !password) return alert('Preencha todos os campos!');
 
+  try {
+    const res = await fetch(`${API_URL}/login`, {
+      method: 'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+
+    // Se login falhar, trata renovação de assinatura ou erro genérico
+    if (!res.ok) {
+      if (res.status === 402 && confirm(`${data.message}\nDeseja renovar?`)) {
+        return window.location.href = '/payment.html';
+      }
+      return alert(data.message || 'Usuário ou senha inválidos');
+    }
+
+    // Armazena token e dados do usuário no localStorage
+    localStorage.setItem('authToken', data.token);
+    currentEstablishmentId = data.user.establishmentId;
+    localStorage.setItem('currentEstablishmentId', currentEstablishmentId);
+    localStorage.setItem('userName', data.user.fullName || data.user.username);
+
+    // Aplica tema e logo do usuário
+    applyTheme({
+      "primary-color":   data.user['primary-color'],
+      "secondary-color": data.user['secondary-color'],
+      "background-color":data.user['background-color'],
+      "container-bg":    data.user['container-bg'],
+      "text-color":      data.user['text-color'],
+      "header-bg":       data.user['header-bg'],
+      "footer-bg":       data.user['footer-bg'],
+      "footer-text":     data.user['footer-text'],
+      "input-border":    data.user['input-border'],
+      "button-bg":       data.user['button-bg'],
+      "button-text":     data.user['button-text'],
+      "section-margin":  data.user['section-margin']
+    });
+    document.getElementById('logo').src = data.user.logoURL;
+
+    // Exibe dashboard após login
+    document.getElementById('loginDiv').style.display  = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    showWelcome();
+    setupTabListeners();
+    setupAddPointsListeners();
+    await loadClients();
+    renderQRCode();
+
+    alert('Login bem-sucedido!');
+  } catch (err) {
+    console.error('Erro no login:', err);
+    alert('Erro no login. Tente novamente.');
+  }
+});
 
 // =========================
 // Logout
