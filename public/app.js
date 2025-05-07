@@ -512,6 +512,7 @@ async function loadNotifications() {
 async function sendVoucher(clienteId) {
   const token = localStorage.getItem('authToken');
   try {
+    // 1) Dispara a criação do voucher no backend
     const res  = await apiFetch(
       `${API_URL}/voucher/${clienteId}`,
       { headers:{ 'Authorization':`Bearer ${token}` } }
@@ -519,19 +520,27 @@ async function sendVoucher(clienteId) {
     const data = await res.json();
     if (data.error) throw new Error(data.error);
 
-    // Abre WhatsApp Web com mensagem pronta
+    // 2) Abre o WhatsApp Web com mensagem pronta
     window.open(
       `https://wa.me/${data.numero}?text=${encodeURIComponent(data.mensagem)}`,
       '_blank'
     );
+
+    // 3) Reseta os pontos desse cliente
     await resetClientPoints(clienteId);
+
+    // 4) Recarrega a lista de notificações (remove quem zerou)
+    await loadNotifications();
+
   } catch (err) {
     console.error('Erro no sendVoucher:', err);
     alert(err.message);
   }
 }
 
+// =========================
 // Reseta pontos do cliente após envio de voucher
+// =========================
 async function resetClientPoints(clienteId) {
   const token = localStorage.getItem('authToken');
   try {
@@ -548,7 +557,8 @@ async function resetClientPoints(clienteId) {
     );
     const data = await res.json();
     alert(data.message || 'Pontos resetados com sucesso!');
-    await loadClients();
+    // Não precisa chamar loadClients aqui, pois para notificações
+    // chamamos loadNotifications direto em sendVoucher.
   } catch (err) {
     console.error('Erro no resetClientPoints:', err);
     alert(err.message);

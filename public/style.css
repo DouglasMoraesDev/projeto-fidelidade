@@ -39,7 +39,6 @@
   
   /* Container login */
   .container {
-    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -115,6 +114,14 @@
   .tab-content {
     padding: 1rem 2rem;
   }
+  
+  /* Dashboard ocupa espaço entre header e footer */
+  #dashboard {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  
   .dashboard-container {
     background: var(--container-bg);
     padding: 1rem;
@@ -232,7 +239,8 @@
   /* Logout */
   .logout-btn {
     position: fixed;
-    top: 20px; right: 20px;
+    bottom: calc(1rem + 1px);
+    right: 1rem;
     background: var(--button-bg);
     color: var(--button-text);
     padding: 0.5rem 1rem;
@@ -240,17 +248,23 @@
     border-radius: 4px;
     cursor: pointer;
     transition: transform var(--transition-speed);
+    z-index: 60;
   }
   .logout-btn:hover {
     transform: translateY(-2px);
   }
   
-  /* Footer */
+  /* Footer sempre fixo no final */
   footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
     text-align: center;
     padding: 1rem 0;
     background: var(--footer-bg);
     color: var(--footer-text);
+    z-index: 50;
   }
   
   /* Responsividade */
