@@ -45,15 +45,12 @@ let clientsData = [];              // Cache dos clientes carregados
 // =========================
 // Funções de Tema e QR Code
 // =========================
-
-// Aplica as variáveis de tema (cores) no :root do CSS
 function applyTheme(theme) {
   Object.entries(theme).forEach(([key, value]) => {
     document.documentElement.style.setProperty(`--${key}`, value);
   });
 }
 
-// Renderiza o QR Code e o link para consulta de pontos
 function renderQRCode() {
   const qrImg = document.getElementById('qrCodeImg');
   const link  = document.getElementById('pointsLink');
@@ -70,20 +67,21 @@ function showWelcome() {
 }
 
 // --- Toggle do drawer ---
+// Protege contra elementos ausentes no DOM
 const menuBtn     = document.getElementById('menuBtn');
 const sideMenu    = document.getElementById('sideMenu');
 const menuOverlay = document.getElementById('menuOverlay');
-
-menuBtn.addEventListener('click', () => {
-  sideMenu.classList.toggle('open');
-  menuOverlay.classList.toggle('open');
-});
-
-// Fecha ao clicar fora
-menuOverlay.addEventListener('click', () => {
-  sideMenu.classList.remove('open');
-  menuOverlay.classList.remove('open');
-});
+if (menuBtn && sideMenu && menuOverlay) {
+  menuBtn.addEventListener('click', () => {
+    sideMenu.classList.toggle('open');
+    menuOverlay.classList.toggle('open');
+  });
+  // Fecha ao clicar fora
+  menuOverlay.addEventListener('click', () => {
+    sideMenu.classList.remove('open');
+    menuOverlay.classList.remove('open');
+  });
+}
 
 // =========================
 // Inicialização da aplicação
@@ -237,19 +235,15 @@ function setupTabListeners() {
   const tabs = document.querySelectorAll('.tab-menu button');
   tabs.forEach(btn => {
     btn.addEventListener('click', () => {
-      // Remove classe active de todas e adiciona à selecionada
       tabs.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      // Esconde todas as seções e mostra apenas a clicada
       document.querySelectorAll('.tab-content')
         .forEach(sec => sec.style.display = 'none');
       document.getElementById(btn.dataset.section).style.display = 'block';
 
-      // Se for tabela, renderiza lista de clientes
       if (btn.dataset.section === 'tab-table') {
         renderClientsList();
       }
-      // Se for notificações, carrega lista de clientes com 10+ pontos
       if (btn.dataset.section === 'tab-notify') {
         loadNotifications();
       }
@@ -260,8 +254,6 @@ function setupTabListeners() {
 // =========================
 // CRUD de Clientes + Lista Filtrável
 // =========================
-
-// Carrega todos os clientes do estabelecimento e guarda em clientsData
 async function loadClients() {
   try {
     const token = localStorage.getItem('authToken');
@@ -276,11 +268,9 @@ async function loadClients() {
   }
 }
 
-// Renderiza lista filtrável de clientes na aba “Tabela Clientes”
 function renderClientsList(filter = '') {
   const ul = document.getElementById('clientsList');
-  ul.innerHTML = ''; // limpa lista
-
+  ul.innerHTML = '';
   clientsData
     .filter(c =>
       c.fullName.toLowerCase().includes(filter) ||
@@ -299,61 +289,51 @@ function renderClientsList(filter = '') {
     });
 }
 
-// Busca em tempo real ao digitar no campo de pesquisa
-document.getElementById('searchClientsInput').addEventListener('input', e => {
-  const term = e.target.value.trim().toLowerCase();
-  renderClientsList(term);
-});
+document.getElementById('searchClientsInput')
+  .addEventListener('input', e => renderClientsList(e.target.value.trim().toLowerCase()));
 
-// Ações de editar, excluir ou abrir detalhes ao clicar em um cliente da lista
-document.getElementById('clientsList').addEventListener('click', async e => {
-  const li = e.target.closest('li');
-  if (!li) return;
-  const id = li.dataset.id;
-
-  if (e.target.classList.contains('btn-edit')) {
-    return editClient(id);
-  }
-  if (e.target.classList.contains('btn-delete')) {
-    if (confirm('Deseja realmente excluir este cliente?')) {
-      await deleteClient(id);
-      return loadClients();
+document.getElementById('clientsList')
+  .addEventListener('click', async e => {
+    const li = e.target.closest('li');
+    if (!li) return;
+    const id = li.dataset.id;
+    if (e.target.classList.contains('btn-edit')) return editClient(id);
+    if (e.target.classList.contains('btn-delete')) {
+      if (confirm('Deseja realmente excluir este cliente?')) {
+        await deleteClient(id);
+        return loadClients();
+      }
     }
-  }
-  // Se clicar fora dos botões, abre o detalhe
-  showClientDetail(id);
-});
+    showClientDetail(id);
+  });
 
-// Exibe modal com detalhes do cliente
+// =========================
+// Detalhes do Cliente (modal)
+// =========================
 function showClientDetail(id) {
   const c = clientsData.find(x => x.id == id);
   if (!c) return;
   document.getElementById('detailName').textContent   = c.fullName;
-  document.getElementById('detailEmail').textContent  = c.email || '—';
-  document.getElementById('detailPhone').textContent  = c.phone || '—';
+  document.getElementById('detailEmail').textContent  = c.email  || '—';
+  document.getElementById('detailPhone').textContent  = c.phone  || '—';
   document.getElementById('detailPoints').textContent = c.points;
 
-  // Exibe o card e o backdrop
   document.getElementById('clientDetailCard').style.display = 'block';
-  document.getElementById('detailBackdrop').style.display  = 'block';
+  document.getElementById('detailBackdrop'   ).style.display = 'block';
 }
 
-// Botão ✖ para fechar o modal de detalhes
 document.getElementById('closeDetailCard').addEventListener('click', () => {
   document.getElementById('clientDetailCard').style.display = 'none';
-  document.getElementById('detailBackdrop').style.display  = 'none';
+  document.getElementById('detailBackdrop'   ).style.display = 'none';
+});
+document.getElementById('detailBackdrop').addEventListener('click', () => {
+  document.getElementById('clientDetailCard').style.display = 'none';
+  document.getElementById('detailBackdrop'   ).style.display = 'none';
 });
 
-// Fecha o modal também ao clicar no backdrop (área fora do card)
-const backdrop = document.getElementById('detailBackdrop');
-if (backdrop) {
-  backdrop.addEventListener('click', () => {
-    document.getElementById('clientDetailCard').style.display = 'none';
-    backdrop.style.display = 'none';
-  });
-}
-
-// Salvar novo cliente ou atualizar existente
+// =========================
+// Salvar / Atualizar Cliente
+// =========================
 async function saveClient() {
   const fullName = document.getElementById('clientFullName').value.trim();
   const phone    = document.getElementById('clientPhone').value.trim();
@@ -379,9 +359,7 @@ async function saveClient() {
     });
     await res.json();
     alert(isEditing ? 'Cliente atualizado!' : 'Cliente criado!');
-    // Reseta flags e campos
-    isEditing = false;
-    editingClientId = null;
+    isEditing = false; editingClientId = null;
     document.getElementById('saveClientBtn').textContent = 'Salvar Cliente';
     ['clientFullName','clientPhone','clientEmail','clientPoints']
       .forEach(id => document.getElementById(id).value = '');
@@ -393,7 +371,9 @@ async function saveClient() {
 }
 document.getElementById('saveClientBtn').addEventListener('click', saveClient);
 
-// Editar cliente: preenche formulário com dados existentes
+// =========================
+// Editar Cliente
+// =========================
 async function editClient(id) {
   try {
     const token = localStorage.getItem('authToken');
@@ -410,8 +390,7 @@ async function editClient(id) {
     document.getElementById('clientEmail').value    = client.email || '';
     document.getElementById('clientPoints').value   = client.points;
 
-    isEditing = true;
-    editingClientId = id;
+    isEditing = true; editingClientId = id;
     document.getElementById('saveClientBtn').textContent = 'Atualizar Cliente';
   } catch (err) {
     console.error('Erro no editClient:', err);
@@ -419,7 +398,9 @@ async function editClient(id) {
   }
 }
 
-// Deleta cliente pelo ID
+// =========================
+// Deletar Cliente
+// =========================
 async function deleteClient(id) {
   const token = localStorage.getItem('authToken');
   try {
@@ -438,18 +419,13 @@ async function deleteClient(id) {
 // =========================
 // Aba Adicionar Pontos
 // =========================
-
-// Configura listener para botão de busca na aba "Adicionar Pontos"
 function setupAddPointsListeners() {
   const btn = document.getElementById('searchPointsBtn');
   if (btn) btn.addEventListener('click', onSearchPoints);
 }
-
-// Busca cliente pelo nome e exibe card com input e botão de salvar pontos
 async function onSearchPoints() {
   const term = document.getElementById('searchPointsInput').value.trim().toLowerCase();
   if (!term) return;
-
   const token = localStorage.getItem('authToken');
   const res   = await apiFetch(`${API_URL}/clients?establishmentId=${currentEstablishmentId}`, {
     headers: { 'Authorization': `Bearer ${token}` }
@@ -457,10 +433,8 @@ async function onSearchPoints() {
   const clients = await res.json();
   const c = clients.find(c => c.fullName.toLowerCase().includes(term));
   const container = document.getElementById('addPointsCardContainer');
-  container.innerHTML = ''; // Limpa conteúdo anterior
-
+  container.innerHTML = '';
   if (c) {
-    // Cria card de cliente com campo para adicionar pontos
     container.innerHTML = `
       <div class="client-card">
         <h4>${c.fullName}</h4>
@@ -469,19 +443,15 @@ async function onSearchPoints() {
         <button id="savePointsBtn">Salvar</button>
       </div>
     `;
-    // Listener para salvar pontos
     document.getElementById('savePointsBtn')
       .addEventListener('click', () => addPoints(c.id));
   } else {
     container.textContent = 'Cliente não encontrado.';
   }
 }
-
-// Envia request para adicionar pontos ao cliente selecionado
 async function addPoints(clientId) {
   const pts = parseInt(document.getElementById('ptsToAdd').value);
   if (!pts || pts < 1) return alert('Insira uma quantidade válida.');
-
   const token = localStorage.getItem('authToken');
   await apiFetch(`${API_URL}/clients/${clientId}/points`, {
     method: 'POST',
@@ -499,8 +469,6 @@ async function addPoints(clientId) {
 // =========================
 // Aba Notificações
 // =========================
-
-// Carrega e lista clientes com 10 ou mais pontos para envio de voucher
 async function loadNotifications() {
   const token = localStorage.getItem('authToken');
   const res   = await apiFetch(`${API_URL}/clients?establishmentId=${currentEstablishmentId}`, {
@@ -508,10 +476,9 @@ async function loadNotifications() {
   });
   const clients = await res.json();
   const ul = document.getElementById('clients');
-  ul.innerHTML = ''; // limpa lista
-
+  ul.innerHTML = '';
   clients
-    .filter(c => c.points >= 10) // filtra quem tem >=10 pontos
+    .filter(c => c.points >= 10)
     .forEach(c => {
       const li = document.createElement('li');
       li.innerHTML = `
@@ -528,35 +495,23 @@ async function loadNotifications() {
 async function sendVoucher(clienteId) {
   const token = localStorage.getItem('authToken');
   try {
-    // 1) Dispara a criação do voucher no backend
     const res  = await apiFetch(
       `${API_URL}/voucher/${clienteId}`,
       { headers:{ 'Authorization':`Bearer ${token}` } }
     );
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-
-    // 2) Abre o WhatsApp Web com mensagem pronta
     window.open(
       `https://wa.me/${data.numero}?text=${encodeURIComponent(data.mensagem)}`,
       '_blank'
     );
-
-    // 3) Reseta os pontos desse cliente
     await resetClientPoints(clienteId);
-
-    // 4) Recarrega a lista de notificações (remove quem zerou)
     await loadNotifications();
-
   } catch (err) {
     console.error('Erro no sendVoucher:', err);
     alert(err.message);
   }
 }
-
-// =========================
-// Reseta pontos do cliente após envio de voucher
-// =========================
 async function resetClientPoints(clienteId) {
   const token = localStorage.getItem('authToken');
   try {
@@ -573,8 +528,6 @@ async function resetClientPoints(clienteId) {
     );
     const data = await res.json();
     alert(data.message || 'Pontos resetados com sucesso!');
-    // Não precisa chamar loadClients aqui, pois para notificações
-    // chamamos loadNotifications direto em sendVoucher.
   } catch (err) {
     console.error('Erro no resetClientPoints:', err);
     alert(err.message);
