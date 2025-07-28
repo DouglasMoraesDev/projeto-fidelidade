@@ -4,38 +4,30 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Consultar Pontos</title>
-
-  <!-- Barra de status para Android/Chrome -->
   <meta name="theme-color" content="#ffffff" id="theme-color-meta" />
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500&display=swap"
-    rel="stylesheet"
-  />
-
-  <!-- CSS global de variáveis -->
-  <link rel="stylesheet" href="/app.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500&display=swap"
+        rel="stylesheet" />
 
   <style>
-    /* RESET & LAYOUT BASE */
+    /* RESET & LAYOUT */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; }
     body {
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: var(--background-color);
+      background: var(--background-color);
       color: var(--text-color);
       font-family: 'Montserrat', sans-serif;
       padding: 1rem;
     }
 
-    /* CONTAINER PRINCIPAL */
     .points-container {
-      background-color: var(--container-bg);
+      background: var(--container-bg);
       padding: 2rem;
       border-radius: 8px;
       box-shadow: var(--box-shadow);
@@ -47,7 +39,6 @@
       gap: 1.5rem;
     }
 
-    /* HEADER (logo + título) */
     .points-container header {
       display: flex;
       flex-direction: column;
@@ -56,14 +47,13 @@
     }
     .points-container header img {
       max-width: 120px;
-      display: none; /* será exibido via JS quando houver logo */
+      display: none;
     }
     .points-container header h1 {
       color: var(--primary-color);
       font-size: 1.5rem;
     }
 
-    /* FORMULÁRIO */
     #pointsForm {
       display: flex;
       flex-direction: column;
@@ -92,28 +82,49 @@
       transform: translateY(-2px);
     }
 
-    /* RESULTADO */
-    #result {
-      font-size: 1.2rem;
+    /* Cartão de pontos */
+    .points-card {
+      background: var(--container-bg);
+      border: 2px solid var(--primary-color);
+      border-radius: 8px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+    .stamps {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    .stamp {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+      opacity: 0.9;
+      transition: transform 0.2s;
+    }
+    .stamp:hover {
+      transform: scale(1.2);
+    }
+    .points-message {
+      color: var(--text-color);
+      font-size: 1rem;
+      text-align: center;
+      max-width: 280px;
+    }
+    .error {
+      color: #c0392b;
       font-weight: bold;
-      min-height: 1.2em;
     }
 
-    /* RESPONSIVIDADE */
     @media (max-width: 480px) {
-      .points-container {
-        padding: 1.5rem;
-      }
-      .points-container header h1 {
-        font-size: 1.3rem;
-      }
-      #pointsForm input,
-      #pointsForm button {
-        font-size: 0.9rem;
-        padding: 0.65rem;
-      }
-      #result {
-        font-size: 1.1rem;
+      .points-container { padding: 1.5rem; }
+      .points-container header h1 { font-size: 1.3rem; }
+      #pointsForm input, #pointsForm button {
+        font-size: 0.9rem; padding: 0.65rem;
       }
     }
   </style>
@@ -126,12 +137,7 @@
     </header>
 
     <form id="pointsForm">
-      <input
-        type="text"
-        id="phone"
-        placeholder="Digite seu telefone"
-        required
-      />
+      <input type="text" id="phone" placeholder="Digite seu telefone" required />
       <button type="submit">Ver Pontos</button>
     </form>
 
