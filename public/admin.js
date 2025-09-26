@@ -83,6 +83,7 @@ async function load() {
         ? new Date(rawDate + 'T00:00:00').toISOString()
         : null;
 
+        
       const body = {
         lastPaymentDate,
         primaryColor:    row.querySelector('.primaryColor').value,
